@@ -368,9 +368,16 @@ function restartGame() {
 
 async function loadDictionary() {
   try {
-    const response = await fetch("words.txt");
-    if (!response.ok) throw new Error("Word list failed to load");
-    const text = await response.text();
+    const responses = await Promise.all([
+      fetch("words.txt"),
+      fetch("custom-words.txt")
+    ]);
+    if (responses.some(response => !response.ok)) {
+      throw new Error("Word list failed to load");
+    }
+    const text = (await Promise.all(
+      responses.map(response => response.text())
+    )).join("\n");
     dictionary = new Set(
       text.split(/\r?\n/)
         .map(word => word.trim().toLowerCase())
@@ -381,7 +388,7 @@ async function loadDictionary() {
     elements.message.textContent = `Dictionary ready: ${dictionary.size.toLocaleString()} words.`;
     updateWordDisplay();
   } catch (error) {
-    elements.message.textContent = "The local dictionary did not load. Check that words.txt was uploaded beside index.html.";
+    elements.message.textContent = "The local dictionary did not load. Check that words.txt and custom-words.txt were uploaded beside index.html.";
   }
 }
 
