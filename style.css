@@ -1,0 +1,185 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-rounded, system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 16px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at top, #26385c, #090e1a 70%);
+  color: #fff;
+}
+
+button { font: inherit; touch-action: manipulation; }
+
+.game {
+  width: min(100%, 520px);
+  overflow: hidden;
+  background: #1d2941;
+  border: 2px solid #52627d;
+  border-radius: 24px;
+  box-shadow: 0 20px 55px #0009;
+}
+
+.game-header { padding: 13px; text-align: center; }
+.game-header h1 { margin: 0; font-family: Georgia, serif; font-size: 2rem; }
+.game-header p { margin: 4px 0 0; color: #cbd5e1; font-size: .9rem; }
+
+.battle-scene {
+  position: relative;
+  height: 285px;
+  overflow: hidden;
+  background: linear-gradient(#3270ad 0 54%, #80552f 55%, #31572c 57%);
+}
+
+.sun {
+  position: absolute;
+  top: 20px;
+  right: 38px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #ffe59a;
+  box-shadow: 0 0 30px #ffe59a;
+}
+
+.mountain {
+  position: absolute;
+  bottom: 116px;
+  width: 0;
+  height: 0;
+  border-right: 130px solid transparent;
+  border-bottom: 130px solid #45566b;
+  border-left: 130px solid transparent;
+  opacity: .72;
+}
+
+.mountain-one { left: -65px; }
+.mountain-two { right: -50px; transform: scale(1.15); }
+.ground { position: absolute; inset: auto 0 0; height: 118px; background: repeating-linear-gradient(165deg, #31572c 0 18px, #3f6b35 18px 36px); }
+
+.fighter {
+  position: absolute;
+  bottom: 14px;
+  z-index: 2;
+  width: 44%;
+  text-align: center;
+  font-size: .82rem;
+  text-shadow: 0 2px 2px #000;
+}
+
+.player { left: 3%; }
+.enemy { right: 3%; }
+
+.fighter-name {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: #111827dc;
+}
+
+.portrait {
+  position: relative;
+  width: 150px;
+  height: 165px;
+  margin: 0 auto;
+  overflow: hidden;
+  animation: idle 2s ease-in-out infinite;
+  filter: drop-shadow(0 8px 5px #0007);
+}
+
+.enemy .portrait { animation-delay: .45s; }
+
+.sprite {
+  position: absolute;
+  top: 0;
+  width: 300%;
+  height: 100%;
+  object-fit: fill;
+  max-width: none;
+}
+
+.sprite.hero { left: 0; }
+.sprite.goblin { left: -100%; }
+.sprite.archivist { left: -200%; }
+
+@keyframes idle { 50% { transform: translateY(-5px); } }
+@keyframes hit { 25% { transform: translateX(-11px) rotate(-4deg); } 75% { transform: translateX(10px) rotate(4deg); } }
+@keyframes cast { 50% { transform: translateY(-8px) scale(1.06); filter: brightness(1.5); } }
+.portrait.hit { animation: hit .35s ease; }
+.portrait.cast { animation: cast .45s ease; }
+
+.health-bar {
+  width: 100%;
+  height: 15px;
+  overflow: hidden;
+  border: 2px solid #fff;
+  border-radius: 10px;
+  background: #470a0a;
+}
+
+.health-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #16a34a, #86efac); transition: width .4s; }
+
+.effect-layer { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.float-effect { position: absolute; font-size: 1.35rem; font-weight: 900; animation: float-away 1s ease forwards; }
+.float-effect.enemy-side { right: 14%; top: 42%; color: #fee2e2; }
+.float-effect.player-side { left: 14%; top: 42%; color: #fee2e2; }
+.float-effect.heal { left: 17%; top: 43%; color: #bbf7d0; }
+@keyframes float-away { to { transform: translateY(-55px) scale(1.2); opacity: 0; } }
+
+.enemy-warning { padding: 9px 14px; display: grid; text-align: center; background: #3d1930; border-block: 2px solid #7f1d1d; }
+.enemy-warning small { color: #fca5a5; font-weight: 800; }
+
+.game-panel { padding: 15px; }
+.legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 10px; color: #cbd5e1; font-size: .72rem; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+.dot.ember { background: #fb923c; }
+.dot.ward { background: #60a5fa; }
+.dot.bloom { background: #4ade80; }
+
+.word-display { min-height: 51px; padding: 12px; display: flex; justify-content: space-between; gap: 8px; border-radius: 12px; background: #0f172a; }
+#current-word { overflow: hidden; font-size: 1.2rem; font-weight: 800; letter-spacing: 2px; text-overflow: ellipsis; }
+#damage-preview { flex: none; color: #fbbf24; font-weight: 800; }
+
+.letter-grid { margin-top: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.letter-tile {
+  position: relative;
+  aspect-ratio: 1;
+  border: 3px solid #cbd5e1;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #fff, #dbeafe);
+  color: #172033;
+  font-size: clamp(1.35rem, 7vw, 2rem);
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #94a3b8;
+  transition: .12s;
+}
+.letter-tile.selected { transform: scale(.91); border-color: #facc15; background: #fde68a; box-shadow: 0 2px 0 #b45309; }
+.letter-tile.inked { color: transparent; background: radial-gradient(circle, #312e81, #08051c 70%); border-color: #818cf8; box-shadow: 0 4px 0 #1e1b4b; }
+.letter-tile.inked::after { content: "?"; position: absolute; inset: 0; display: grid; place-items: center; color: #c4b5fd; font-size: 2rem; }
+.letter-tile:disabled { cursor: not-allowed; opacity: .72; }
+.letter-value { position: absolute; right: 7px; bottom: 4px; font-size: .7rem; }
+.charge-mark { position: absolute; top: 3px; left: 6px; font-size: .85rem; filter: drop-shadow(0 1px 1px #000); }
+.letter-tile.charge-ember { border-color: #fb923c; box-shadow: 0 0 12px #f97316, 0 4px 0 #9a3412; }
+.letter-tile.charge-ward { border-color: #60a5fa; box-shadow: 0 0 12px #3b82f6, 0 4px 0 #1e3a8a; }
+.letter-tile.charge-bloom { border-color: #4ade80; box-shadow: 0 0 12px #22c55e, 0 4px 0 #166534; }
+
+.controls { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 8px; }
+.controls button, .wide-button { padding: 11px 7px; border: 0; border-radius: 10px; background: #e2e8f0; color: #172033; font-weight: 800; cursor: pointer; }
+.controls .primary { background: #22c55e; color: #052e16; }
+.controls button:disabled { opacity: .5; cursor: wait; }
+.wide-button { display: none; width: 100%; margin-top: 10px; background: #fbbf24; }
+.message { min-height: 48px; margin: 13px 0 0; text-align: center; color: #fef3c7; line-height: 1.35; }
+
+@media (max-width: 390px) {
+  body { padding: 0; place-items: start center; }
+  .game { border: 0; border-radius: 0; }
+  .battle-scene { height: 260px; }
+  .portrait { width: 130px; height: 145px; }
+}
