@@ -3,17 +3,639 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Word War</title>
-  <link rel="stylesheet" href="style.css">
+
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 16px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at top, #26385c, #090e1a 70%);
+      color: white;
+    }
+
+    button {
+      font: inherit;
+      touch-action: manipulation;
+    }
+
+    .game {
+      position: relative;
+      width: min(100%, 520px);
+      overflow: hidden;
+      background: #1d2941;
+      border: 2px solid #52627d;
+      border-radius: 24px;
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.6);
+    }
+
+    .game-header {
+      padding: 13px;
+      text-align: center;
+    }
+
+    .game-header h1 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: 2rem;
+    }
+
+    .game-header p {
+      margin: 4px 0 0;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+    }
+
+    /* Campaign screens */
+
+    .campaign-screen {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top, #315d81, #111827 65%);
+      text-align: center;
+    }
+
+    .campaign-screen.hidden {
+      display: none;
+    }
+
+    .campaign-card {
+      width: min(100%, 390px);
+      padding: 30px 24px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 2px solid #d6b766;
+      border-radius: 20px;
+      box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.45),
+        inset 0 0 25px rgba(214, 183, 102, 0.08);
+    }
+
+    .campaign-label {
+      margin: 0 0 8px;
+      color: #fbbf24;
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
+
+    .campaign-card h2 {
+      margin: 0 0 14px;
+      font-family: Georgia, serif;
+      font-size: 2.25rem;
+    }
+
+    .campaign-card p {
+      color: #dbeafe;
+      line-height: 1.6;
+    }
+
+    #campaign-button {
+      width: 100%;
+      margin-top: 14px;
+      padding: 13px;
+      border: 0;
+      border-radius: 10px;
+      background: #fbbf24;
+      color: #422006;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    #campaign-button:disabled {
+      cursor: wait;
+      opacity: 0.55;
+    }
+
+    /* Battle scene */
+
+    .battle-scene {
+      position: relative;
+      height: 285px;
+      overflow: hidden;
+      background:
+        linear-gradient(
+          #3270ad 0 54%,
+          #80552f 55%,
+          #31572c 57%
+        );
+    }
+
+    .sun {
+      position: absolute;
+      top: 20px;
+      right: 38px;
+      width: 52px;
+      height: 52px;
+      background: #ffe59a;
+      border-radius: 50%;
+      box-shadow: 0 0 30px #ffe59a;
+    }
+
+    .mountain {
+      position: absolute;
+      bottom: 116px;
+      width: 0;
+      height: 0;
+      border-right: 130px solid transparent;
+      border-bottom: 130px solid #45566b;
+      border-left: 130px solid transparent;
+      opacity: 0.72;
+    }
+
+    .mountain-one {
+      left: -65px;
+    }
+
+    .mountain-two {
+      right: -50px;
+      transform: scale(1.15);
+    }
+
+    .ground {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 118px;
+      background:
+        repeating-linear-gradient(
+          165deg,
+          #31572c 0 18px,
+          #3f6b35 18px 36px
+        );
+    }
+
+    .fighter {
+      position: absolute;
+      bottom: 14px;
+      z-index: 2;
+      width: 44%;
+      text-align: center;
+      font-size: 0.82rem;
+      text-shadow: 0 2px 2px black;
+    }
+
+    .player {
+      left: 3%;
+    }
+
+    .enemy {
+      right: 3%;
+    }
+
+    .fighter-name {
+      display: inline-block;
+      padding: 4px 9px;
+      background: rgba(17, 24, 39, 0.88);
+      border-radius: 8px;
+    }
+
+    .portrait {
+      position: relative;
+      width: 150px;
+      height: 165px;
+      margin: 0 auto;
+      overflow: hidden;
+      animation: idle 2s ease-in-out infinite;
+      filter: drop-shadow(0 8px 5px rgba(0, 0, 0, 0.5));
+    }
+
+    .enemy .portrait {
+      animation-delay: 0.45s;
+    }
+
+    .sprite {
+      position: absolute;
+      top: 0;
+      width: 300%;
+      height: 100%;
+      max-width: none;
+      object-fit: fill;
+    }
+
+    .sprite.hero {
+      left: 0;
+    }
+
+    .sprite.goblin {
+      left: -100%;
+    }
+
+    .sprite.archivist {
+      left: -200%;
+    }
+
+    @keyframes idle {
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    @keyframes hit {
+      25% {
+        transform: translateX(-11px) rotate(-4deg);
+      }
+
+      75% {
+        transform: translateX(10px) rotate(4deg);
+      }
+    }
+
+    @keyframes cast {
+      50% {
+        transform: translateY(-8px) scale(1.06);
+        filter: brightness(1.5);
+      }
+    }
+
+    .portrait.hit {
+      animation: hit 0.35s ease;
+    }
+
+    .portrait.cast {
+      animation: cast 0.45s ease;
+    }
+
+    .health-bar {
+      width: 100%;
+      height: 15px;
+      overflow: hidden;
+      background: #470a0a;
+      border: 2px solid white;
+      border-radius: 10px;
+    }
+
+    .health-fill {
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(90deg, #16a34a, #86efac);
+      transition: width 0.4s;
+    }
+
+    .effect-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .float-effect {
+      position: absolute;
+      font-size: 1.35rem;
+      font-weight: 900;
+      animation: float-away 1s ease forwards;
+    }
+
+    .float-effect.enemy-side {
+      top: 42%;
+      right: 14%;
+      color: #fee2e2;
+    }
+
+    .float-effect.player-side {
+      top: 42%;
+      left: 14%;
+      color: #fee2e2;
+    }
+
+    .float-effect.heal {
+      top: 43%;
+      left: 17%;
+      color: #bbf7d0;
+    }
+
+    @keyframes float-away {
+      to {
+        opacity: 0;
+        transform: translateY(-55px) scale(1.2);
+      }
+    }
+
+    /* Enemy warning */
+
+    .enemy-warning {
+      padding: 9px 14px;
+      display: grid;
+      background: #3d1930;
+      border-top: 2px solid #7f1d1d;
+      border-bottom: 2px solid #7f1d1d;
+      text-align: center;
+    }
+
+    .enemy-warning small {
+      color: #fca5a5;
+      font-weight: 800;
+    }
+
+    /* Game panel */
+
+    .game-panel {
+      padding: 15px;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin-bottom: 10px;
+      color: #cbd5e1;
+      font-size: 0.72rem;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .dot.ember {
+      background: #f97316;
+    }
+
+    .dot.ward {
+      background: #3b82f6;
+    }
+
+    .dot.bloom {
+      background: #22c55e;
+    }
+
+    .word-display {
+      min-height: 51px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      background: #0f172a;
+      border-radius: 12px;
+    }
+
+    #current-word {
+      overflow: hidden;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-overflow: ellipsis;
+    }
+
+    #damage-preview {
+      flex: none;
+      color: #fbbf24;
+      font-weight: 800;
+    }
+
+    /* Letter tiles */
+
+    .letter-grid {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .letter-tile {
+      position: relative;
+      aspect-ratio: 1;
+      border: 3px solid #cbd5e1;
+      border-radius: 12px;
+      background:
+        linear-gradient(145deg, #ffffff, #dbeafe);
+      color: #172033;
+      font-size: clamp(1.35rem, 7vw, 2rem);
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #94a3b8;
+      transition: 0.12s;
+    }
+
+    .letter-tile.selected {
+      background: #fde68a;
+      border-color: #facc15;
+      box-shadow: 0 2px 0 #b45309;
+      transform: scale(0.91);
+    }
+
+    .letter-tile.inked {
+      color: transparent;
+      background:
+        radial-gradient(circle, #312e81, #08051c 70%);
+      border-color: #818cf8;
+      box-shadow: 0 4px 0 #1e1b4b;
+    }
+
+    .letter-tile.inked::after {
+      content: "?";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #c4b5fd;
+      font-size: 2rem;
+    }
+
+    .letter-tile:disabled {
+      cursor: not-allowed;
+      opacity: 0.72;
+    }
+
+    .letter-value {
+      position: absolute;
+      right: 7px;
+      bottom: 4px;
+      font-size: 0.7rem;
+    }
+
+    .letter-tile.charge-ember {
+      border-color: #fb923c;
+      box-shadow:
+        0 0 12px #f97316,
+        0 4px 0 #9a3412;
+    }
+
+    .letter-tile.charge-ward {
+      border-color: #60a5fa;
+      box-shadow:
+        0 0 12px #3b82f6,
+        0 4px 0 #1e3a8a;
+    }
+
+    .letter-tile.charge-bloom {
+      border-color: #4ade80;
+      box-shadow:
+        0 0 12px #22c55e,
+        0 4px 0 #166534;
+    }
+
+    .charge-mark {
+      position: absolute;
+      top: 5px;
+      right: 6px;
+      z-index: 3;
+      width: 15px;
+      height: 15px;
+      border: 2px solid white;
+      border-radius: 50%;
+      filter: drop-shadow(0 1px 2px black);
+    }
+
+    .charge-ember .charge-mark {
+      background: #f97316;
+    }
+
+    .charge-ward .charge-mark {
+      background: #3b82f6;
+    }
+
+    .charge-bloom .charge-mark {
+      background: #22c55e;
+    }
+
+    .charge-tooltip {
+      position: absolute;
+      right: -4px;
+      bottom: calc(100% + 10px);
+      width: max-content;
+      max-width: 190px;
+      padding: 8px 10px;
+      visibility: hidden;
+      background: #0f172a;
+      border: 1px solid #94a3b8;
+      border-radius: 8px;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1.35;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(5px);
+      transition:
+        opacity 0.15s,
+        transform 0.15s;
+    }
+
+    .charge-tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      right: 7px;
+      border: 6px solid transparent;
+      border-top-color: #0f172a;
+    }
+
+    .letter-tile:hover .charge-tooltip,
+    .letter-tile:focus-visible .charge-tooltip {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Controls */
+
+    .controls {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 8px;
+    }
+
+    .controls button {
+      padding: 11px 7px;
+      border: 0;
+      border-radius: 10px;
+      background: #e2e8f0;
+      color: #172033;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .controls .primary {
+      background: #22c55e;
+      color: #052e16;
+    }
+
+    .controls button:disabled {
+      cursor: wait;
+      opacity: 0.5;
+    }
+
+    .message {
+      min-height: 48px;
+      margin: 13px 0 0;
+      color: #fef3c7;
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 390px) {
+      body {
+        padding: 0;
+        place-items: start center;
+      }
+
+      .game {
+        border: 0;
+        border-radius: 0;
+      }
+
+      .battle-scene {
+        height: 260px;
+      }
+
+      .portrait {
+        width: 130px;
+        height: 145px;
+      }
+    }
+  </style>
 </head>
+
 <body>
   <main class="game">
+    <section id="campaign-screen" class="campaign-screen">
+      <div class="campaign-card">
+        <p id="campaign-label" class="campaign-label">
+          THE WILD ARCHIVE
+        </p>
+
+        <h2 id="campaign-title">Word War</h2>
+
+        <p id="campaign-text">
+          Forge powerful words and reclaim the archive.
+        </p>
+
+        <button id="campaign-button" disabled>
+          Loading dictionary...
+        </button>
+      </div>
+    </section>
+
     <header class="game-header">
       <h1>Word War</h1>
       <p>Forge words. Charge letters. Outsmart your enemy.</p>
     </header>
 
-    <section id="battle-scene" class="battle-scene">
+    <section class="battle-scene">
       <div class="sun"></div>
       <div class="mountain mountain-one"></div>
       <div class="mountain mountain-two"></div>
@@ -21,23 +643,49 @@
 
       <article class="fighter player">
         <strong class="fighter-name">The Spellscribe</strong>
+
         <div id="player-character" class="portrait">
-          <img class="sprite hero" src="assets/characters.png" alt="The Spellscribe">
+          <img
+            class="sprite hero"
+            src="assets/characters.png"
+            alt="The Spellscribe"
+          >
         </div>
-        <div class="health-bar"><div id="player-health-bar" class="health-fill"></div></div>
-        <span><b id="player-health">60</b> / 60 HP</span>
+
+        <div class="health-bar">
+          <div id="player-health-bar" class="health-fill"></div>
+        </div>
+
+        <span>
+          <b id="player-health">60</b> / 60 HP
+        </span>
       </article>
 
       <article class="fighter enemy">
-        <strong id="enemy-name" class="fighter-name">Ink Goblin</strong>
+        <strong id="enemy-name" class="fighter-name">
+          Ink Goblin
+        </strong>
+
         <div id="enemy-character" class="portrait">
-          <img id="enemy-sprite" class="sprite goblin" src="assets/characters.png" alt="Ink Goblin">
+          <img
+            id="enemy-sprite"
+            class="sprite goblin"
+            src="assets/characters.png"
+            alt="Ink Goblin"
+          >
         </div>
-        <div class="health-bar"><div id="enemy-health-bar" class="health-fill"></div></div>
-        <span><b id="enemy-health">45</b> / <span id="enemy-max-health">45</span> HP</span>
+
+        <div class="health-bar">
+          <div id="enemy-health-bar" class="health-fill"></div>
+        </div>
+
+        <span>
+          <b id="enemy-health">45</b> /
+          <span id="enemy-max-health">45</span> HP
+        </span>
       </article>
 
-      <div id="effect-layer" class="effect-layer" aria-live="polite"></div>
+      <div id="effect-layer" class="effect-layer"></div>
     </section>
 
     <section class="enemy-warning">
@@ -57,21 +705,1069 @@
         <span id="damage-preview">0 damage</span>
       </div>
 
-      <div id="letter-grid" class="letter-grid" aria-label="Letter grid"></div>
+      <div
+        id="letter-grid"
+        class="letter-grid"
+        aria-label="Letter grid"
+      ></div>
 
       <div class="controls">
         <button id="clear-button">Clear</button>
-        <button id="shuffle-button">Shuffle<br><small>uses turn</small></button>
-        <button id="attack-button" class="primary">Attack</button>
+
+        <button id="shuffle-button">
+          Shuffle<br>
+          <small>uses turn</small>
+        </button>
+
+        <button id="attack-button" class="primary">
+          Attack
+        </button>
       </div>
 
-      <button id="continue-button" class="wide-button">Face the next enemy</button>
-      <button id="restart-button" class="wide-button">Play Again</button>
-
-      <p id="message" class="message">Preparing the battlefield...</p>
+      <p id="message" class="message">
+        Preparing the battlefield...
+      </p>
     </section>
   </main>
 
-  <script src="game.js"></script>
+  <script>
+    const PLAYER_MAX_HEALTH = 60;
+
+    const letterValues = {
+      A: 1, B: 2, C: 2, D: 2, E: 1,
+      F: 3, G: 2, H: 3, I: 1, J: 5,
+      K: 4, L: 1, M: 2, N: 1, O: 1,
+      P: 2, Q: 5, R: 1, S: 1, T: 1,
+      U: 1, V: 3, W: 3, X: 5, Y: 3,
+      Z: 5
+    };
+
+    const letterPool = (
+      "AAAA" +
+      "B" +
+      "C" +
+      "DD" +
+      "EEEEE" +
+      "F" +
+      "GG" +
+      "H" +
+      "III" +
+      "J" +
+      "K" +
+      "LL" +
+      "M" +
+      "NNN" +
+      "OOO" +
+      "P" +
+      "Q" +
+      "RRR" +
+      "SSS" +
+      "TTT" +
+      "UU" +
+      "V" +
+      "W" +
+      "X" +
+      "Y" +
+      "Z"
+    ).split("");
+
+    const chargeTypes = [
+      {
+        id: "ember",
+        label: "Ember",
+        description: "Adds 4 damage when used",
+        damage: 4,
+        weight: 40
+      },
+      {
+        id: "ward",
+        label: "Ward",
+        description: "Blocks 3 incoming damage",
+        block: 3,
+        weight: 35
+      },
+      {
+        id: "bloom",
+        label: "Bloom",
+        description: "Restores 3 health when used",
+        heal: 3,
+        weight: 25
+      }
+    ];
+
+    const enemies = [
+      {
+        name: "Ink Goblin",
+        sprite: "goblin",
+        health: 45,
+        moves: [
+          {
+            name: "Quick Scratch",
+            damage: 4,
+            text: "4 damage"
+          },
+          {
+            name: "Ink Bomb",
+            damage: 3,
+            ink: 3,
+            text: "3 damage and hides 3 tiles"
+          },
+          {
+            name: "Wild Splash",
+            damage: 7,
+            text: "7 damage"
+          }
+        ]
+      },
+      {
+        name: "Stone Archivist",
+        sprite: "archivist",
+        health: 70,
+        moves: [
+          {
+            name: "Page Slam",
+            damage: 6,
+            text: "6 damage"
+          },
+          {
+            name: "Sealing Script",
+            damage: 4,
+            ink: 4,
+            text: "4 damage and seals 4 tiles"
+          },
+          {
+            name: "Grand Index",
+            damage: 11,
+            text: "a heavy 11-damage attack"
+          }
+        ]
+      }
+    ];
+
+    const $ = function(selector) {
+      return document.querySelector(selector);
+    };
+
+    const elements = {
+      grid: $("#letter-grid"),
+      word: $("#current-word"),
+      damage: $("#damage-preview"),
+      message: $("#message"),
+      enemyMove: $("#enemy-move"),
+      playerHealth: $("#player-health"),
+      enemyHealth: $("#enemy-health"),
+      enemyMaxHealth: $("#enemy-max-health"),
+      playerBar: $("#player-health-bar"),
+      enemyBar: $("#enemy-health-bar"),
+      playerCharacter: $("#player-character"),
+      enemyCharacter: $("#enemy-character"),
+      enemyName: $("#enemy-name"),
+      enemySprite: $("#enemy-sprite"),
+      effects: $("#effect-layer"),
+      clear: $("#clear-button"),
+      shuffle: $("#shuffle-button"),
+      attack: $("#attack-button"),
+      campaignScreen: $("#campaign-screen"),
+      campaignLabel: $("#campaign-label"),
+      campaignTitle: $("#campaign-title"),
+      campaignText: $("#campaign-text"),
+      campaignButton: $("#campaign-button")
+    };
+
+    let dictionary = new Set();
+    let grid = [];
+    let selected = [];
+    let inked = new Set();
+
+    let playerHealth = PLAYER_MAX_HEALTH;
+    let enemyHealth = 0;
+    let enemyIndex = 0;
+    let enemyMoveIndex = 0;
+    let ward = 0;
+    let busy = true;
+    let gameOver = false;
+
+    function randomLetter() {
+      const index =
+        Math.floor(Math.random() * letterPool.length);
+
+      return letterPool[index];
+    }
+
+    function getRandomCharge() {
+      const totalWeight = chargeTypes.reduce(
+        function(total, charge) {
+          return total + charge.weight;
+        },
+        0
+      );
+
+      let roll = Math.random() * totalWeight;
+
+      for (const charge of chargeTypes) {
+        roll -= charge.weight;
+
+        if (roll <= 0) {
+          return charge;
+        }
+      }
+
+      return chargeTypes[0];
+    }
+
+    function newTile(charge = null) {
+      return {
+        letter: randomLetter(),
+        charge: charge
+      };
+    }
+
+    function createGrid() {
+      grid = Array.from(
+        { length: 16 },
+        function() {
+          return newTile();
+        }
+      );
+
+      selected = [];
+      inked.clear();
+
+      renderGrid();
+    }
+
+    function renderGrid() {
+      elements.grid.innerHTML = "";
+
+      grid.forEach(function(tile, index) {
+        const button = document.createElement("button");
+        const value = document.createElement("span");
+
+        button.className = "letter-tile";
+        button.disabled = busy || inked.has(index);
+
+        if (selected.includes(index)) {
+          button.classList.add("selected");
+        }
+
+        if (inked.has(index)) {
+          button.classList.add("inked");
+        }
+
+        if (tile.charge) {
+          button.classList.add(
+            "charge-" + tile.charge.id
+          );
+        }
+
+        button.setAttribute(
+          "aria-label",
+          inked.has(index)
+            ? "Hidden tile"
+            : "Letter " + tile.letter
+        );
+
+        button.append(
+          document.createTextNode(tile.letter)
+        );
+
+        value.className = "letter-value";
+        value.textContent = letterValues[tile.letter];
+
+        button.appendChild(value);
+
+        if (tile.charge) {
+          const mark =
+            document.createElement("span");
+
+          const tooltip =
+            document.createElement("span");
+
+          mark.className = "charge-mark";
+          tooltip.className = "charge-tooltip";
+
+          tooltip.textContent =
+            tile.charge.label + ": " +
+            tile.charge.description;
+
+          mark.appendChild(tooltip);
+          button.appendChild(mark);
+
+          button.setAttribute(
+            "aria-label",
+            "Letter " + tile.letter +
+            ". " + tile.charge.label +
+            " charged tile. " +
+            tile.charge.description
+          );
+        }
+
+        button.addEventListener(
+          "click",
+          function() {
+            toggleTile(index);
+          }
+        );
+
+        elements.grid.appendChild(button);
+      });
+    }
+
+    function toggleTile(index) {
+      if (busy || inked.has(index)) {
+        return;
+      }
+
+      const position = selected.indexOf(index);
+
+      if (position === -1) {
+        selected.push(index);
+      } else {
+        selected.splice(position, 1);
+      }
+
+      renderGrid();
+      updateWordDisplay();
+    }
+
+    function currentWord() {
+      return selected
+        .map(function(index) {
+          return grid[index].letter;
+        })
+        .join("");
+    }
+
+    function lengthBonus(length) {
+      if (length >= 8) {
+        return 15;
+      }
+
+      if (length === 7) {
+        return 10;
+      }
+
+      if (length === 6) {
+        return 6;
+      }
+
+      if (length === 5) {
+        return 3;
+      }
+
+      return 0;
+    }
+
+    function chargeReward(length) {
+      if (length >= 8) {
+        return 3;
+      }
+
+      if (length >= 6) {
+        return 2;
+      }
+
+      if (length === 5) {
+        return 1;
+      }
+
+      return 0;
+    }
+
+    function attackPreview() {
+      const baseDamage = selected.reduce(
+        function(total, index) {
+          return (
+            total +
+            letterValues[grid[index].letter]
+          );
+        },
+        0
+      );
+
+      const chargedDamage = selected.reduce(
+        function(total, index) {
+          return (
+            total +
+            (grid[index].charge?.damage || 0)
+          );
+        },
+        0
+      );
+
+      return (
+        baseDamage +
+        chargedDamage +
+        lengthBonus(selected.length)
+      );
+    }
+
+    function updateWordDisplay() {
+      elements.word.textContent =
+        currentWord() || "Choose letters";
+
+      elements.damage.textContent =
+        attackPreview() + " damage";
+    }
+
+    function clearSelection() {
+      if (busy) {
+        return;
+      }
+
+      selected = [];
+
+      renderGrid();
+      updateWordDisplay();
+
+      elements.message.textContent =
+        "Select any three or more letters.";
+    }
+
+    function applySelectedCharges() {
+      let healing = 0;
+
+      selected.forEach(function(index) {
+        const charge = grid[index].charge;
+
+        if (!charge) {
+          return;
+        }
+
+        ward += charge.block || 0;
+        healing += charge.heal || 0;
+      });
+
+      if (healing > 0) {
+        const actualHealing = Math.min(
+          healing,
+          PLAYER_MAX_HEALTH - playerHealth
+        );
+
+        playerHealth += actualHealing;
+
+        if (actualHealing > 0) {
+          showEffect(
+            "+" + actualHealing,
+            "heal"
+          );
+        }
+      }
+    }
+
+    function replaceUsedTiles(rewardCount) {
+      const used = [...selected];
+
+      selected = [];
+
+      used.forEach(function(index) {
+        grid[index] = newTile();
+      });
+
+      const randomizedPositions = [...used];
+
+      for (
+        let index = randomizedPositions.length - 1;
+        index > 0;
+        index--
+      ) {
+        const randomIndex =
+          Math.floor(Math.random() * (index + 1));
+
+        const temporaryValue =
+          randomizedPositions[index];
+
+        randomizedPositions[index] =
+          randomizedPositions[randomIndex];
+
+        randomizedPositions[randomIndex] =
+          temporaryValue;
+      }
+
+      const numberOfCharges = Math.min(
+        rewardCount,
+        randomizedPositions.length
+      );
+
+      for (
+        let index = 0;
+        index < numberOfCharges;
+        index++
+      ) {
+        const position =
+          randomizedPositions[index];
+
+        grid[position].charge =
+          getRandomCharge();
+      }
+
+      renderGrid();
+      updateWordDisplay();
+    }
+
+    async function attack() {
+      if (busy || gameOver) {
+        return;
+      }
+
+      const word =
+        currentWord().toLowerCase();
+
+      if (word.length < 3) {
+        elements.message.textContent =
+          "Words must contain at least three letters.";
+
+        return;
+      }
+
+      if (!dictionary.has(word)) {
+        elements.message.textContent =
+          word.toUpperCase() +
+          " is not in this game's dictionary.";
+
+        return;
+      }
+
+      busy = true;
+      setControls();
+
+      const damage = attackPreview();
+      const reward = chargeReward(word.length);
+
+      applySelectedCharges();
+
+      enemyHealth = Math.max(
+        0,
+        enemyHealth - damage
+      );
+
+      showEffect("-" + damage, "enemy-side");
+      animate(elements.playerCharacter, "cast");
+      animate(elements.enemyCharacter, "hit");
+      updateHealth();
+
+      let text =
+        word.toUpperCase() +
+        " dealt " + damage + " damage.";
+
+      if (reward > 0) {
+        text +=
+          " " + reward +
+          (reward === 1
+            ? " newly drawn letter was charged."
+            : " newly drawn letters were charged.");
+      }
+
+      if (ward > 0) {
+        text += " Ward strength: " + ward + ".";
+      }
+
+      elements.message.textContent = text;
+
+      inked.clear();
+      replaceUsedTiles(reward);
+
+      if (enemyHealth === 0) {
+        window.setTimeout(
+          enemyDefeated,
+          750
+        );
+
+        return;
+      }
+
+      window.setTimeout(
+        enemyAttack,
+        950
+      );
+    }
+
+    function shuffleGrid() {
+      if (busy || gameOver) {
+        return;
+      }
+
+      busy = true;
+      setControls();
+
+      createGrid();
+      updateWordDisplay();
+
+      elements.message.textContent =
+        "The grid was reshuffled. " +
+        "The enemy gets its turn.";
+
+      window.setTimeout(
+        enemyAttack,
+        750
+      );
+    }
+
+    function enemyAttack() {
+      const enemy = enemies[enemyIndex];
+      const move =
+        enemy.moves[enemyMoveIndex];
+
+      let damage = move.damage;
+
+      const blocked = Math.min(
+        ward,
+        damage
+      );
+
+      ward -= blocked;
+      damage -= blocked;
+
+      playerHealth = Math.max(
+        0,
+        playerHealth - damage
+      );
+
+      animate(elements.enemyCharacter, "cast");
+      animate(elements.playerCharacter, "hit");
+      showEffect("-" + damage, "player-side");
+
+      updateHealth();
+
+      let text =
+        enemy.name +
+        " used " +
+        move.name +
+        " for " +
+        damage +
+        " damage.";
+
+      if (blocked > 0) {
+        text +=
+          " Your Ward blocked " +
+          blocked +
+          " damage.";
+      }
+
+      if (move.ink) {
+        applyInk(move.ink);
+
+        text +=
+          " " + move.ink +
+          " letters are hidden until you " +
+          "complete a word or shuffle.";
+      }
+
+      elements.message.textContent +=
+        " " + text;
+
+      enemyMoveIndex =
+        (enemyMoveIndex + 1) %
+        enemy.moves.length;
+
+      updateEnemyMove();
+
+      if (playerHealth === 0) {
+        finishGame(false);
+        return;
+      }
+
+      busy = false;
+
+      setControls();
+      renderGrid();
+    }
+
+    function applyInk(count) {
+      inked.clear();
+
+      const choices =
+        [...Array(16).keys()];
+
+      while (
+        inked.size < count &&
+        choices.length > 0
+      ) {
+        const randomPosition =
+          Math.floor(
+            Math.random() * choices.length
+          );
+
+        const tileIndex =
+          choices.splice(
+            randomPosition,
+            1
+          )[0];
+
+        inked.add(tileIndex);
+      }
+    }
+
+    function showCampaignScreen(options) {
+      elements.campaignLabel.textContent =
+        options.label;
+
+      elements.campaignTitle.textContent =
+        options.title;
+
+      elements.campaignText.textContent =
+        options.text;
+
+      elements.campaignButton.textContent =
+        options.buttonText;
+
+      elements.campaignButton.disabled = false;
+      elements.campaignButton.onclick =
+        options.action;
+
+      elements.campaignScreen.classList.remove(
+        "hidden"
+      );
+    }
+
+    function hideCampaignScreen() {
+      elements.campaignScreen.classList.add(
+        "hidden"
+      );
+    }
+
+    function showTitleScreen() {
+      showCampaignScreen({
+        label: "THE WILD ARCHIVE",
+        title: "Word War",
+        text:
+          "Forge words, charge letters, and " +
+          "defeat the guardians occupying " +
+          "the Wild Archive.",
+        buttonText: "Begin Campaign",
+        action: function() {
+          showEnemyIntroduction(0);
+        }
+      });
+    }
+
+    function showEnemyIntroduction(
+      targetEnemyIndex
+    ) {
+      const introductions = [
+        {
+          label: "BATTLE ONE",
+          title: "The Ink Goblin",
+          text:
+            "A mischievous creature has flooded " +
+            "the archive with living ink. Watch " +
+            "for its Ink Bomb, which temporarily " +
+            "hides letters on your grid."
+        },
+        {
+          label: "BATTLE TWO",
+          title: "The Stone Archivist",
+          text:
+            "The ancient guardian has awakened. " +
+            "Its heavy attacks and sealing magic " +
+            "make it far more dangerous than the " +
+            "Ink Goblin."
+        }
+      ];
+
+      const introduction =
+        introductions[targetEnemyIndex];
+
+      showCampaignScreen({
+        label: introduction.label,
+        title: introduction.title,
+        text: introduction.text,
+        buttonText:
+          targetEnemyIndex === 0
+            ? "Start Battle"
+            : "Challenge the Archivist",
+        action: function() {
+          if (targetEnemyIndex === 0) {
+            restartCampaign();
+          } else {
+            continueBattle();
+          }
+        }
+      });
+    }
+
+    function enemyDefeated() {
+      if (
+        enemyIndex <
+        enemies.length - 1
+      ) {
+        gameOver = true;
+        busy = true;
+
+        setControls();
+
+        showCampaignScreen({
+          label: "BATTLE WON",
+          title: "The Ink Recedes",
+          text:
+            "The Ink Goblin flees, leaving the " +
+            "path ahead open. Deeper in the " +
+            "archive, a stone guardian awakens.",
+          buttonText: "Meet the Next Enemy",
+          action: function() {
+            showEnemyIntroduction(
+              enemyIndex + 1
+            );
+          }
+        });
+      } else {
+        finishGame(true);
+      }
+    }
+
+    function continueBattle() {
+      hideCampaignScreen();
+
+      enemyIndex++;
+      enemyMoveIndex = 0;
+      inked.clear();
+      selected = [];
+      gameOver = false;
+      busy = false;
+
+      setupEnemy();
+      createGrid();
+      updateWordDisplay();
+      setControls();
+
+      elements.message.textContent =
+        enemies[enemyIndex].name +
+        " enters the battle!";
+    }
+
+    function setupEnemy() {
+      const enemy = enemies[enemyIndex];
+
+      enemyHealth = enemy.health;
+
+      elements.enemyName.textContent =
+        enemy.name;
+
+      elements.enemySprite.className =
+        "sprite " + enemy.sprite;
+
+      elements.enemySprite.alt =
+        enemy.name;
+
+      elements.enemyMaxHealth.textContent =
+        enemy.health;
+
+      updateEnemyMove();
+      updateHealth();
+    }
+
+    function updateEnemyMove() {
+      const move =
+        enemies[enemyIndex]
+          .moves[enemyMoveIndex];
+
+      elements.enemyMove.textContent =
+        move.name + " — " + move.text;
+    }
+
+    function updateHealth() {
+      const enemyMaximum =
+        enemies[enemyIndex].health;
+
+      elements.playerHealth.textContent =
+        playerHealth;
+
+      elements.enemyHealth.textContent =
+        enemyHealth;
+
+      elements.playerBar.style.width =
+        (
+          playerHealth /
+          PLAYER_MAX_HEALTH *
+          100
+        ) + "%";
+
+      elements.enemyBar.style.width =
+        (
+          enemyHealth /
+          enemyMaximum *
+          100
+        ) + "%";
+    }
+
+    function showEffect(text, className) {
+      const effect =
+        document.createElement("span");
+
+      effect.className =
+        "float-effect " + className;
+
+      effect.textContent = text;
+
+      elements.effects.appendChild(effect);
+
+      window.setTimeout(
+        function() {
+          effect.remove();
+        },
+        1000
+      );
+    }
+
+    function animate(element, className) {
+      element.classList.remove(className);
+
+      void element.offsetWidth;
+
+      element.classList.add(className);
+
+      window.setTimeout(
+        function() {
+          element.classList.remove(className);
+        },
+        500
+      );
+    }
+
+    function setControls() {
+      const disabled =
+        busy || gameOver;
+
+      elements.clear.disabled = disabled;
+      elements.shuffle.disabled = disabled;
+      elements.attack.disabled = disabled;
+
+      renderGrid();
+    }
+
+    function finishGame(won) {
+      gameOver = true;
+      busy = true;
+
+      setControls();
+
+      if (won) {
+        showCampaignScreen({
+          label: "CAMPAIGN COMPLETE",
+          title: "The Archive Is Free",
+          text:
+            "Both guardians have fallen. The " +
+            "living words of the Wild Archive " +
+            "answer to the Spellscribe once more.",
+          buttonText: "Return to Title",
+          action: showTitleScreen
+        });
+      } else {
+        showCampaignScreen({
+          label: "DEFEAT",
+          title: "The Spellbook Falls Silent",
+          text:
+            "The archive remains in enemy hands, " +
+            "but every failed battle reveals " +
+            "another path to victory.",
+          buttonText: "Try Again",
+          action: function() {
+            showEnemyIntroduction(0);
+          }
+        });
+      }
+    }
+
+    function restartCampaign() {
+      hideCampaignScreen();
+
+      playerHealth = PLAYER_MAX_HEALTH;
+      enemyIndex = 0;
+      enemyMoveIndex = 0;
+      ward = 0;
+      gameOver = false;
+      busy = false;
+
+      setupEnemy();
+      createGrid();
+      updateWordDisplay();
+      setControls();
+
+      elements.message.textContent =
+        "Select any three or more letters.";
+    }
+
+    async function loadDictionary() {
+      try {
+        const responses =
+          await Promise.all([
+            fetch("words.txt"),
+            fetch("custom-words.txt")
+          ]);
+
+        if (
+          responses.some(function(response) {
+            return !response.ok;
+          })
+        ) {
+          throw new Error(
+            "Word list failed to load"
+          );
+        }
+
+        const dictionaryFiles =
+          await Promise.all(
+            responses.map(function(response) {
+              return response.text();
+            })
+          );
+
+        dictionary = new Set(
+          dictionaryFiles
+            .join("\n")
+            .split(/\r?\n/)
+            .map(function(word) {
+              return word
+                .trim()
+                .toLowerCase();
+            })
+            .filter(function(word) {
+              return /^[a-z]{3,}$/.test(word);
+            })
+        );
+
+        busy = false;
+
+        setControls();
+        updateWordDisplay();
+
+        elements.message.textContent =
+          "Dictionary ready: " +
+          dictionary.size.toLocaleString() +
+          " words.";
+
+        showTitleScreen();
+      } catch (error) {
+        elements.campaignText.textContent =
+          "The local dictionary did not load. " +
+          "Check that words.txt and " +
+          "custom-words.txt are beside index.html.";
+
+        elements.message.textContent =
+          "The dictionary did not load.";
+      }
+    }
+
+    elements.clear.addEventListener(
+      "click",
+      clearSelection
+    );
+
+    elements.shuffle.addEventListener(
+      "click",
+      shuffleGrid
+    );
+
+    elements.attack.addEventListener(
+      "click",
+      attack
+    );
+
+    setupEnemy();
+    createGrid();
+    updateWordDisplay();
+    setControls();
+    loadDictionary();
+  </script>
 </body>
 </html>
