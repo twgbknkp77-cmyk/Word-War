@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Word War</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #172033;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+
+    .game {
+      width: min(100%, 440px);
+      padding: 24px;
+      background: #24304a;
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .tagline {
+      margin-top: 0;
+      text-align: center;
+      color: #cbd5e1;
+    }
+
+    .battle-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .fighter {
+      padding: 12px;
+      text-align: center;
+      background: #111827;
+      border-radius: 12px;
+    }
+
+    .fighter-name {
+      margin: 0 0 8px;
+      font-weight: bold;
+    }
+
+    .health {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .current-word {
+      min-height: 48px;
+      margin: 16px 0;
+      padding: 12px;
+      text-align: center;
+      background: #111827;
+      border-radius: 10px;
+      font-size: 1.3rem;
+      letter-spacing: 3px;
+    }
+
+    .letter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .letter-tile {
+      aspect-ratio: 1;
+      border: 2px solid #64748b;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #172033;
+      font-size: clamp(1.2rem, 7vw, 2rem);
+      font-weight: bold;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .letter-tile.selected {
+      border-color: #fbbf24;
+      background: #fbbf24;
+      transform: scale(0.94);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .control-button {
+      padding: 12px;
+      border: 0;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #submit-button {
+      background: #22c55e;
+      color: #052e16;
+    }
+
+    #clear-button {
+      background: #e2e8f0;
+      color: #172033;
+    }
+
+    #restart-button {
+      display: none;
+      width: 100%;
+      margin-top: 10px;
+      background: #60a5fa;
+      color: #172033;
+    }
+
+    .message {
+      min-height: 48px;
+      margin-bottom: 0;
+      text-align: center;
+      color: #fef3c7;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="game">
+    <h1>Word War</h1>
+    <p class="tagline">Build words. Win the battle.</p>
+
+    <section class="battle-area">
+      <div class="fighter">
+        <p class="fighter-name">You</p>
+        <p class="health">❤️ <span id="player-health">30</span></p>
+      </div>
+
+      <div class="fighter">
+        <p class="fighter-name">Opponent</p>
+        <p class="health">❤️ <span id="enemy-health">30</span></p>
+      </div>
+    </section>
+
+    <div id="current-word" class="current-word">
+      Choose a letter
+    </div>
+
+    <div id="letter-grid" class="letter-grid"></div>
+
+    <div class="controls">
+      <button id="clear-button" class="control-button">Clear</button>
+      <button id="submit-button" class="control-button">Attack</button>
+    </div>
+
+    <button id="restart-button" class="control-button">
+      Play Again
+    </button>
+
+    <p id="message" class="message">
+      Select neighboring letters to build a word.
+    </p>
+  </main>
+
+  <script>
+    const letters = [
+      "A", "A", "A", "B", "C", "D", "E", "E",
+      "E", "F", "G", "H", "I", "I", "J", "K",
+      "L", "M", "N", "N", "O", "O", "P", "Q",
+      "R", "R", "S", "S", "T", "T", "U", "V",
+      "W", "X", "Y", "Z"
+    ];
+
+    const gridElement = document.querySelector("#letter-grid");
+    const wordElement = document.querySelector("#current-word");
+    const messageElement = document.querySelector("#message");
+    const playerHealthElement = document.querySelector("#player-health");
+    const enemyHealthElement = document.querySelector("#enemy-health");
+    const submitButton = document.querySelector("#submit-button");
+    const clearButton = document.querySelector("#clear-button");
+    const restartButton = document.querySelector("#restart-button");
+
+    let gridLetters = [];
+    let selectedTiles = [];
+    let playerHealth = 30;
+    let enemyHealth = 30;
+    let gameOver = false;
+
+    function randomLetter() {
+      const randomIndex = Math.floor(Math.random() * letters.length);
+      return letters[randomIndex];
+    }
+
+    function createGrid() {
+      gridLetters = [];
+
+      for (let index = 0; index < 16; index++) {
+        gridLetters.push(randomLetter());
+      }
+
+      renderGrid();
+    }
+
+    function renderGrid() {
+      gridElement.innerHTML = "";
+
+      gridLetters.forEach(function(letter, index) {
+        const button = document.createElement("button");
+
+        button.className = "letter-tile";
+        button.textContent = letter;
+        button.dataset.index = index;
+        button.setAttribute("aria-label", "Letter " + letter);
+
+        button.addEventListener("click", function() {
+          selectTile(index);
+        });
+
+        gridElement.appendChild(button);
+      });
+    }
+
+    function selectTile(index) {
+      if (gameOver) {
+        return;
+      }
+
+      const alreadySelected = selectedTiles.includes(index);
+
+      if (alreadySelected) {
+        const lastSelected = selectedTiles[selectedTiles.length - 1];
+
+        if (index === lastSelected) {
+          selectedTiles.pop();
+          updateSelection();
+        }
+
+        return;
+      }
+
+      if (selectedTiles.length > 0) {
+        const previousIndex = selectedTiles[selectedTiles.length - 1];
+
+        if (!tilesAreAdjacent(previousIndex, index)) {
+          messageElement.textContent =
+            "Choose a letter next to your previous letter.";
+          return;
+        }
+      }
+
+      selectedTiles.push(index);
+      updateSelection();
+      messageElement.textContent = "Keep building, or attack!";
+    }
+
+    function tilesAreAdjacent(firstIndex, secondIndex) {
+      const firstRow = Math.floor(firstIndex / 4);
+      const firstColumn = firstIndex % 4;
+      const secondRow = Math.floor(secondIndex / 4);
+      const secondColumn = secondIndex % 4;
+
+      const rowDistance = Math.abs(firstRow - secondRow);
+      const columnDistance = Math.abs(firstColumn - secondColumn);
+
+      return rowDistance <= 1 && columnDistance <= 1;
+    }
+
+    function updateSelection() {
+      const tileButtons = document.querySelectorAll(".letter-tile");
+
+      tileButtons.forEach(function(button, index) {
+        button.classList.toggle(
+          "selected",
+          selectedTiles.includes(index)
+        );
+      });
+
+      const word = selectedTiles
+        .map(function(index) {
+          return gridLetters[index];
+        })
+        .join("");
+
+      wordElement.textContent = word || "Choose a letter";
+    }
+
+    function clearSelection() {
+      selectedTiles = [];
+      updateSelection();
+      messageElement.textContent =
+        "Select neighboring letters to build a word.";
+    }
+
+    function attack() {
+      if (gameOver) {
+        return;
+      }
+
+      const word = selectedTiles
+        .map(function(index) {
+          return gridLetters[index];
+        })
+        .join("");
+
+      if (word.length < 2) {
+        messageElement.textContent =
+          "Build a word with at least two letters.";
+        return;
+      }
+
+      const damage = word.length;
+      enemyHealth = Math.max(0, enemyHealth - damage);
+      enemyHealthElement.textContent = enemyHealth;
+
+      if (enemyHealth === 0) {
+        finishGame("You win! Your final word was " + word + ".");
+        return;
+      }
+
+      const enemyDamage = Math.floor(Math.random() * 4) + 2;
+      playerHealth = Math.max(0, playerHealth - enemyDamage);
+      playerHealthElement.textContent = playerHealth;
+
+      if (playerHealth === 0) {
+        finishGame("Your opponent wins. Try another battle!");
+        return;
+      }
+
+      messageElement.textContent =
+        word + " dealt " + damage +
+        " damage. Your opponent dealt " +
+        enemyDamage + " damage.";
+
+      createGrid();
+      selectedTiles = [];
+      updateSelection();
+    }
+
+    function finishGame(message) {
+      gameOver = true;
+      messageElement.textContent = message;
+      submitButton.disabled = true;
+      clearButton.disabled = true;
+      restartButton.style.display = "block";
+    }
+
+    function restartGame() {
+      playerHealth = 30;
+      enemyHealth = 30;
+      gameOver = false;
+      selectedTiles = [];
+
+      playerHealthElement.textContent = playerHealth;
+      enemyHealthElement.textContent = enemyHealth;
+      submitButton.disabled = false;
+      clearButton.disabled = false;
+      restartButton.style.display = "none";
+      messageElement.textContent =
+        "Select neighboring letters to build a word.";
+
+      createGrid();
+      updateSelection();
+    }
+
+    submitButton.addEventListener("click", attack);
+    clearButton.addEventListener("click", clearSelection);
+    restartButton.addEventListener("click", restartGame);
+
+    createGrid();
+  </script>
+</body>
+</html>
