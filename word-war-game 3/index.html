@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word War</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="game">
+    <header class="game-header">
+      <h1>Word War</h1>
+      <p>Forge words. Charge letters. Outsmart your enemy.</p>
+    </header>
+
+    <section id="battle-scene" class="battle-scene">
+      <div class="sun"></div>
+      <div class="mountain mountain-one"></div>
+      <div class="mountain mountain-two"></div>
+      <div class="ground"></div>
+
+      <article class="fighter player">
+        <strong class="fighter-name">The Spellscribe</strong>
+        <div id="player-character" class="portrait">
+          <img class="sprite hero" src="assets/characters.png" alt="The Spellscribe">
+        </div>
+        <div class="health-bar"><div id="player-health-bar" class="health-fill"></div></div>
+        <span><b id="player-health">60</b> / 60 HP</span>
+      </article>
+
+      <article class="fighter enemy">
+        <strong id="enemy-name" class="fighter-name">Ink Goblin</strong>
+        <div id="enemy-character" class="portrait">
+          <img id="enemy-sprite" class="sprite goblin" src="assets/characters.png" alt="Ink Goblin">
+        </div>
+        <div class="health-bar"><div id="enemy-health-bar" class="health-fill"></div></div>
+        <span><b id="enemy-health">45</b> / <span id="enemy-max-health">45</span> HP</span>
+      </article>
+
+      <div id="effect-layer" class="effect-layer" aria-live="polite"></div>
+    </section>
+
+    <section class="enemy-warning">
+      <small>ENEMY'S NEXT MOVE</small>
+      <strong id="enemy-move">Loading...</strong>
+    </section>
+
+    <section class="game-panel">
+      <div class="legend">
+        <span><i class="dot ember"></i> Ember: +4 damage</span>
+        <span><i class="dot ward"></i> Ward: block 3</span>
+        <span><i class="dot bloom"></i> Bloom: heal 3</span>
+      </div>
+
+      <div class="word-display">
+        <span id="current-word">Loading dictionary...</span>
+        <span id="damage-preview">0 damage</span>
+      </div>
+
+      <div id="letter-grid" class="letter-grid" aria-label="Letter grid"></div>
+
+      <div class="controls">
+        <button id="clear-button">Clear</button>
+        <button id="shuffle-button">Shuffle<br><small>uses turn</small></button>
+        <button id="attack-button" class="primary">Attack</button>
+      </div>
+
+      <button id="continue-button" class="wide-button">Face the next enemy</button>
+      <button id="restart-button" class="wide-button">Play Again</button>
+
+      <p id="message" class="message">Preparing the battlefield...</p>
+    </section>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
