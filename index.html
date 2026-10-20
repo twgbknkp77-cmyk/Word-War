@@ -38,7 +38,7 @@
     }
 
     .game-header {
-      padding: 16px;
+      padding: 14px;
       text-align: center;
     }
 
@@ -84,9 +84,9 @@
       bottom: 112px;
       width: 0;
       height: 0;
-      border-left: 100px solid transparent;
       border-right: 100px solid transparent;
       border-bottom: 110px solid #475569;
+      border-left: 100px solid transparent;
       opacity: 0.75;
     }
 
@@ -123,7 +123,7 @@
 
     .fighter {
       position: absolute;
-      bottom: 24px;
+      bottom: 22px;
       z-index: 2;
       width: 140px;
       text-align: center;
@@ -139,9 +139,9 @@
 
     .fighter-name {
       display: inline-block;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       padding: 4px 9px;
-      background: rgba(15, 23, 42, 0.8);
+      background: rgba(15, 23, 42, 0.82);
       border-radius: 8px;
       font-weight: bold;
     }
@@ -209,10 +209,48 @@
       text-shadow: 1px 1px 2px black;
     }
 
-    /* Word and letter grid */
+    /* Enemy warning */
+
+    .enemy-warning {
+      padding: 10px 14px;
+      background: #3b1d31;
+      border-top: 2px solid #7f1d1d;
+      border-bottom: 2px solid #7f1d1d;
+      text-align: center;
+    }
+
+    .enemy-warning-label {
+      color: #fca5a5;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    #enemy-move {
+      margin-top: 3px;
+      font-weight: bold;
+    }
+
+    /* Game panel */
 
     .game-panel {
       padding: 16px;
+    }
+
+    .resource-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .resource {
+      flex: 1;
+      padding: 8px;
+      background: #111827;
+      border-radius: 9px;
+      text-align: center;
+      font-size: 0.9rem;
     }
 
     .word-display {
@@ -257,7 +295,10 @@
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 4px 0 #94a3b8;
-      transition: transform 0.1s, background 0.1s;
+      transition:
+        transform 0.1s,
+        background 0.1s,
+        opacity 0.1s;
     }
 
     .letter-tile:active {
@@ -272,6 +313,11 @@
       box-shadow: 0 2px 0 #b45309;
     }
 
+    .letter-tile:disabled {
+      cursor: wait;
+      opacity: 0.7;
+    }
+
     .letter-value {
       position: absolute;
       right: 7px;
@@ -281,22 +327,32 @@
 
     .controls {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 8px;
       margin-top: 15px;
     }
 
     .control-button {
-      padding: 13px;
+      padding: 12px 7px;
       border: 0;
       border-radius: 10px;
       font-weight: bold;
       cursor: pointer;
     }
 
+    .control-button:disabled {
+      cursor: wait;
+      opacity: 0.55;
+    }
+
     #clear-button {
       background: #e2e8f0;
       color: #172033;
+    }
+
+    #shuffle-button {
+      background: #c4b5fd;
+      color: #2e1065;
     }
 
     #attack-button {
@@ -313,11 +369,18 @@
     }
 
     .message {
-      min-height: 48px;
+      min-height: 52px;
       margin: 14px 0 0;
       text-align: center;
       color: #fef3c7;
       line-height: 1.4;
+    }
+
+    .credit {
+      margin: 4px 0 0;
+      color: #94a3b8;
+      font-size: 0.7rem;
+      text-align: center;
     }
 
     @media (max-width: 380px) {
@@ -341,6 +404,14 @@
 
       .character {
         font-size: 4rem;
+      }
+
+      .controls {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      #attack-button {
+        grid-column: 1 / 3;
       }
     }
   </style>
@@ -387,7 +458,22 @@
       </div>
     </section>
 
+    <section class="enemy-warning">
+      <div class="enemy-warning-label">Enemy’s next move</div>
+      <div id="enemy-move"></div>
+    </section>
+
     <section class="game-panel">
+      <div class="resource-row">
+        <div class="resource">
+          🔮 Rune shards: <strong id="rune-count">0</strong>
+        </div>
+
+        <div class="resource">
+          ✨ Length bonus: <strong id="bonus-preview">0</strong>
+        </div>
+      </div>
+
       <div class="word-display">
         <span id="current-word">Choose letters</span>
         <span id="damage-preview">0 damage</span>
@@ -400,6 +486,10 @@
           Clear
         </button>
 
+        <button id="shuffle-button" class="control-button">
+          Shuffle
+        </button>
+
         <button id="attack-button" class="control-button">
           Attack
         </button>
@@ -410,7 +500,11 @@
       </button>
 
       <p id="message" class="message">
-        Select any unused letters to build your attack.
+        Select any three or more letters to build a word.
+      </p>
+
+      <p class="credit">
+        Word validation powered by Datamuse
       </p>
     </section>
   </main>
@@ -420,31 +514,31 @@
 
     const letterValues = {
       A: 1,
-      B: 3,
-      C: 3,
+      B: 2,
+      C: 2,
       D: 2,
       E: 1,
-      F: 4,
+      F: 3,
       G: 2,
-      H: 4,
+      H: 3,
       I: 1,
-      J: 8,
-      K: 5,
+      J: 5,
+      K: 4,
       L: 1,
-      M: 3,
+      M: 2,
       N: 1,
       O: 1,
-      P: 3,
-      Q: 10,
+      P: 2,
+      Q: 5,
       R: 1,
       S: 1,
       T: 1,
       U: 1,
-      V: 4,
-      W: 4,
-      X: 8,
-      Y: 4,
-      Z: 10
+      V: 3,
+      W: 3,
+      X: 5,
+      Y: 3,
+      Z: 5
     };
 
     const letterPool = [
@@ -460,12 +554,34 @@
       "V", "W", "X", "Y", "Z"
     ];
 
+    const enemyMoves = [
+      {
+        name: "Quick Scratch",
+        damage: 4,
+        description: "A fast 4-damage strike"
+      },
+      {
+        name: "Ink Bomb",
+        damage: 6,
+        description: "A messy 6-damage blast"
+      },
+      {
+        name: "Wild Swipe",
+        damage: 8,
+        description: "A heavy 8-damage attack"
+      }
+    ];
+
     const gridElement = document.querySelector("#letter-grid");
     const currentWordElement =
       document.querySelector("#current-word");
     const damagePreviewElement =
       document.querySelector("#damage-preview");
+    const bonusPreviewElement =
+      document.querySelector("#bonus-preview");
     const messageElement = document.querySelector("#message");
+    const enemyMoveElement = document.querySelector("#enemy-move");
+    const runeCountElement = document.querySelector("#rune-count");
 
     const playerHealthElement =
       document.querySelector("#player-health");
@@ -484,6 +600,8 @@
 
     const clearButton =
       document.querySelector("#clear-button");
+    const shuffleButton =
+      document.querySelector("#shuffle-button");
     const attackButton =
       document.querySelector("#attack-button");
     const restartButton =
@@ -493,8 +611,10 @@
     let selectedTiles = [];
     let playerHealth = MAX_HEALTH;
     let enemyHealth = MAX_HEALTH;
+    let runeShards = 0;
+    let enemyMoveIndex = 0;
     let gameOver = false;
-    let waitingForOpponent = false;
+    let turnInProgress = false;
 
     function getRandomLetter() {
       const randomIndex =
@@ -511,6 +631,16 @@
       }
 
       renderGrid();
+    }
+
+    function replaceUsedTiles() {
+      selectedTiles.forEach(function(index) {
+        gridLetters[index] = getRandomLetter();
+      });
+
+      selectedTiles = [];
+      renderGrid();
+      updateSelection();
     }
 
     function renderGrid() {
@@ -538,7 +668,7 @@
     }
 
     function toggleTile(index) {
-      if (gameOver || waitingForOpponent) {
+      if (gameOver || turnInProgress) {
         return;
       }
 
@@ -561,11 +691,48 @@
         .join("");
     }
 
-    function calculateDamage() {
+    function getBaseDamage() {
       return selectedTiles.reduce(function(total, index) {
         const letter = gridLetters[index];
         return total + letterValues[letter];
       }, 0);
+    }
+
+    function getLengthBonus(wordLength) {
+      if (wordLength >= 8) {
+        return 15;
+      }
+
+      if (wordLength === 7) {
+        return 10;
+      }
+
+      if (wordLength === 6) {
+        return 6;
+      }
+
+      if (wordLength === 5) {
+        return 3;
+      }
+
+      return 0;
+    }
+
+    function getRuneReward(wordLength) {
+      if (wordLength >= 7) {
+        return 2;
+      }
+
+      if (wordLength >= 5) {
+        return 1;
+      }
+
+      return 0;
+    }
+
+    function calculateDamage() {
+      const wordLength = selectedTiles.length;
+      return getBaseDamage() + getLengthBonus(wordLength);
     }
 
     function updateSelection() {
@@ -573,22 +740,28 @@
         document.querySelectorAll(".letter-tile");
 
       tiles.forEach(function(tile, index) {
-        const isSelected = selectedTiles.includes(index);
-        tile.classList.toggle("selected", isSelected);
+        tile.classList.toggle(
+          "selected",
+          selectedTiles.includes(index)
+        );
       });
 
       const word = getCurrentWord();
+      const bonus = getLengthBonus(word.length);
       const damage = calculateDamage();
 
       currentWordElement.textContent =
         word || "Choose letters";
 
       damagePreviewElement.textContent =
-        damage + (damage === 1 ? " damage" : " damage");
+        damage + " damage";
+
+      bonusPreviewElement.textContent =
+        bonus > 0 ? "+" + bonus : "0";
     }
 
     function clearSelection() {
-      if (waitingForOpponent) {
+      if (turnInProgress) {
         return;
       }
 
@@ -596,31 +769,99 @@
       updateSelection();
 
       messageElement.textContent =
-        "Select any unused letters to build your attack.";
+        "Select any three or more letters to build a word.";
     }
 
-    function attack() {
-      if (gameOver || waitingForOpponent) {
+    async function isRecognizedWord(word) {
+      const lowerCaseWord = word.toLowerCase();
+
+      const address =
+        "https://api.datamuse.com/words?sp=" +
+        encodeURIComponent(lowerCaseWord) +
+        "&max=10";
+
+      const response = await fetch(address);
+
+      if (!response.ok) {
+        throw new Error("Dictionary request failed");
+      }
+
+      const results = await response.json();
+
+      return results.some(function(result) {
+        return result.word.toLowerCase() === lowerCaseWord;
+      });
+    }
+
+    async function attack() {
+      if (gameOver || turnInProgress) {
         return;
       }
 
       const word = getCurrentWord();
-      const damage = calculateDamage();
 
-      if (word.length < 2) {
+      if (word.length < 3) {
         messageElement.textContent =
-          "Choose at least two letters before attacking.";
+          "Words must contain at least three letters.";
         return;
       }
 
-      waitingForOpponent = true;
+      turnInProgress = true;
+      setControlsDisabled(true);
+      messageElement.textContent =
+        "Checking " + word + "...";
+
+      let recognized;
+
+      try {
+        recognized = await isRecognizedWord(word);
+      } catch (error) {
+        messageElement.textContent =
+          "The dictionary could not be reached. " +
+          "Your turn was not used. Please try again.";
+
+        turnInProgress = false;
+        setControlsDisabled(false);
+        return;
+      }
+
+      if (!recognized) {
+        messageElement.textContent =
+          word + " is not a recognized word. Try another.";
+
+        turnInProgress = false;
+        setControlsDisabled(false);
+        return;
+      }
+
+      const damage = calculateDamage();
+      const bonus = getLengthBonus(word.length);
+      const earnedRunes = getRuneReward(word.length);
+
       enemyHealth = Math.max(0, enemyHealth - damage);
+      runeShards += earnedRunes;
 
       updateHealth();
+      updateResources();
       playHitAnimation(enemyCharacter);
 
-      messageElement.textContent =
-        word + " strikes for " + damage + " damage!";
+      let attackMessage =
+        word + " deals " + damage + " damage";
+
+      if (bonus > 0) {
+        attackMessage +=
+          ", including a +" + bonus + " length bonus";
+      }
+
+      if (earnedRunes > 0) {
+        attackMessage +=
+          ", and earns " + earnedRunes +
+          (earnedRunes === 1 ? " Rune shard" : " Rune shards");
+      }
+
+      messageElement.textContent = attackMessage + "!";
+
+      replaceUsedTiles();
 
       if (enemyHealth === 0) {
         finishGame(
@@ -630,22 +871,48 @@
         return;
       }
 
-      setTimeout(opponentAttack, 900);
+      setTimeout(enemyAttack, 1000);
     }
 
-    function opponentAttack() {
+    function shuffleGrid() {
+      if (gameOver || turnInProgress) {
+        return;
+      }
+
+      turnInProgress = true;
+      setControlsDisabled(true);
+      selectedTiles = [];
+      createGrid();
+      updateSelection();
+
+      messageElement.textContent =
+        "You reshuffled the grid and used your turn.";
+
+      setTimeout(enemyAttack, 850);
+    }
+
+    function enemyAttack() {
       if (gameOver) {
         return;
       }
 
-      const opponentDamage =
-        Math.floor(Math.random() * 6) + 3;
+      const move = enemyMoves[enemyMoveIndex];
 
       playerHealth =
-        Math.max(0, playerHealth - opponentDamage);
+        Math.max(0, playerHealth - move.damage);
 
       updateHealth();
       playHitAnimation(playerCharacter);
+
+      messageElement.textContent +=
+        " The Glyph Goblin uses " +
+        move.name + " for " +
+        move.damage + " damage.";
+
+      enemyMoveIndex =
+        (enemyMoveIndex + 1) % enemyMoves.length;
+
+      updateEnemyWarning();
 
       if (playerHealth === 0) {
         finishGame(
@@ -654,14 +921,19 @@
         return;
       }
 
-      messageElement.textContent +=
-        " The goblin attacks back for " +
-        opponentDamage + " damage.";
+      turnInProgress = false;
+      setControlsDisabled(false);
+    }
 
-      selectedTiles = [];
-      createGrid();
-      updateSelection();
-      waitingForOpponent = false;
+    function updateEnemyWarning() {
+      const move = enemyMoves[enemyMoveIndex];
+
+      enemyMoveElement.textContent =
+        move.name + " — " + move.description;
+    }
+
+    function updateResources() {
+      runeCountElement.textContent = runeShards;
     }
 
     function updateHealth() {
@@ -673,6 +945,19 @@
 
       enemyHealthBar.style.width =
         (enemyHealth / MAX_HEALTH) * 100 + "%";
+    }
+
+    function setControlsDisabled(disabled) {
+      clearButton.disabled = disabled;
+      shuffleButton.disabled = disabled;
+      attackButton.disabled = disabled;
+
+      const tiles =
+        document.querySelectorAll(".letter-tile");
+
+      tiles.forEach(function(tile) {
+        tile.disabled = disabled;
+      });
     }
 
     function playHitAnimation(character) {
@@ -689,39 +974,44 @@
 
     function finishGame(message) {
       gameOver = true;
-      waitingForOpponent = false;
+      turnInProgress = false;
 
       messageElement.textContent = message;
-      clearButton.disabled = true;
-      attackButton.disabled = true;
+      setControlsDisabled(true);
       restartButton.style.display = "block";
     }
 
     function restartGame() {
       playerHealth = MAX_HEALTH;
       enemyHealth = MAX_HEALTH;
+      runeShards = 0;
+      enemyMoveIndex = 0;
       selectedTiles = [];
       gameOver = false;
-      waitingForOpponent = false;
+      turnInProgress = false;
 
-      clearButton.disabled = false;
-      attackButton.disabled = false;
       restartButton.style.display = "none";
 
       messageElement.textContent =
-        "Select any unused letters to build your attack.";
+        "Select any three or more letters to build a word.";
 
-      updateHealth();
       createGrid();
+      updateHealth();
+      updateResources();
+      updateEnemyWarning();
       updateSelection();
+      setControlsDisabled(false);
     }
 
     clearButton.addEventListener("click", clearSelection);
+    shuffleButton.addEventListener("click", shuffleGrid);
     attackButton.addEventListener("click", attack);
     restartButton.addEventListener("click", restartGame);
 
     createGrid();
     updateHealth();
+    updateResources();
+    updateEnemyWarning();
     updateSelection();
   </script>
 </body>
