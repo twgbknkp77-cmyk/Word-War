@@ -607,6 +607,189 @@
         height: 145px;
       }
     }
+    /* Compact portrait-phone layout */
+
+@media (max-width: 600px) {
+  body {
+    min-height: 100dvh;
+    padding: 0;
+    display: block;
+  }
+
+  .game {
+    width: 100%;
+    min-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .game-header {
+    padding: 7px;
+  }
+
+  .game-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .game-header p {
+    margin-top: 2px;
+    font-size: 0.72rem;
+  }
+
+  .battle-scene {
+    height: 165px;
+  }
+
+  .sun {
+    top: 12px;
+    right: 28px;
+    width: 35px;
+    height: 35px;
+  }
+
+  .mountain {
+    bottom: 65px;
+    border-right-width: 90px;
+    border-bottom-width: 80px;
+    border-left-width: 90px;
+  }
+
+  .ground {
+    height: 67px;
+  }
+
+  .fighter {
+    bottom: 5px;
+    font-size: 0.68rem;
+  }
+
+  .fighter-name {
+    padding: 2px 6px;
+  }
+
+  .portrait {
+    width: 92px;
+    height: 105px;
+  }
+
+  .health-bar {
+    height: 11px;
+  }
+
+  .enemy-warning {
+    padding: 5px 8px;
+    font-size: 0.76rem;
+  }
+
+  .enemy-warning small {
+    font-size: 0.62rem;
+  }
+
+  .game-panel {
+    padding: 8px 10px;
+  }
+
+  .legend {
+    gap: 3px 8px;
+    margin-bottom: 6px;
+    font-size: 0.61rem;
+  }
+
+  .word-display {
+    min-height: 40px;
+    padding: 8px 10px;
+  }
+
+  #current-word {
+    font-size: 1rem;
+  }
+
+  #damage-preview {
+    font-size: 0.85rem;
+  }
+
+  .letter-grid {
+    width: min(100%, 255px);
+    margin: 7px auto 0;
+    gap: 5px;
+  }
+
+  .letter-tile {
+    border-width: 2px;
+    border-radius: 8px;
+    font-size: 1.35rem;
+    box-shadow: 0 3px 0 #94a3b8;
+  }
+
+  .letter-value {
+    right: 4px;
+    bottom: 2px;
+    font-size: 0.58rem;
+  }
+
+  .charge-mark {
+    top: 3px;
+    right: 4px;
+    width: 12px;
+    height: 12px;
+  }
+
+  .controls {
+    margin-top: 8px;
+    gap: 6px;
+  }
+
+  .controls button {
+    padding: 8px 5px;
+    font-size: 0.82rem;
+  }
+
+  .message {
+    min-height: 32px;
+    margin-top: 7px;
+    font-size: 0.78rem;
+  }
+
+  .campaign-screen {
+    position: fixed;
+    padding: 16px;
+  }
+
+  .campaign-card {
+    padding: 22px 18px;
+  }
+
+  .campaign-card h2 {
+    font-size: 1.8rem;
+  }
+}
+
+/* Extra compression for shorter phones */
+
+@media (max-width: 600px) and (max-height: 700px) {
+  .game-header p,
+  .legend {
+    display: none;
+  }
+
+  .battle-scene {
+    height: 145px;
+  }
+
+  .portrait {
+    width: 80px;
+    height: 90px;
+  }
+
+  .letter-grid {
+    width: min(100%, 230px);
+  }
+
+  .message {
+    min-height: 25px;
+  }
+}
   </style>
 </head>
 
