@@ -14,68 +14,230 @@
     body {
       min-height: 100vh;
       margin: 0;
-      padding: 20px;
+      padding: 16px;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #172033;
-      color: #ffffff;
+      background: #111827;
+      color: white;
       font-family: Arial, sans-serif;
     }
 
+    button {
+      font: inherit;
+      touch-action: manipulation;
+    }
+
     .game {
-      width: min(100%, 440px);
-      padding: 24px;
+      width: min(100%, 500px);
+      overflow: hidden;
       background: #24304a;
-      border-radius: 20px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      border: 2px solid #475569;
+      border-radius: 22px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .game-header {
+      padding: 16px;
+      text-align: center;
     }
 
     h1 {
-      margin-top: 0;
-      margin-bottom: 6px;
-      text-align: center;
+      margin: 0;
+      font-size: 2rem;
     }
 
     .tagline {
-      margin-top: 0;
-      text-align: center;
+      margin: 5px 0 0;
       color: #cbd5e1;
     }
 
-    .battle-area {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin: 24px 0;
+    /* Battle scene */
+
+    .battle-scene {
+      position: relative;
+      height: 260px;
+      overflow: hidden;
+      background:
+        linear-gradient(
+          to bottom,
+          #2563a8 0%,
+          #60a5fa 55%,
+          #9a6a3a 56%,
+          #4d7c35 100%
+        );
+    }
+
+    .sun {
+      position: absolute;
+      top: 22px;
+      right: 38px;
+      width: 55px;
+      height: 55px;
+      background: #fde68a;
+      border-radius: 50%;
+      box-shadow: 0 0 25px #fde68a;
+    }
+
+    .mountain {
+      position: absolute;
+      bottom: 112px;
+      width: 0;
+      height: 0;
+      border-left: 100px solid transparent;
+      border-right: 100px solid transparent;
+      border-bottom: 110px solid #475569;
+      opacity: 0.75;
+    }
+
+    .mountain-one {
+      left: -45px;
+    }
+
+    .mountain-two {
+      left: 95px;
+      transform: scale(1.25);
+    }
+
+    .mountain-three {
+      right: -65px;
+      transform: scale(1.1);
+    }
+
+    .ground {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 113px;
+      background:
+        repeating-linear-gradient(
+          165deg,
+          #3f6f30,
+          #3f6f30 18px,
+          #477c35 18px,
+          #477c35 36px
+        );
+      border-top: 5px solid #315926;
     }
 
     .fighter {
-      padding: 12px;
+      position: absolute;
+      bottom: 24px;
+      z-index: 2;
+      width: 140px;
       text-align: center;
+    }
+
+    .player {
+      left: 18px;
+    }
+
+    .enemy {
+      right: 18px;
+    }
+
+    .fighter-name {
+      display: inline-block;
+      margin-bottom: 5px;
+      padding: 4px 9px;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .character {
+      font-size: 4.5rem;
+      line-height: 1;
+      filter: drop-shadow(0 5px 3px rgba(0, 0, 0, 0.35));
+      animation: idle 1.8s ease-in-out infinite;
+    }
+
+    .enemy .character {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes idle {
+      0%, 100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-6px);
+      }
+    }
+
+    .character.hit {
+      animation: hit 0.35s ease;
+    }
+
+    @keyframes hit {
+      0%, 100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-10px) rotate(-5deg);
+      }
+
+      75% {
+        transform: translateX(10px) rotate(5deg);
+      }
+    }
+
+    .health-bar {
+      width: 100%;
+      height: 16px;
+      margin-top: 8px;
+      overflow: hidden;
+      background: #450a0a;
+      border: 2px solid white;
+      border-radius: 10px;
+    }
+
+    .health-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, #22c55e, #86efac);
+      transition: width 0.4s ease;
+    }
+
+    .health-text {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    /* Word and letter grid */
+
+    .game-panel {
+      padding: 16px;
+    }
+
+    .word-display {
+      display: flex;
+      justify-content: space-between;
+      min-height: 52px;
+      margin-bottom: 14px;
+      padding: 12px;
       background: #111827;
       border-radius: 12px;
     }
 
-    .fighter-name {
-      margin: 0 0 8px;
-      font-weight: bold;
-    }
-
-    .health {
-      margin: 0;
+    #current-word {
+      overflow: hidden;
       font-size: 1.25rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-overflow: ellipsis;
     }
 
-    .current-word {
-      min-height: 48px;
-      margin: 16px 0;
-      padding: 12px;
-      text-align: center;
-      background: #111827;
-      border-radius: 10px;
-      font-size: 1.3rem;
-      letter-spacing: 3px;
+    #damage-preview {
+      flex-shrink: 0;
+      margin-left: 10px;
+      color: #fbbf24;
+      font-weight: bold;
     }
 
     .letter-grid {
@@ -85,47 +247,61 @@
     }
 
     .letter-tile {
+      position: relative;
       aspect-ratio: 1;
-      border: 2px solid #64748b;
+      border: 3px solid #cbd5e1;
       border-radius: 12px;
-      background: #f8fafc;
+      background: linear-gradient(145deg, #ffffff, #dbeafe);
       color: #172033;
-      font-size: clamp(1.2rem, 7vw, 2rem);
+      font-size: clamp(1.4rem, 7vw, 2.1rem);
       font-weight: bold;
       cursor: pointer;
-      touch-action: manipulation;
+      box-shadow: 0 4px 0 #94a3b8;
+      transition: transform 0.1s, background 0.1s;
+    }
+
+    .letter-tile:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #94a3b8;
     }
 
     .letter-tile.selected {
-      border-color: #fbbf24;
+      border-color: #f59e0b;
       background: #fbbf24;
-      transform: scale(0.94);
+      transform: scale(0.92);
+      box-shadow: 0 2px 0 #b45309;
+    }
+
+    .letter-value {
+      position: absolute;
+      right: 7px;
+      bottom: 5px;
+      font-size: 0.75rem;
     }
 
     .controls {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 16px;
+      margin-top: 15px;
     }
 
     .control-button {
-      padding: 12px;
+      padding: 13px;
       border: 0;
       border-radius: 10px;
-      font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
-    }
-
-    #submit-button {
-      background: #22c55e;
-      color: #052e16;
     }
 
     #clear-button {
       background: #e2e8f0;
       color: #172033;
+    }
+
+    #attack-button {
+      background: #22c55e;
+      color: #052e16;
     }
 
     #restart-button {
@@ -138,84 +314,200 @@
 
     .message {
       min-height: 48px;
-      margin-bottom: 0;
+      margin: 14px 0 0;
       text-align: center;
       color: #fef3c7;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 380px) {
+      body {
+        padding: 0;
+        align-items: flex-start;
+      }
+
+      .game {
+        border: 0;
+        border-radius: 0;
+      }
+
+      .battle-scene {
+        height: 230px;
+      }
+
+      .fighter {
+        width: 120px;
+      }
+
+      .character {
+        font-size: 4rem;
+      }
     }
   </style>
 </head>
 
 <body>
   <main class="game">
-    <h1>Word War</h1>
-    <p class="tagline">Build words. Win the battle.</p>
+    <header class="game-header">
+      <h1>Word War</h1>
+      <p class="tagline">Build powerful words. Defeat your rival.</p>
+    </header>
 
-    <section class="battle-area">
-      <div class="fighter">
-        <p class="fighter-name">You</p>
-        <p class="health">❤️ <span id="player-health">30</span></p>
+    <section class="battle-scene">
+      <div class="sun"></div>
+      <div class="mountain mountain-one"></div>
+      <div class="mountain mountain-two"></div>
+      <div class="mountain mountain-three"></div>
+      <div class="ground"></div>
+
+      <div class="fighter player">
+        <div class="fighter-name">Word Knight</div>
+        <div id="player-character" class="character">🧙</div>
+
+        <div class="health-bar">
+          <div id="player-health-bar" class="health-fill"></div>
+        </div>
+
+        <p class="health-text">
+          <span id="player-health">50</span> / 50 HP
+        </p>
       </div>
 
-      <div class="fighter">
-        <p class="fighter-name">Opponent</p>
-        <p class="health">❤️ <span id="enemy-health">30</span></p>
+      <div class="fighter enemy">
+        <div class="fighter-name">Glyph Goblin</div>
+        <div id="enemy-character" class="character">👹</div>
+
+        <div class="health-bar">
+          <div id="enemy-health-bar" class="health-fill"></div>
+        </div>
+
+        <p class="health-text">
+          <span id="enemy-health">50</span> / 50 HP
+        </p>
       </div>
     </section>
 
-    <div id="current-word" class="current-word">
-      Choose a letter
-    </div>
+    <section class="game-panel">
+      <div class="word-display">
+        <span id="current-word">Choose letters</span>
+        <span id="damage-preview">0 damage</span>
+      </div>
 
-    <div id="letter-grid" class="letter-grid"></div>
+      <div id="letter-grid" class="letter-grid"></div>
 
-    <div class="controls">
-      <button id="clear-button" class="control-button">Clear</button>
-      <button id="submit-button" class="control-button">Attack</button>
-    </div>
+      <div class="controls">
+        <button id="clear-button" class="control-button">
+          Clear
+        </button>
 
-    <button id="restart-button" class="control-button">
-      Play Again
-    </button>
+        <button id="attack-button" class="control-button">
+          Attack
+        </button>
+      </div>
 
-    <p id="message" class="message">
-      Select neighboring letters to build a word.
-    </p>
+      <button id="restart-button" class="control-button">
+        Play Again
+      </button>
+
+      <p id="message" class="message">
+        Select any unused letters to build your attack.
+      </p>
+    </section>
   </main>
 
   <script>
-    const letters = [
-      "A", "A", "A", "B", "C", "D", "E", "E",
-      "E", "F", "G", "H", "I", "I", "J", "K",
-      "L", "M", "N", "N", "O", "O", "P", "Q",
-      "R", "R", "S", "S", "T", "T", "U", "V",
-      "W", "X", "Y", "Z"
+    const MAX_HEALTH = 50;
+
+    const letterValues = {
+      A: 1,
+      B: 3,
+      C: 3,
+      D: 2,
+      E: 1,
+      F: 4,
+      G: 2,
+      H: 4,
+      I: 1,
+      J: 8,
+      K: 5,
+      L: 1,
+      M: 3,
+      N: 1,
+      O: 1,
+      P: 3,
+      Q: 10,
+      R: 1,
+      S: 1,
+      T: 1,
+      U: 1,
+      V: 4,
+      W: 4,
+      X: 8,
+      Y: 4,
+      Z: 10
+    };
+
+    const letterPool = [
+      "A", "A", "A", "A",
+      "B", "C", "D", "D",
+      "E", "E", "E", "E", "E",
+      "F", "G", "G", "H",
+      "I", "I", "I", "J", "K",
+      "L", "L", "M", "N", "N", "N",
+      "O", "O", "O", "P", "Q",
+      "R", "R", "R", "S", "S", "S",
+      "T", "T", "T", "U", "U",
+      "V", "W", "X", "Y", "Z"
     ];
 
     const gridElement = document.querySelector("#letter-grid");
-    const wordElement = document.querySelector("#current-word");
+    const currentWordElement =
+      document.querySelector("#current-word");
+    const damagePreviewElement =
+      document.querySelector("#damage-preview");
     const messageElement = document.querySelector("#message");
-    const playerHealthElement = document.querySelector("#player-health");
-    const enemyHealthElement = document.querySelector("#enemy-health");
-    const submitButton = document.querySelector("#submit-button");
-    const clearButton = document.querySelector("#clear-button");
-    const restartButton = document.querySelector("#restart-button");
+
+    const playerHealthElement =
+      document.querySelector("#player-health");
+    const enemyHealthElement =
+      document.querySelector("#enemy-health");
+
+    const playerHealthBar =
+      document.querySelector("#player-health-bar");
+    const enemyHealthBar =
+      document.querySelector("#enemy-health-bar");
+
+    const playerCharacter =
+      document.querySelector("#player-character");
+    const enemyCharacter =
+      document.querySelector("#enemy-character");
+
+    const clearButton =
+      document.querySelector("#clear-button");
+    const attackButton =
+      document.querySelector("#attack-button");
+    const restartButton =
+      document.querySelector("#restart-button");
 
     let gridLetters = [];
     let selectedTiles = [];
-    let playerHealth = 30;
-    let enemyHealth = 30;
+    let playerHealth = MAX_HEALTH;
+    let enemyHealth = MAX_HEALTH;
     let gameOver = false;
+    let waitingForOpponent = false;
 
-    function randomLetter() {
-      const randomIndex = Math.floor(Math.random() * letters.length);
-      return letters[randomIndex];
+    function getRandomLetter() {
+      const randomIndex =
+        Math.floor(Math.random() * letterPool.length);
+
+      return letterPool[randomIndex];
     }
 
     function createGrid() {
       gridLetters = [];
 
       for (let index = 0; index < 16; index++) {
-        gridLetters.push(randomLetter());
+        gridLetters.push(getRandomLetter());
       }
 
       renderGrid();
@@ -225,168 +517,212 @@
       gridElement.innerHTML = "";
 
       gridLetters.forEach(function(letter, index) {
-        const button = document.createElement("button");
+        const tile = document.createElement("button");
+        const value = document.createElement("span");
 
-        button.className = "letter-tile";
-        button.textContent = letter;
-        button.dataset.index = index;
-        button.setAttribute("aria-label", "Letter " + letter);
+        tile.className = "letter-tile";
+        tile.dataset.index = index;
+        tile.textContent = letter;
 
-        button.addEventListener("click", function() {
-          selectTile(index);
+        value.className = "letter-value";
+        value.textContent = letterValues[letter];
+
+        tile.appendChild(value);
+
+        tile.addEventListener("click", function() {
+          toggleTile(index);
         });
 
-        gridElement.appendChild(button);
+        gridElement.appendChild(tile);
       });
     }
 
-    function selectTile(index) {
-      if (gameOver) {
+    function toggleTile(index) {
+      if (gameOver || waitingForOpponent) {
         return;
       }
 
-      const alreadySelected = selectedTiles.includes(index);
+      const selectedPosition = selectedTiles.indexOf(index);
 
-      if (alreadySelected) {
-        const lastSelected = selectedTiles[selectedTiles.length - 1];
-
-        if (index === lastSelected) {
-          selectedTiles.pop();
-          updateSelection();
-        }
-
-        return;
+      if (selectedPosition === -1) {
+        selectedTiles.push(index);
+      } else {
+        selectedTiles.splice(selectedPosition, 1);
       }
 
-      if (selectedTiles.length > 0) {
-        const previousIndex = selectedTiles[selectedTiles.length - 1];
-
-        if (!tilesAreAdjacent(previousIndex, index)) {
-          messageElement.textContent =
-            "Choose a letter next to your previous letter.";
-          return;
-        }
-      }
-
-      selectedTiles.push(index);
       updateSelection();
-      messageElement.textContent = "Keep building, or attack!";
     }
 
-    function tilesAreAdjacent(firstIndex, secondIndex) {
-      const firstRow = Math.floor(firstIndex / 4);
-      const firstColumn = firstIndex % 4;
-      const secondRow = Math.floor(secondIndex / 4);
-      const secondColumn = secondIndex % 4;
+    function getCurrentWord() {
+      return selectedTiles
+        .map(function(index) {
+          return gridLetters[index];
+        })
+        .join("");
+    }
 
-      const rowDistance = Math.abs(firstRow - secondRow);
-      const columnDistance = Math.abs(firstColumn - secondColumn);
-
-      return rowDistance <= 1 && columnDistance <= 1;
+    function calculateDamage() {
+      return selectedTiles.reduce(function(total, index) {
+        const letter = gridLetters[index];
+        return total + letterValues[letter];
+      }, 0);
     }
 
     function updateSelection() {
-      const tileButtons = document.querySelectorAll(".letter-tile");
+      const tiles =
+        document.querySelectorAll(".letter-tile");
 
-      tileButtons.forEach(function(button, index) {
-        button.classList.toggle(
-          "selected",
-          selectedTiles.includes(index)
-        );
+      tiles.forEach(function(tile, index) {
+        const isSelected = selectedTiles.includes(index);
+        tile.classList.toggle("selected", isSelected);
       });
 
-      const word = selectedTiles
-        .map(function(index) {
-          return gridLetters[index];
-        })
-        .join("");
+      const word = getCurrentWord();
+      const damage = calculateDamage();
 
-      wordElement.textContent = word || "Choose a letter";
+      currentWordElement.textContent =
+        word || "Choose letters";
+
+      damagePreviewElement.textContent =
+        damage + (damage === 1 ? " damage" : " damage");
     }
 
     function clearSelection() {
+      if (waitingForOpponent) {
+        return;
+      }
+
       selectedTiles = [];
       updateSelection();
+
       messageElement.textContent =
-        "Select neighboring letters to build a word.";
+        "Select any unused letters to build your attack.";
     }
 
     function attack() {
+      if (gameOver || waitingForOpponent) {
+        return;
+      }
+
+      const word = getCurrentWord();
+      const damage = calculateDamage();
+
+      if (word.length < 2) {
+        messageElement.textContent =
+          "Choose at least two letters before attacking.";
+        return;
+      }
+
+      waitingForOpponent = true;
+      enemyHealth = Math.max(0, enemyHealth - damage);
+
+      updateHealth();
+      playHitAnimation(enemyCharacter);
+
+      messageElement.textContent =
+        word + " strikes for " + damage + " damage!";
+
+      if (enemyHealth === 0) {
+        finishGame(
+          "Victory! " + word +
+          " defeated the Glyph Goblin."
+        );
+        return;
+      }
+
+      setTimeout(opponentAttack, 900);
+    }
+
+    function opponentAttack() {
       if (gameOver) {
         return;
       }
 
-      const word = selectedTiles
-        .map(function(index) {
-          return gridLetters[index];
-        })
-        .join("");
+      const opponentDamage =
+        Math.floor(Math.random() * 6) + 3;
 
-      if (word.length < 2) {
-        messageElement.textContent =
-          "Build a word with at least two letters.";
-        return;
-      }
+      playerHealth =
+        Math.max(0, playerHealth - opponentDamage);
 
-      const damage = word.length;
-      enemyHealth = Math.max(0, enemyHealth - damage);
-      enemyHealthElement.textContent = enemyHealth;
-
-      if (enemyHealth === 0) {
-        finishGame("You win! Your final word was " + word + ".");
-        return;
-      }
-
-      const enemyDamage = Math.floor(Math.random() * 4) + 2;
-      playerHealth = Math.max(0, playerHealth - enemyDamage);
-      playerHealthElement.textContent = playerHealth;
+      updateHealth();
+      playHitAnimation(playerCharacter);
 
       if (playerHealth === 0) {
-        finishGame("Your opponent wins. Try another battle!");
+        finishGame(
+          "The Glyph Goblin wins this battle. Try again!"
+        );
         return;
       }
 
-      messageElement.textContent =
-        word + " dealt " + damage +
-        " damage. Your opponent dealt " +
-        enemyDamage + " damage.";
+      messageElement.textContent +=
+        " The goblin attacks back for " +
+        opponentDamage + " damage.";
 
-      createGrid();
       selectedTiles = [];
+      createGrid();
       updateSelection();
+      waitingForOpponent = false;
+    }
+
+    function updateHealth() {
+      playerHealthElement.textContent = playerHealth;
+      enemyHealthElement.textContent = enemyHealth;
+
+      playerHealthBar.style.width =
+        (playerHealth / MAX_HEALTH) * 100 + "%";
+
+      enemyHealthBar.style.width =
+        (enemyHealth / MAX_HEALTH) * 100 + "%";
+    }
+
+    function playHitAnimation(character) {
+      character.classList.remove("hit");
+
+      void character.offsetWidth;
+
+      character.classList.add("hit");
+
+      setTimeout(function() {
+        character.classList.remove("hit");
+      }, 350);
     }
 
     function finishGame(message) {
       gameOver = true;
+      waitingForOpponent = false;
+
       messageElement.textContent = message;
-      submitButton.disabled = true;
       clearButton.disabled = true;
+      attackButton.disabled = true;
       restartButton.style.display = "block";
     }
 
     function restartGame() {
-      playerHealth = 30;
-      enemyHealth = 30;
-      gameOver = false;
+      playerHealth = MAX_HEALTH;
+      enemyHealth = MAX_HEALTH;
       selectedTiles = [];
+      gameOver = false;
+      waitingForOpponent = false;
 
-      playerHealthElement.textContent = playerHealth;
-      enemyHealthElement.textContent = enemyHealth;
-      submitButton.disabled = false;
       clearButton.disabled = false;
+      attackButton.disabled = false;
       restartButton.style.display = "none";
-      messageElement.textContent =
-        "Select neighboring letters to build a word.";
 
+      messageElement.textContent =
+        "Select any unused letters to build your attack.";
+
+      updateHealth();
       createGrid();
       updateSelection();
     }
 
-    submitButton.addEventListener("click", attack);
     clearButton.addEventListener("click", clearSelection);
+    attackButton.addEventListener("click", attack);
     restartButton.addEventListener("click", restartGame);
 
     createGrid();
+    updateHealth();
+    updateSelection();
   </script>
 </body>
 </html>
