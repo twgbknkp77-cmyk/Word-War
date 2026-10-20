@@ -773,25 +773,51 @@
     }
 
     async function isRecognizedWord(word) {
-      const lowerCaseWord = word.toLowerCase();
+  const lowerCaseWord = word.toLowerCase();
 
-      const address =
-        "https://api.datamuse.com/words?sp=" +
-        encodeURIComponent(lowerCaseWord) +
-        "&max=10";
+  const address =
+    "https://api.datamuse.com/words?sp=" +
+    encodeURIComponent(lowerCaseWord) +
+    "&md=pf&max=10";
 
-      const response = await fetch(address);
+  const response = await fetch(address);
 
-      if (!response.ok) {
-        throw new Error("Dictionary request failed");
-      }
+  if (!response.ok) {
+    throw new Error("Dictionary request failed");
+  }
 
-      const results = await response.json();
+  const results = await response.json();
 
-      return results.some(function(result) {
-        return result.word.toLowerCase() === lowerCaseWord;
-      });
-    }
+  return results.some(function(result) {
+    const exactMatch =
+      result.word.toLowerCase() === lowerCaseWord;
+
+    const tags = result.tags || [];
+
+    const hasPartOfSpeech = tags.some(function(tag) {
+      return (
+        tag === "n" ||
+        tag === "v" ||
+        tag === "adj" ||
+        tag === "adv"
+      );
+    });
+
+    const frequencyTag = tags.find(function(tag) {
+      return tag.startsWith("f:");
+    });
+
+    const frequency = frequencyTag
+      ? Number(frequencyTag.slice(2))
+      : 0;
+
+    return (
+      exactMatch &&
+      hasPartOfSpeech &&
+      frequency >= 0.01
+    );
+  });
+}
 
     async function attack() {
       if (gameOver || turnInProgress) {
