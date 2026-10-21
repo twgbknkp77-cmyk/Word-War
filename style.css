@@ -46,7 +46,7 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   position: absolute;
   bottom: 12px;
   z-index: 3;
-  width: 47%;
+  width: 43%;
   text-align: center;
   color: #fff8df;
   font-weight: 800;
@@ -70,18 +70,28 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 }
 
 .hero-art, .enemy-art {
-  width: min(44vw, 235px);
-  height: clamp(190px, 31dvh, 265px);
-  margin: -5px auto -12px;
+  position: relative;
+  width: min(38vw, 205px);
+  height: clamp(155px, 24dvh, 215px);
+  margin: -2px auto -8px;
   background-repeat: no-repeat;
   filter: drop-shadow(0 7px 2px #3f261a5c);
   animation: breathe 2.1s ease-in-out infinite;
 }
 
 .hero-art {
-  background-image: url("assets/owlysses.png");
-  background-size: 400% 100%;
-  background-position: 0 0;
+  background-image: url("assets/syntax.png");
+  background-size: contain;
+  background-position: center bottom;
+}
+
+.hero-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("assets/syntax-flinch.png") center bottom / contain no-repeat;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .enemy-art {
@@ -203,10 +213,11 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 
 .battle.walking .enemy-fighter { opacity: 0; transform: translateX(80%); }
 .battle.walking .hero-fighter { animation: journey 3.2s linear both; }
-.battle.walking .hero-art { background-position: 33.333% 0; animation: walk-bob .35s ease-in-out infinite alternate; }
+.battle.walking .hero-art { animation: walk-bob .35s ease-in-out infinite alternate; }
 .battle.walking .scenery { animation: road-scroll 3.2s linear both; }
-.hero-art.cast { background-position: 66.666% 0; animation: cast .55s ease; }
-.hero-art.hit { background-position: 100% 0; animation: hit .45s ease; }
+.hero-art.cast { animation: cast .55s ease; }
+.hero-art.hit { animation: syntax-flinch .78s cubic-bezier(.3,.05,.25,1); }
+.hero-art.hit::after { animation: syntax-flinch-face .78s linear; }
 .enemy-art.cast { animation: enemy-cast .5s ease; }
 .enemy-art.hit { animation: hit .45s ease; }
 .grid.shuffling .tile { animation: tile-shuffle .5s ease both; animation-delay: calc(var(--i) * 18ms); }
@@ -215,6 +226,18 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 @keyframes cast { 50% { transform: translateY(-9px) rotate(-3deg) scale(1.06); } }
 @keyframes enemy-cast { 50% { transform: translateX(-13px) scale(1.05); } }
 @keyframes hit { 35% { transform: translateX(-10px) rotate(-4deg); filter: brightness(1.6); } 70% { transform: translateX(8px) rotate(3deg); } }
+@keyframes syntax-flinch {
+  0% { transform: translate(0, 0) rotate(0); }
+  18% { transform: translate(-4px, 4px) rotate(-1deg); }
+  38% { transform: translate(-16px, 15px) rotate(-5deg) scale(.96, .91); }
+  58% { transform: translate(-11px, 10px) rotate(-3deg) scale(.98, .94); }
+  78% { transform: translate(4px, -3px) rotate(1deg) scale(1.01); }
+  100% { transform: translate(0, 0) rotate(0); }
+}
+@keyframes syntax-flinch-face {
+  0%, 20%, 88%, 100% { opacity: 0; }
+  34%, 70% { opacity: 1; }
+}
 @keyframes float { to { transform: translateY(-70px) scale(1.2); opacity: 0; } }
 @keyframes journey { 0% { transform: translateX(0); } 48% { transform: translateX(58%); } 52% { transform: translateX(-45%); } 100% { transform: translateX(0); } }
 @keyframes walk-bob { to { transform: translateY(-7px) rotate(2deg); } }
@@ -239,9 +262,9 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 }
 
 @media (max-height: 900px) and (max-width: 620px) {
-  .battle { height: 315px; min-height: 315px; }
-  .hero-art, .enemy-art { height: 205px; margin-bottom: -8px; }
-  .play-panel { min-height: calc(100dvh - 315px); padding-top: 8px; }
+  .battle { height: 285px; min-height: 285px; }
+  .hero-art, .enemy-art { width: min(36vw, 170px); height: 168px; margin-bottom: -5px; }
+  .play-panel { min-height: calc(100dvh - 285px); padding-top: 8px; }
   .word-panel { min-height: 46px; padding: 6px 12px; }
   .grid { width: min(100%, 340px); gap: 5px; margin-top: 7px; }
   .tile { border-width: 4px; border-radius: 11px; }
@@ -253,35 +276,4 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
-}
-/* More compact battle characters */
-.fighter {
-  width: 43%;
-}
-
-.hero-art,
-.enemy-art {
-  width: min(38vw, 205px);
-  height: clamp(155px, 24dvh, 215px);
-  margin: -2px auto -8px;
-}
-
-/* Compact phone layout */
-@media (max-height: 900px) and (max-width: 620px) {
-  .battle {
-    height: 285px;
-    min-height: 285px;
-  }
-
-  .hero-art,
-  .enemy-art {
-    width: min(36vw, 170px);
-    height: 168px;
-    margin-bottom: -5px;
-  }
-
-  .play-panel {
-    min-height: calc(100dvh - 285px);
-    padding-top: 8px;
-  }
 }

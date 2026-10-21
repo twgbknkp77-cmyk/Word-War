@@ -103,7 +103,7 @@ async function shuffle(){
 
 async function enemyTurn(){
   const enemy=enemies[enemyIndex], move=enemy.moves[moveIndex];
-  pose(el.enemyArt,"cast");pose(el.heroArt,"hit");
+  pose(el.enemyArt,"cast");pose(el.heroArt,"hit",820);
   let amount=move.damage,blocked=Math.min(ward,amount);ward-=blocked;amount-=blocked;heroHP=Math.max(0,heroHP-amount);effect(`-${amount}`,"hero");
   if(move.scramble){tiles.sort(()=>Math.random()-.5);selected=[];}
   if(move.lock||move.ink){disabled.clear();const count=move.lock||move.ink;while(disabled.size<count)disabled.add(Math.floor(Math.random()*16));}
