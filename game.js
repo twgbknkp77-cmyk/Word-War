@@ -44,7 +44,9 @@ const pipSkeleton = Object.freeze({
 // Pixel-space anchor points measured on the transparent source artwork.
 // Each segment is fitted so its two anchors land on the matching skeleton bone.
 const pipArtworkAnchors = Object.freeze({
-  head:{width:555,height:470,scale:105/555,anchor:{x:365,y:430}},
+  // Attach the head just beneath Pip's chin, rather than at the bottom of
+  // the painted neck. This seats the head closer to the torso.
+  head:{width:555,height:470,scale:105/555,anchor:{x:365,y:370}},
   upperArm:{width:300,height:310,scale:.18,from:{x:242,y:58},to:{x:82,y:250}},
   forearm:{width:310,height:245,scale:.18,from:{x:244,y:40},to:{x:60,y:205}},
   upperLeg:{width:290,height:415,scale:.15,from:{x:180,y:50},to:{x:145,y:360}},

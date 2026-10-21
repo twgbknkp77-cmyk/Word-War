@@ -156,7 +156,7 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .pip-puppet.rig-map-mode > .pip-torso,
 .pip-puppet.rig-map-mode > .pip-head,
 .pip-puppet.rig-map-mode > .pip-limb { animation: none !important; }
-.pip-tail { left: calc(var(--tail-base-x) - 21px); top: calc(var(--tail-base-y) - 24px); z-index: 0; width: 46px; height: 58px; transform-origin: 18% 22%; animation: pip-tail-idle 5.6s ease-in-out infinite; }
+.pip-tail { display: none; left: calc(var(--tail-base-x) - 21px); top: calc(var(--tail-base-y) - 24px); z-index: 0; width: 46px; height: 58px; transform-origin: 18% 22%; animation: pip-tail-idle 5.6s ease-in-out infinite; }
 .pip-torso { left: calc(var(--chest-x) - 47px); top: calc(var(--chest-y) - 33px); z-index: 5; width: 96px; height: 102px; }
 .pip-head { left: calc(var(--neck-x) - 71px); top: calc(var(--neck-y) - 54px); z-index: 6; width: 105px; height: 90px; transform-origin: 63% 92%; animation: pip-head-idle 3.8s ease-in-out infinite; }
 .pip-held-pipes { left: 41px; top: 50px; z-index: 10; width: 34px; height: 66px; opacity: 0; transform: rotate(-72deg) scale(.75); transform-origin: 50% 85%; }
