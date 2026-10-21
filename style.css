@@ -137,6 +137,44 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   animation-delay: .55s;
 }
 
+.pip-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  background-position: center bottom;
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+.pip-neutral { background-image: url("assets/pip-neutral.png"); }
+.pip-scratch { background-image: url("assets/pip-scratch.png"); }
+.pip-rush { background-image: url("assets/pip-rush.png"); }
+.pip-pipes { background-image: url("assets/pip-pipes.png"); }
+.pip-kick { background-image: url("assets/pip-kick.png"); }
+.pip-hit { background-image: url("assets/pip-hit.png"); }
+.pip-defeat { background-image: url("assets/pip-defeat.png"); }
+
+.enemy-art.pip {
+  background-image: none;
+  transform-origin: 50% 100%;
+  animation: pip-idle 3.2s ease-in-out infinite;
+}
+.enemy-art.pip .pip-neutral { opacity: 1; visibility: visible; }
+.enemy-art.pip:is(.scratch,.move-rush,.move-pipes,.move-kick,.hit,.defeat) .pip-neutral { opacity: 0; visibility: hidden; }
+.enemy-art.pip.scratch .pip-scratch,
+.enemy-art.pip.move-rush .pip-rush,
+.enemy-art.pip.move-pipes .pip-pipes,
+.enemy-art.pip.move-kick .pip-kick,
+.enemy-art.pip.hit .pip-hit,
+.enemy-art.pip.defeat .pip-defeat { opacity: 1; visibility: visible; }
+.enemy-art.pip.scratch { animation: pip-scratch-motion 1.05s ease-in-out; }
+.enemy-art.pip.move-rush { animation: pip-rush-motion 1.12s cubic-bezier(.25,.05,.25,1); z-index: 5; }
+.enemy-art.pip.move-pipes { animation: pip-pipes-motion 1.12s ease-in-out; }
+.enemy-art.pip.move-kick { animation: pip-kick-motion 1.12s cubic-bezier(.25,.05,.25,1); z-index: 5; }
+.enemy-art.pip.hit { animation: pip-hit-motion .55s ease; }
+.enemy-art.pip.defeat { animation: pip-defeat-motion 1.25s ease-in forwards; }
+
 .health {
   height: 14px;
   overflow: hidden;
@@ -291,6 +329,45 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 @keyframes syntax-idle {
   0%, 100% { transform: rotate(-.7deg); }
   50% { transform: rotate(.7deg); }
+}
+@keyframes pip-idle {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  45% { transform: translateY(-2px) rotate(-.45deg); }
+  55% { transform: translateY(-2px) rotate(-.45deg); }
+}
+@keyframes pip-scratch-motion {
+  0%, 100% { transform: translateY(0); }
+  18%, 78% { transform: translateY(-2px) rotate(-.5deg); }
+}
+@keyframes pip-rush-motion {
+  0% { transform: translateX(0); }
+  28% { transform: translateX(10px) scale(.97); }
+  52% { transform: translateX(-72%) scale(1.03); }
+  66% { transform: translateX(-72%) scale(1.03); }
+  100% { transform: translateX(0); }
+}
+@keyframes pip-pipes-motion {
+  0%, 100% { transform: translateY(0); }
+  28%, 72% { transform: translateY(-3px) scale(1.02); filter: drop-shadow(0 7px 2px #3f261a5c); }
+  48% { transform: translateY(-4px) scale(1.035); filter: drop-shadow(0 7px 2px #3f261a5c) brightness(1.08); }
+}
+@keyframes pip-kick-motion {
+  0% { transform: translateX(0) rotate(0); }
+  30% { transform: translateX(8px) rotate(2deg); }
+  53% { transform: translateX(-38%) rotate(-3deg); }
+  68% { transform: translateX(-38%) rotate(-3deg); }
+  100% { transform: translateX(0) rotate(0); }
+}
+@keyframes pip-hit-motion {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  38% { transform: translateX(18px) rotate(5deg); filter: brightness(1.45); }
+  72% { transform: translateX(9px) rotate(2deg); }
+}
+@keyframes pip-defeat-motion {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  38% { transform: translateY(12px) scale(.98); opacity: 1; }
+  72% { transform: translateY(18px) scale(.9); opacity: .82; filter: sepia(.35); }
+  100% { transform: translateY(28px) scale(.72); opacity: 0; filter: sepia(1); }
 }
 @keyframes cast { 50% { transform: translateY(-9px) rotate(-3deg) scale(1.06); } }
 @keyframes syntax-bite {

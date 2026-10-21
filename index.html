@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Syntax: Word Odyssey</title>
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
   <main class="game" aria-label="Syntax: Word Odyssey">
@@ -34,7 +34,15 @@
       </article>
 
       <article id="enemy-fighter" class="fighter enemy-fighter">
-        <div id="enemy-art" class="enemy-art" role="img"></div>
+        <div id="enemy-art" class="enemy-art" role="img">
+          <span class="pip-layer pip-neutral" aria-hidden="true"></span>
+          <span class="pip-layer pip-scratch" aria-hidden="true"></span>
+          <span class="pip-layer pip-rush" aria-hidden="true"></span>
+          <span class="pip-layer pip-pipes" aria-hidden="true"></span>
+          <span class="pip-layer pip-kick" aria-hidden="true"></span>
+          <span class="pip-layer pip-hit" aria-hidden="true"></span>
+          <span class="pip-layer pip-defeat" aria-hidden="true"></span>
+        </div>
       </article>
 
       <div id="effects" class="effects" aria-live="polite"></div>
@@ -57,6 +65,6 @@
       <button id="restart" class="restart" type="button">Begin a new odyssey</button>
     </section>
   </main>
-  <script src="game.js?v=8"></script>
+  <script src="game.js?v=9"></script>
 </body>
 </html>

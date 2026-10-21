@@ -10,7 +10,7 @@ const charges = [
 
 const enemies = [
   {name:"Pip the Satyr",place:"The Whispering Olive Grove",hp:42,pos:0,moves:[
-    {name:"Reed Racket",damage:4},{name:"Hoof Shuffle",damage:3,scramble:true},{name:"Prankster's Kick",damage:7}
+    {name:"Horn Rush",damage:4,pose:"rush"},{name:"Pipe Puzzle",damage:3,scramble:true,pose:"pipes"},{name:"Mule Kick",damage:7,pose:"kick"}
   ]},
   {name:"Brontes the Minotaur",place:"The Crooked Labyrinth",hp:58,pos:23,moves:[
     {name:"Horn Rush",damage:6},{name:"Maze Seal",damage:3,lock:3},{name:"Wall Breaker",damage:9}
@@ -32,6 +32,7 @@ const el = {battle:$("#battle"),chapter:$("#chapter-card"),heroF:$("#hero-fighte
 let dictionary = new Set(), tiles = [], selected = [], disabled = new Set();
 let heroHP = PLAYER_MAX, enemyHP = 0, enemyIndex = 0, moveIndex = 0, ward = 0;
 let busy = true, finished = false;
+let pipIdleTimer = 0;
 
 const pick = string => string[Math.floor(Math.random() * string.length)];
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -142,7 +143,15 @@ async function collapseUsedTiles(used, prizeCount) {
 
 function controls(){ const off=busy||finished; el.shuffle.disabled=off; el.attack.disabled=off; render(); }
 function health(){ const enemy=enemies[enemyIndex]; el.heroHp.textContent=heroHP; el.enemyHp.textContent=enemyHP; el.enemyMax.textContent=enemy.hp; el.heroBar.style.width=`${heroHP/PLAYER_MAX*100}%`; el.enemyBar.style.width=`${enemyHP/enemy.hp*100}%`; }
-function pose(node,name,ms=550){ node.classList.remove("cast","hit"); void node.offsetWidth; node.classList.add(name); setTimeout(()=>node.classList.remove(name),ms); }
+const poseClasses=["cast","hit","scratch","move-rush","move-pipes","move-kick","defeat"];
+function pose(node,name,ms=550){ node.classList.remove(...poseClasses); void node.offsetWidth; node.classList.add(name); setTimeout(()=>node.classList.remove(name),ms); }
+function schedulePipIdle(){
+  clearTimeout(pipIdleTimer);
+  pipIdleTimer=setTimeout(()=>{
+    if(enemyIndex===0&&!busy&&!finished&&!el.enemyArt.classList.contains("hit")) pose(el.enemyArt,"scratch",1050);
+    schedulePipIdle();
+  },6500+Math.random()*3500);
+}
 function effect(text,side){ const s=document.createElement("span"); s.className=`effect ${side}`; s.textContent=text; el.effects.appendChild(s); setTimeout(()=>s.remove(),1000); }
 
 async function attack(){
@@ -174,7 +183,9 @@ async function shuffle(){
 
 async function enemyTurn(){
   const enemy=enemies[enemyIndex], move=enemy.moves[moveIndex];
-  pose(el.enemyArt,"cast");pose(el.heroArt,"hit",820);
+  pose(el.enemyArt,enemyIndex===0?`move-${move.pose}`:"cast",1120);
+  await delay(520);
+  pose(el.heroArt,"hit",820);
   let amount=move.damage,blocked=Math.min(ward,amount);ward-=blocked;amount-=blocked;heroHP=Math.max(0,heroHP-amount);effect(`-${amount}`,"hero");
   if(move.scramble){tiles.sort(()=>Math.random()-.5);selected=[];}
   if(move.lock||move.ink){disabled.clear();const count=move.lock||move.ink;while(disabled.size<count)disabled.add(Math.floor(Math.random()*16));}
@@ -182,20 +193,21 @@ async function enemyTurn(){
   if(move.devalue){[...tiles].sort(()=>Math.random()-.5).slice(0,move.devalue).forEach(t=>t.modifier=-1);}
   moveIndex=(moveIndex+1)%enemy.moves.length;health();render();updateWord();
   el.message.textContent=`${enemy.name} used ${move.name}: ${amount} damage${blocked?` (${blocked} blocked)`:""}.`;
-  await delay(520);
+  await delay(600);
   if(heroHP<=0){finish(false);return;}busy=false;controls();
 }
 
 async function victory(){
   const defeated=enemies[enemyIndex];
   if(enemyIndex===enemies.length-1){finish(true);return;}
+  if(enemyIndex===0){pose(el.enemyArt,"defeat",1250);await delay(1250);}
   el.message.textContent=`${defeated.name} is defeated. Syntax continues along the mythic road…`;
   el.battle.classList.add("walking");await delay(1600);enemyIndex++;moveIndex=0;setupEnemy();
   el.chapter.textContent=`Chapter ${enemyIndex+1}: ${enemies[enemyIndex].place}`;el.chapter.classList.remove("show");void el.chapter.offsetWidth;el.chapter.classList.add("show");
   await delay(1650);el.battle.classList.remove("walking");freshGrid();el.message.textContent=`${enemies[enemyIndex].name} blocks the road!`;busy=false;controls();
 }
 
-function setupEnemy(){const enemy=enemies[enemyIndex];enemyHP=enemy.hp;el.enemyName.textContent=enemy.name;el.enemyArt.style.setProperty("--enemy-position",`${enemy.pos}%`);el.enemyArt.setAttribute("aria-label",enemy.name);health();}
+function setupEnemy(){const enemy=enemies[enemyIndex];enemyHP=enemy.hp;el.enemyName.textContent=enemy.name;el.enemyArt.classList.remove(...poseClasses,"pip");if(enemyIndex===0)el.enemyArt.classList.add("pip");el.enemyArt.style.setProperty("--enemy-position",`${enemy.pos}%`);el.enemyArt.setAttribute("aria-label",enemy.name);health();schedulePipIdle();}
 function finish(won){finished=true;busy=true;controls();el.restart.style.display="block";el.message.textContent=won?"The Summit Archive is free! Syntax has completed the first Word Odyssey.":"Syntax has run out of strength. Begin again and choose stronger words.";}
 function restart(){heroHP=PLAYER_MAX;enemyIndex=0;moveIndex=0;ward=0;finished=false;busy=false;el.restart.style.display="none";setupEnemy();freshGrid();el.message.textContent="Choose any three or more letters.";controls();}
 
