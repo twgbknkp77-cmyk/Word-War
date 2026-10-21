@@ -146,11 +146,22 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   background-repeat: no-repeat;
   pointer-events: none;
 }
-.pip-neutral {
-  background-image: url("assets/pip-neutral.png");
-  transform-origin: 50% 100%;
-  animation: pip-neutral-idle 3.8s ease-in-out infinite;
-}
+.pip-puppet { position: absolute; inset: 0; z-index: 2; opacity: 0; visibility: hidden; transform-origin: 50% 100%; }
+.pip-part { position: absolute; display: block; object-fit: contain; pointer-events: none; }
+.pip-tail { left: 125px; top: 121px; z-index: 0; width: 48px; height: 61px; transform-origin: 18% 22%; animation: pip-tail-idle 5.6s ease-in-out infinite; }
+.pip-torso { left: 55px; top: 61px; z-index: 4; width: 100px; height: 105px; }
+.pip-head { left: 28px; top: 5px; z-index: 8; width: 116px; height: 98px; transform-origin: 63% 92%; animation: pip-head-idle 3.8s ease-in-out infinite; }
+.pip-leg, .pip-arm { position: absolute; display: block; transform-origin: 50% 0; }
+.pip-leg { top: 139px; width: 48px; height: 75px; }
+.pip-leg-far { left: 101px; z-index: 1; transform: rotate(-7deg); }
+.pip-leg-near { left: 62px; z-index: 5; transform: rotate(6deg); }
+.pip-upper-leg { left: 0; top: 0; width: 48px; height: 58px; transform-origin: 50% 15%; }
+.pip-lower-leg { left: 1px; top: 36px; width: 45px; height: 69px; transform-origin: 50% 14%; }
+.pip-arm { top: 73px; width: 58px; height: 103px; }
+.pip-arm-far { left: 119px; z-index: 3; transform: rotate(-6deg); }
+.pip-arm-near { left: 28px; z-index: 7; transform: rotate(8deg); }
+.pip-upper-arm { left: 7px; top: 0; width: 46px; height: 51px; transform-origin: 50% 16%; }
+.pip-forearm { left: 0; top: 34px; width: 56px; height: 57px; transform-origin: 50% 15%; }
 .pip-rush { background-image: url("assets/pip-rush.png"); }
 .pip-pipes { background-image: url("assets/pip-pipes.png"); }
 .pip-kick { background-image: url("assets/pip-kick.png"); }
@@ -162,14 +173,18 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   transform-origin: 50% 100%;
   animation: none;
 }
-.enemy-art.pip .pip-neutral { opacity: 1; visibility: visible; }
-.enemy-art.pip:is(.move-rush,.move-pipes,.move-kick,.hit,.defeat) .pip-neutral { opacity: 0; visibility: hidden; }
-.enemy-art.pip.move-rush .pip-rush,
+.enemy-art.pip .pip-puppet { opacity: 1; visibility: visible; }
+.enemy-art.pip:is(.move-pipes,.hit,.defeat) .pip-puppet { opacity: 0; visibility: hidden; }
 .enemy-art.pip.move-pipes .pip-pipes,
-.enemy-art.pip.move-kick .pip-kick,
 .enemy-art.pip.hit .pip-hit,
 .enemy-art.pip.defeat .pip-defeat { opacity: 1; visibility: visible; }
-.enemy-art.pip.scratch .pip-neutral { animation: pip-neutral-scratch 1.75s ease-in-out; }
+.enemy-art.pip.scratch .pip-head { animation: pip-head-scratch 1.75s ease-in-out; }
+.enemy-art.pip.scratch .pip-arm-near { animation: pip-arm-scratch 1.75s ease-in-out; }
+.enemy-art.pip.move-rush .pip-head { animation: pip-head-rush 1.12s ease-in-out; }
+.enemy-art.pip.move-rush .pip-arm-near { animation: pip-arm-rush-near 1.12s ease-in-out; }
+.enemy-art.pip.move-rush .pip-arm-far { animation: pip-arm-rush-far 1.12s ease-in-out; }
+.enemy-art.pip.move-kick .pip-leg-near { animation: pip-leg-kick 1.12s cubic-bezier(.4,0,.2,1); z-index: 9; }
+.enemy-art.pip.move-kick .pip-torso { animation: pip-torso-kick 1.12s ease-in-out; }
 .enemy-art.pip.move-rush { animation: pip-rush-motion 1.12s cubic-bezier(.25,.05,.25,1); z-index: 5; }
 .enemy-art.pip.move-pipes { animation: pip-pipes-motion 1.12s ease-in-out; }
 .enemy-art.pip.move-kick { animation: pip-kick-motion 1.12s cubic-bezier(.25,.05,.25,1); z-index: 5; }
@@ -331,16 +346,15 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   0%, 100% { transform: rotate(-.7deg); }
   50% { transform: rotate(.7deg); }
 }
-@keyframes pip-neutral-idle {
-  0%, 100% { transform: rotate(-.35deg) scale(1); }
-  48%, 56% { transform: rotate(.35deg) scale(1.002, .996); }
-}
-@keyframes pip-neutral-scratch {
-  0%, 100% { transform: rotate(-.35deg) translate(0, 0); }
-  28% { transform: rotate(-1.2deg) translate(-1px, 1px); }
-  52%, 68% { transform: rotate(-2deg) translate(-2px, 2px); }
-  84% { transform: rotate(.4deg) translate(0, 0); }
-}
+@keyframes pip-head-idle { 0%,100% { transform: rotate(-1deg); } 48%,56% { transform: rotate(1.2deg); } }
+@keyframes pip-tail-idle { 0%,72%,100% { transform: rotate(0); } 80% { transform: rotate(8deg); } 88% { transform: rotate(-5deg); } 94% { transform: rotate(2deg); } }
+@keyframes pip-head-scratch { 0%,100% { transform: rotate(-1deg); } 34%,68% { transform: translate(-2px,2px) rotate(-6deg); } }
+@keyframes pip-arm-scratch { 0%,100% { transform: rotate(8deg); } 34%,68% { transform: translate(13px,-27px) rotate(-64deg); } }
+@keyframes pip-head-rush { 0%,100% { transform: rotate(-1deg); } 24% { transform: rotate(8deg); } 46%,65% { transform: rotate(-18deg) translate(-5px,4px); } }
+@keyframes pip-arm-rush-near { 0%,100% { transform: rotate(8deg); } 28%,66% { transform: rotate(45deg) translate(6px,4px); } }
+@keyframes pip-arm-rush-far { 0%,100% { transform: rotate(-6deg); } 28%,66% { transform: rotate(36deg) translate(5px,3px); } }
+@keyframes pip-leg-kick { 0%,100% { transform: rotate(6deg); } 28% { transform: rotate(-24deg); } 48%,66% { transform: translate(-34px,-17px) rotate(-82deg); } 84% { transform: rotate(-8deg); } }
+@keyframes pip-torso-kick { 0%,100% { transform: rotate(0); } 28% { transform: rotate(5deg); } 48%,66% { transform: rotate(-8deg) translateY(-3px); } }
 @keyframes pip-rush-motion {
   0% { transform: translateX(0); }
   22% { transform: translateX(11px) translateY(2px) scale(.96); }
