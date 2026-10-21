@@ -169,7 +169,7 @@ async function attack(){
 }
 
 async function shuffle(){
-  if(busy||finished)return;busy=true;controls();el.grid.classList.add("shuffling");el.message.textContent="Syntax reshuffles the letters. Special tiles keep their power.";await delay(270);reshuffleLetters();el.grid.classList.add("shuffling");await delay(300);el.grid.classList.remove("shuffling");el.message.textContent="The enemy takes a turn.";await enemyTurn();
+  if(busy||finished)return;busy=true;controls();el.grid.classList.add("shuffling");el.message.textContent="Syntax reshuffles the letters. Special tiles keep their power.";await delay(520);el.grid.classList.remove("shuffling");reshuffleLetters();el.message.textContent="The enemy takes a turn.";await enemyTurn();
 }
 
 async function enemyTurn(){

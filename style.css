@@ -72,7 +72,7 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .hero-status { left: 8px; }
 .enemy-status { right: 8px; text-align: right; }
 .battle-status strong { display: block; overflow: hidden; font-size: clamp(.72rem, 3vw, .95rem); text-overflow: ellipsis; white-space: nowrap; }
-.battle-status span { display: block; margin: 3px 1px 5px; font-size: clamp(.66rem, 2.7vw, .82rem); font-weight: 800; }
+.battle-status span { display: block; margin: 5px 1px 0; font-size: clamp(.66rem, 2.7vw, .82rem); font-weight: 800; }
 .nameplate {
   display: inline-block;
   position: relative;
@@ -327,7 +327,11 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 @keyframes walk-bob { to { transform: translateY(-7px) rotate(2deg); } }
 @keyframes road-scroll { to { background-position: 66% 58%; } }
 @keyframes chapter { 0%,100% { opacity: 0; transform: scale(.85); } 18%,78% { opacity: 1; transform: scale(1); } }
-@keyframes tile-shuffle { 45% { transform: rotate(10deg) scale(.74); opacity: .4; } }
+@keyframes tile-shuffle {
+  0%, 100% { transform: rotate(0) scale(1); opacity: 1; }
+  48% { transform: rotate(7deg) scale(.8); opacity: .55; }
+  72% { transform: rotate(-3deg) scale(.94); opacity: .88; }
+}
 @keyframes tile-fall {
   from { transform: translateY(calc(-1 * var(--fall-distance))); }
   to { transform: translateY(0); opacity: 1; }
