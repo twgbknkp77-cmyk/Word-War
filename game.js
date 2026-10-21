@@ -148,7 +148,7 @@ function pose(node,name,ms=550){ node.classList.remove(...poseClasses); void nod
 function schedulePipIdle(){
   clearTimeout(pipIdleTimer);
   pipIdleTimer=setTimeout(()=>{
-    if(enemyIndex===0&&!busy&&!finished&&!el.enemyArt.classList.contains("hit")) pose(el.enemyArt,"scratch",1050);
+    if(enemyIndex===0&&!busy&&!finished&&!el.enemyArt.classList.contains("hit")) pose(el.enemyArt,"scratch",1500);
     schedulePipIdle();
   },6500+Math.random()*3500);
 }

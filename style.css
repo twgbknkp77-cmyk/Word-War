@@ -61,12 +61,9 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   top: max(9px, env(safe-area-inset-top));
   z-index: 6;
   width: min(43%, 220px);
-  padding: 6px 9px 7px;
-  border: 3px solid #171923;
-  border-radius: 12px;
-  background: #f2ddb0;
-  color: #24202a;
-  box-shadow: inset 0 0 0 2px #fff0c7;
+  padding: 2px 4px;
+  color: #fff8df;
+  text-shadow: 0 2px #171923, 1px 0 #171923, -1px 0 #171923;
   line-height: 1.05;
 }
 .hero-status { left: 8px; }
@@ -140,6 +137,8 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .pip-layer {
   position: absolute;
   inset: 0;
+  z-index: 1;
+  display: block;
   opacity: 0;
   visibility: hidden;
   background-position: center bottom;
@@ -148,6 +147,7 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   pointer-events: none;
 }
 .pip-neutral { background-image: url("assets/pip-neutral.png"); }
+.pip-scratch-mid { background-image: url("assets/pip-scratch-mid.png"); }
 .pip-scratch { background-image: url("assets/pip-scratch.png"); }
 .pip-rush { background-image: url("assets/pip-rush.png"); }
 .pip-pipes { background-image: url("assets/pip-pipes.png"); }
@@ -168,7 +168,13 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .enemy-art.pip.move-kick .pip-kick,
 .enemy-art.pip.hit .pip-hit,
 .enemy-art.pip.defeat .pip-defeat { opacity: 1; visibility: visible; }
-.enemy-art.pip.scratch { animation: pip-scratch-motion 1.05s ease-in-out; }
+.enemy-art.pip.scratch .pip-neutral,
+.enemy-art.pip.scratch .pip-scratch-mid,
+.enemy-art.pip.scratch .pip-scratch { visibility: visible; }
+.enemy-art.pip.scratch .pip-neutral { animation: pip-neutral-scratch 1.5s linear both; }
+.enemy-art.pip.scratch .pip-scratch-mid { animation: pip-mid-scratch 1.5s linear both; }
+.enemy-art.pip.scratch .pip-scratch { animation: pip-full-scratch 1.5s linear both; }
+.enemy-art.pip.scratch { animation: pip-scratch-motion 1.5s ease-in-out; }
 .enemy-art.pip.move-rush { animation: pip-rush-motion 1.12s cubic-bezier(.25,.05,.25,1); z-index: 5; }
 .enemy-art.pip.move-pipes { animation: pip-pipes-motion 1.12s ease-in-out; }
 .enemy-art.pip.move-kick { animation: pip-kick-motion 1.12s cubic-bezier(.25,.05,.25,1); z-index: 5; }
@@ -331,13 +337,24 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   50% { transform: rotate(.7deg); }
 }
 @keyframes pip-idle {
-  0%, 100% { transform: translateY(0) rotate(0); }
-  45% { transform: translateY(-2px) rotate(-.45deg); }
-  55% { transform: translateY(-2px) rotate(-.45deg); }
+  0%, 100% { transform: scale(1, 1); }
+  48%, 55% { transform: scale(1.003, .992); }
 }
 @keyframes pip-scratch-motion {
-  0%, 100% { transform: translateY(0); }
-  18%, 78% { transform: translateY(-2px) rotate(-.5deg); }
+  0%, 100% { transform: scale(1); }
+  28%, 72% { transform: scale(1.004, .996); }
+}
+@keyframes pip-neutral-scratch {
+  0%, 12%, 88%, 100% { opacity: 1; }
+  18%, 82% { opacity: 0; }
+}
+@keyframes pip-mid-scratch {
+  0%, 10%, 39%, 61%, 90%, 100% { opacity: 0; }
+  17%, 34%, 66%, 83% { opacity: 1; }
+}
+@keyframes pip-full-scratch {
+  0%, 32%, 68%, 100% { opacity: 0; }
+  41%, 59% { opacity: 1; }
 }
 @keyframes pip-rush-motion {
   0% { transform: translateX(0); }
@@ -348,19 +365,19 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 }
 @keyframes pip-pipes-motion {
   0%, 100% { transform: translateY(0); }
-  28%, 72% { transform: translateY(-3px) scale(1.02); filter: drop-shadow(0 7px 2px #3f261a5c); }
-  48% { transform: translateY(-4px) scale(1.035); filter: drop-shadow(0 7px 2px #3f261a5c) brightness(1.08); }
+  28%, 72% { transform: translateY(-2px) scale(1.015); }
+  48% { transform: translateY(-3px) scale(1.025); }
 }
 @keyframes pip-kick-motion {
   0% { transform: translateX(0) rotate(0); }
   30% { transform: translateX(8px) rotate(2deg); }
-  53% { transform: translateX(-38%) rotate(-3deg); }
-  68% { transform: translateX(-38%) rotate(-3deg); }
+  53% { transform: translateX(-54%) rotate(-2deg); }
+  68% { transform: translateX(-54%) rotate(-2deg); }
   100% { transform: translateX(0) rotate(0); }
 }
 @keyframes pip-hit-motion {
   0%, 100% { transform: translateX(0) rotate(0); }
-  38% { transform: translateX(18px) rotate(5deg); filter: brightness(1.45); }
+  38% { transform: translateX(18px) rotate(5deg); }
   72% { transform: translateX(9px) rotate(2deg); }
 }
 @keyframes pip-defeat-motion {
