@@ -57,7 +57,7 @@ function render() {
     const unavailable=busy||disabled.has(i); b.disabled=unavailable;
     b.title=item.charge?`${item.charge.label}: ${chargeHelp(item.charge)}`:`${item.letter}: ${score(i)} points`;
     b.setAttribute("aria-label",b.title);
-    b.innerHTML=`<span class="letter">${item.letter}</span><span class="value">${score(i)}</span>${item.charge?`<span class="charge">${item.charge.symbol}</span>`:""}`;
+    b.innerHTML=`<span class="letter">${item.letter}</span>${item.charge?`<span class="charge">${item.charge.symbol}</span>`:""}`;
     b.addEventListener("click",()=>toggle(i)); el.grid.appendChild(b);
   });
 }
@@ -70,6 +70,41 @@ function bonus(n){ return n>=8?15:n===7?10:n===6?6:n===5?3:0; }
 function reward(n){ return n>=8?3:n>=6?2:n===5?1:0; }
 function preview(){ return selected.reduce((n,i)=>n+score(i)+(tiles[i].charge?.damage||0),0)+bonus(selected.length); }
 function updateWord(){ el.word.textContent=word()||"Choose letters"; el.damage.textContent=`${preview()} damage`; }
+
+function collapseUsedTiles(used, prizeCount) {
+  const removed = new Set(used);
+  const next = Array(16);
+  const newPositions = [];
+
+  for (let column=0; column<4; column++) {
+    const survivors = [];
+    for (let row=0; row<4; row++) {
+      const index=row*4+column;
+      if(!removed.has(index)) survivors.push(tiles[index]);
+    }
+
+    const replacements=[];
+    while(replacements.length<4-survivors.length) {
+      const letter=replacements.length%3===0?pick(vowels):pick(consonants);
+      replacements.push(tile(letter));
+    }
+
+    const columnTiles=[...replacements,...survivors];
+    columnTiles.forEach((item,row)=>{next[row*4+column]=item;});
+    replacements.forEach((_,row)=>newPositions.push(row*4+column));
+  }
+
+  tiles=next;
+  for(let i=0;i<Math.min(prizeCount,newPositions.length);i++) {
+    tiles[newPositions[i]].charge=charges[Math.floor(Math.random()*charges.length)];
+  }
+  selected=[];
+  disabled.clear();
+  render();
+  updateWord();
+  el.grid.classList.add("falling");
+  setTimeout(()=>el.grid.classList.remove("falling"),420);
+}
 
 function controls(){ const off=busy||finished; el.shuffle.disabled=off; el.attack.disabled=off; render(); }
 function health(){ const enemy=enemies[enemyIndex]; el.heroHp.textContent=heroHP; el.enemyHp.textContent=enemyHP; el.enemyMax.textContent=enemy.hp; el.heroBar.style.width=`${heroHP/PLAYER_MAX*100}%`; el.enemyBar.style.width=`${enemyHP/enemy.hp*100}%`; }
@@ -91,10 +126,7 @@ async function attack(){
   enemyHP=Math.max(0,enemyHP-damage);
   pose(el.enemyArt,"hit");effect(`-${damage}`,"enemy");health();
   el.message.textContent=`${attempt.toUpperCase()} dealt ${damage} damage${prizes?` and charged ${prizes} new ${prizes===1?"tile":"tiles"}`:""}.`;
-  selected=[]; disabled.clear();
-  used.forEach(i=>tiles[i]=tile(pick((i%3===0?vowels:consonants))));
-  for(let i=0;i<Math.min(prizes,used.length);i++) tiles[used[i]].charge=charges[Math.floor(Math.random()*charges.length)];
-  render();updateWord();
+  collapseUsedTiles(used,prizes);
   await delay(510);
   if(enemyHP<=0){await victory();return;}
   el.message.textContent += " The enemy prepares to answer…";

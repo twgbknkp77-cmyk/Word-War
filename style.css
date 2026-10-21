@@ -76,11 +76,13 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   margin: -2px auto -8px;
   background-repeat: no-repeat;
   filter: drop-shadow(0 7px 2px #3f261a5c);
-  animation: breathe 2.1s ease-in-out infinite;
+  animation: none;
 }
 
 .hero-art {
   background-image: none;
+  transform-origin: 50% 100%;
+  animation: syntax-idle 4.8s ease-in-out infinite;
 }
 
 .hero-art::before,
@@ -132,7 +134,7 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .play-panel {
   position: relative;
   min-height: calc(100dvh - clamp(300px, 43dvh, 390px));
-  padding: 12px max(14px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  padding: 12px max(7px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(7px, env(safe-area-inset-left));
   border-top: 5px solid #131722;
   background: #1d2c48;
 }
@@ -154,7 +156,7 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 #damage { flex: none; color: #963a2b; }
 
 .grid {
-  width: min(100%, 460px);
+  width: min(100%, 520px);
   margin: 10px auto 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -186,8 +188,20 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   box-shadow: inset 3px 3px #fff3ce, inset -3px -3px #d7b978;
 }
 .tile > span { position: relative; z-index: 2; }
-.tile .value { position: absolute; right: 13%; bottom: 10%; font-size: clamp(.65rem, 3vw, .9rem); }
-.tile .charge { position: absolute; top: 11%; right: 12%; font-size: clamp(.7rem, 3vw, 1rem); }
+.tile .charge {
+  position: absolute;
+  top: 7%;
+  right: 7%;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: grid;
+  place-items: center;
+  border: 2px solid #171923;
+  border-radius: 50%;
+  background: #f8e9bb;
+  font-size: .68rem;
+  line-height: 1;
+}
 .tile.selected { transform: translateY(4px) scale(.95); filter: saturate(1.35); }
 .tile.selected::before { background: #f5c962; }
 .tile:disabled { cursor: default; }
@@ -203,7 +217,7 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .tile.charge-bloom { background: #64884d; }
 .tile.charge-bloom::before { background: #a9ca7d; }
 
-.controls { width: min(100%, 460px); margin: 10px auto 0; display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.controls { width: min(100%, 520px); margin: 10px auto 0; display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .controls button, .restart {
   min-height: 54px;
   border: 5px solid #171923;
@@ -251,8 +265,12 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .enemy-art.cast { animation: enemy-cast .5s ease; }
 .enemy-art.hit { animation: hit .45s ease; }
 .grid.shuffling .tile { animation: tile-shuffle .5s ease both; animation-delay: calc(var(--i) * 18ms); }
+.grid.falling .tile { animation: tile-fall .38s cubic-bezier(.22,.8,.3,1) both; animation-delay: calc(var(--i) * 9ms); }
 
-@keyframes breathe { 50% { transform: translateY(-5px); } }
+@keyframes syntax-idle {
+  0%, 100% { transform: rotate(-.7deg); }
+  50% { transform: rotate(.7deg); }
+}
 @keyframes cast { 50% { transform: translateY(-9px) rotate(-3deg) scale(1.06); } }
 @keyframes syntax-bite {
   0% { transform: translateX(0) scale(1); }
@@ -289,6 +307,10 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 @keyframes road-scroll { to { background-position: 66% 58%; } }
 @keyframes chapter { 0%,100% { opacity: 0; transform: scale(.85); } 18%,78% { opacity: 1; transform: scale(1); } }
 @keyframes tile-shuffle { 45% { transform: rotate(10deg) scale(.74); opacity: .4; } }
+@keyframes tile-fall {
+  from { transform: translateY(-28px); opacity: .35; }
+  to { transform: translateY(0); opacity: 1; }
+}
 
 @media (min-width: 621px) {
   body { padding: 20px; background: #18253c; }
@@ -311,10 +333,10 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   .hero-art, .enemy-art { width: min(36vw, 170px); height: 168px; margin-bottom: -5px; }
   .play-panel { min-height: calc(100dvh - 285px); padding-top: 8px; }
   .word-panel { min-height: 46px; padding: 6px 12px; }
-  .grid { width: min(100%, 340px); gap: 5px; margin-top: 7px; }
+  .grid { width: 100%; gap: 5px; margin-top: 7px; }
   .tile { border-width: 4px; border-radius: 11px; }
   .tile::before { border-width: 3px; }
-  .controls { width: min(100%, 340px); margin-top: 7px; }
+  .controls { width: 100%; margin-top: 7px; }
   .controls button { min-height: 45px; border-width: 4px; }
   .message { margin-top: 4px; font-size: .76rem; }
 }
