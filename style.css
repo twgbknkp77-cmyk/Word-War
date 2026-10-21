@@ -146,9 +146,56 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   background-repeat: no-repeat;
   pointer-events: none;
 }
-.pip-neutral { background-image: url("assets/pip-neutral.png"); }
-.pip-scratch-mid { background-image: url("assets/pip-scratch-mid.png"); }
-.pip-scratch { background-image: url("assets/pip-scratch.png"); }
+.pip-rig { background-image: url("assets/pip-neutral.png"); }
+.pip-rig-base {
+  z-index: 2;
+  background-image: url("assets/pip-rig-base.png");
+  transform-origin: 50% 100%;
+  animation: pip-rig-breathe 3.6s ease-in-out infinite;
+}
+.pip-rig-head {
+  z-index: 5;
+  clip-path: polygon(18% 0, 75% 0, 75% 38%, 47% 42%, 19% 34%);
+  transform-origin: 45% 36%;
+  animation: pip-rig-head-idle 3.6s ease-in-out infinite;
+}
+.pip-rig-far-arm {
+  z-index: 3;
+  clip-path: polygon(55% 24%, 100% 25%, 100% 71%, 73% 70%, 57% 46%);
+  transform-origin: 62% 30%;
+}
+.pip-arm-rig {
+  z-index: 6;
+  background-image: none;
+  transform-origin: 42% 31%;
+}
+.pip-arm-piece,
+.pip-arm-forearm-joint {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background-image: url("assets/pip-neutral.png");
+  background-position: center bottom;
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+.pip-rig-upper-arm {
+  clip-path: polygon(28% 27%, 48% 26%, 45% 51%, 29% 56%, 20% 47%);
+}
+.pip-arm-forearm-joint {
+  background-image: none;
+  transform-origin: 33% 48%;
+}
+.pip-rig-forearm {
+  clip-path: polygon(12% 39%, 38% 39%, 36% 70%, 5% 72%, 4% 58%);
+}
+.pip-rig-tail {
+  z-index: 1;
+  clip-path: polygon(65% 50%, 100% 50%, 100% 79%, 69% 78%);
+  transform-origin: 73% 61%;
+  animation: pip-rig-tail-idle 5.2s ease-in-out infinite;
+}
 .pip-rush { background-image: url("assets/pip-rush.png"); }
 .pip-pipes { background-image: url("assets/pip-pipes.png"); }
 .pip-kick { background-image: url("assets/pip-kick.png"); }
@@ -158,23 +205,20 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .enemy-art.pip {
   background-image: none;
   transform-origin: 50% 100%;
-  animation: pip-idle 3.2s ease-in-out infinite;
+  animation: none;
 }
-.enemy-art.pip .pip-neutral { opacity: 1; visibility: visible; }
-.enemy-art.pip:is(.scratch,.move-rush,.move-pipes,.move-kick,.hit,.defeat) .pip-neutral { opacity: 0; visibility: hidden; }
-.enemy-art.pip.scratch .pip-scratch,
+.enemy-art.pip .pip-rig { opacity: 1; visibility: visible; }
+.enemy-art.pip:is(.move-rush,.move-pipes,.move-kick,.hit,.defeat) .pip-rig { opacity: 0; visibility: hidden; }
 .enemy-art.pip.move-rush .pip-rush,
 .enemy-art.pip.move-pipes .pip-pipes,
 .enemy-art.pip.move-kick .pip-kick,
 .enemy-art.pip.hit .pip-hit,
 .enemy-art.pip.defeat .pip-defeat { opacity: 1; visibility: visible; }
-.enemy-art.pip.scratch .pip-neutral,
-.enemy-art.pip.scratch .pip-scratch-mid,
-.enemy-art.pip.scratch .pip-scratch { visibility: visible; }
-.enemy-art.pip.scratch .pip-neutral { animation: pip-neutral-scratch 1.5s linear both; }
-.enemy-art.pip.scratch .pip-scratch-mid { animation: pip-mid-scratch 1.5s linear both; }
-.enemy-art.pip.scratch .pip-scratch { animation: pip-full-scratch 1.5s linear both; }
-.enemy-art.pip.scratch { animation: pip-scratch-motion 1.5s ease-in-out; }
+.enemy-art.pip.scratch .pip-rig-base { animation: pip-rig-breathe 3.6s ease-in-out infinite; }
+.enemy-art.pip.scratch .pip-rig-head { animation: pip-rig-head-scratch 1.75s cubic-bezier(.45,0,.25,1); }
+.enemy-art.pip.scratch .pip-arm-rig { animation: pip-rig-upper-scratch 1.75s cubic-bezier(.45,0,.25,1); }
+.enemy-art.pip.scratch .pip-arm-forearm-joint { animation: pip-rig-forearm-scratch 1.75s cubic-bezier(.45,0,.25,1); }
+.enemy-art.pip.scratch .pip-rig-tail { animation: pip-rig-tail-idle 5.2s ease-in-out infinite; }
 .enemy-art.pip.move-rush { animation: pip-rush-motion 1.12s cubic-bezier(.25,.05,.25,1); z-index: 5; }
 .enemy-art.pip.move-pipes { animation: pip-pipes-motion 1.12s ease-in-out; }
 .enemy-art.pip.move-kick { animation: pip-kick-motion 1.12s cubic-bezier(.25,.05,.25,1); z-index: 5; }
@@ -336,25 +380,31 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   0%, 100% { transform: rotate(-.7deg); }
   50% { transform: rotate(.7deg); }
 }
-@keyframes pip-idle {
+@keyframes pip-rig-breathe {
   0%, 100% { transform: scale(1, 1); }
-  48%, 55% { transform: scale(1.003, .992); }
+  48%, 56% { transform: scale(1.002, .996); }
 }
-@keyframes pip-scratch-motion {
-  0%, 100% { transform: scale(1); }
-  28%, 72% { transform: scale(1.004, .996); }
+@keyframes pip-rig-head-idle {
+  0%, 100% { transform: rotate(-.35deg); }
+  48%, 56% { transform: rotate(.65deg); }
 }
-@keyframes pip-neutral-scratch {
-  0%, 12%, 88%, 100% { opacity: 1; }
-  18%, 82% { opacity: 0; }
+@keyframes pip-rig-tail-idle {
+  0%, 72%, 100% { transform: rotate(0); }
+  79% { transform: rotate(5deg); }
+  86% { transform: rotate(-3deg); }
+  92% { transform: rotate(2deg); }
 }
-@keyframes pip-mid-scratch {
-  0%, 10%, 39%, 61%, 90%, 100% { opacity: 0; }
-  17%, 34%, 66%, 83% { opacity: 1; }
+@keyframes pip-rig-head-scratch {
+  0%, 100% { transform: rotate(-.35deg); }
+  34%, 68% { transform: translate(-1.5%, 1%) rotate(-6deg); }
 }
-@keyframes pip-full-scratch {
-  0%, 32%, 68%, 100% { opacity: 0; }
-  41%, 59% { opacity: 1; }
+@keyframes pip-rig-upper-scratch {
+  0%, 100% { transform: rotate(0); }
+  34%, 68% { transform: rotate(30deg); }
+}
+@keyframes pip-rig-forearm-scratch {
+  0%, 100% { transform: rotate(0); }
+  34%, 68% { transform: rotate(110deg); }
 }
 @keyframes pip-rush-motion {
   0% { transform: translateX(0); }
