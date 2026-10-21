@@ -84,7 +84,8 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 }
 
 .hero-art::before,
-.hero-art::after {
+.hero-art::after,
+.hero-attack-layer {
   content: "";
   position: absolute;
   inset: 0;
@@ -101,6 +102,11 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 
 .hero-art::after {
   background-image: url("assets/syntax-flinch.png");
+  opacity: 0;
+}
+
+.hero-attack-layer {
+  background-image: url("assets/syntax-attack.png");
   opacity: 0;
 }
 
@@ -227,11 +233,11 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .battle.walking .scenery { animation: road-scroll 3.2s linear both; }
 .hero-art.cast {
   z-index: 5;
-  background: url("assets/syntax-attack.png") center bottom / contain no-repeat;
   animation: syntax-bite .86s cubic-bezier(.3,.05,.25,1);
 }
 .hero-art.cast::before { animation: syntax-attack-neutral .86s linear; }
 .hero-art.cast::after { opacity: 0; }
+.hero-art.cast .hero-attack-layer { animation: syntax-attack-pose .86s linear; }
 .hero-art.hit { animation: syntax-flinch .78s cubic-bezier(.3,.05,.25,1); }
 .hero-art.hit::before { animation: syntax-neutral-face .78s linear; }
 .hero-art.hit::after { animation: syntax-flinch-face .78s linear; }
@@ -254,6 +260,11 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   0%, 16% { opacity: 1; }
   16.1%, 78% { opacity: 0; }
   78.1%, 100% { opacity: 1; }
+}
+@keyframes syntax-attack-pose {
+  0%, 16% { opacity: 0; }
+  16.1%, 78% { opacity: 1; }
+  78.1%, 100% { opacity: 0; }
 }
 @keyframes enemy-cast { 50% { transform: translateX(-13px) scale(1.05); } }
 @keyframes hit { 35% { transform: translateX(-10px) rotate(-4deg); filter: brightness(1.6); } 70% { transform: translateX(8px) rotate(3deg); } }
