@@ -1,11 +1,11 @@
 const PLAYER_STARTING_MAX = 60;
-const values = {A:1,B:2,C:2,D:2,E:1,F:3,G:2,H:3,I:1,J:5,K:4,L:1,M:2,N:1,O:1,P:2,Q:5,R:1,S:1,T:1,U:1,V:3,W:3,X:5,Y:3,Z:5};
+const values = {A:1,B:2,C:2,D:2,E:1,F:3,G:2,H:3,I:1,J:4,K:4,L:1,M:2,N:1,O:1,P:2,Q:5,R:1,S:1,T:1,U:1,V:3,W:3,X:4,Y:3,Z:5};
 const vowels = "AAAAAAAEEEEEEEEEEIIIIIIOOOOOOUUUY";
 const consonants = "BBBBCCCDDDDFFGGGGHHHJKLLLLMMMMNNNNNNPPQRRRRRRSSSSSSTTTTTTVVWWXYZ";
 const charges = [
-  {id:"ember",symbol:"◆",label:"Ember",damage:4},
+  {id:"ember",symbol:"◆",label:"Ember",damage:3},
   {id:"ward",symbol:"⬟",label:"Ward",block:3},
-  {id:"bloom",symbol:"✦",label:"Bloom",heal:3}
+  {id:"bloom",symbol:"✦",label:"Bloom",heal:7}
 ];
 const blockedWords = new Set([
   "arse","arses","asshole","assholes","bastard","bastards","bitch","bitches","bollock","bollocks","boner","bullshit","cock","cocks","crap","cunt","cunts","damn","dick","dicks","dildo","fag","fags","fuck","fucks","fucked","fucker","fuckers","fucking","motherfucker","piss","pissed","prick","pricks","pussy","shit","shits","shitty","slut","sluts","tit","tits","twat","twats","wank","wanker","wankers","whore","whores"
@@ -176,21 +176,26 @@ function render() {
   });
 }
 
-function chargeHelp(c){ return c.damage?"adds 4 damage":c.block?"blocks 3 damage":"heals 3 HP"; }
+function chargeHelp(c){ return c.damage?"adds 3 damage":c.block?"blocks 3 damage":"heals 7 HP"; }
 function score(i){ const item=tiles[i];if(item.stoneTurns||item.crackedTurns)return 0;return Math.max(1,values[item.letter]+item.modifier); }
 function toggle(i){ if(busy||disabled.has(i)||tiles[i].lockTurns)return; const at=selected.indexOf(i); at<0?selected.push(i):selected.splice(at,1); render(); updateWord(); }
 function word(){ return selected.map(i=>tiles[i].letter).join(""); }
-function bonus(n){ return n>=8?15:n===7?10:n===6?6:n===5?3:0; }
+function bonus(n){ return n>=8?12:n===7?8:n===6?5:n===5?3:n===4?1:0; }
 function reward(n){ return n>=8?3:n>=6?2:n===5?1:0; }
 function preview(){
   if(!selected.length)return 0;
-  const base=selected.reduce((n,i)=>n+score(i)+(tiles[i].charge?.damage||0),0)+bonus(selected.length);
-  return Math.max(1,base+permanentAttackBuff+(attackBuffTurns>0?temporaryAttackBuff:0)-(shieldTurns>0?2:0));
+  const length=selected.length;
+  const base=selected.reduce((n,i)=>n+score(i),0)+bonus(length);
+  const ember=selected.some(i=>tiles[i].charge?.damage)?charges.find(c=>c.id==="ember").damage:0;
+  const availableBuff=permanentAttackBuff+(attackBuffTurns>0?temporaryAttackBuff:0);
+  const buffCap=length===3?3:length===4?5:Infinity;
+  return Math.max(1,base+ember+Math.min(availableBuff,buffCap)-(shieldTurns>0?2:0));
 }
 function isBlockedWord(candidate){return blockedWords.has(candidate.toLowerCase());}
 function updateWord(){
   const current=word(),valid=current.length>=3&&dictionary.has(current.toLowerCase())&&!isBlockedWord(current);
-  el.word.textContent=current||"Choose letters";el.damage.textContent=`${preview()} damage`;
+  el.word.textContent=current?(valid?`${current} · ${preview()} DAMAGE`:current):"Choose letters";el.damage.textContent=`${preview()} damage`;
+  el.word.closest(".word-panel")?.classList.toggle("valid",valid);
   el.attack.classList.toggle("word-valid",valid);el.attack.classList.remove("word-invalid");
   if(!attackFeedbackTimer)el.attack.textContent="Attack";
 }
@@ -347,8 +352,12 @@ async function attack(){
   if(!dictionary.has(attempt)){rejectAttack("Invalid word",`${attempt.toUpperCase()} is not in the local dictionary.`);return;}
   busy=true;controls();
   const damage=preview(), prizes=reward(attempt.length), used=[...selected];
-  let healing=0;
-  used.forEach(i=>{const c=tiles[i].charge;if(c){ward+=c.block||0;healing+=c.heal||0;}});
+  let healing=0;const activated=new Set();
+  used.forEach(i=>{
+    const c=tiles[i].charge;
+    if(!c||activated.has(c.id))return;
+    activated.add(c.id);ward+=c.block||0;healing+=c.heal||0;
+  });
   heroHP=Math.min(heroMax,heroHP+healing);
   pose(el.heroArt,"cast",880);
   await delay(350);
@@ -373,6 +382,9 @@ function chooseEnemyMove(enemy){
   enemy.moves.forEach((move,index)=>{
     if(index===lastMoveIndex)return;
     if(move.power&&enemyPower>0)return;
+    if(move.lock&&tiles.some(item=>item.lockTurns>0))return;
+    if(move.petrify&&tiles.some(item=>item.stoneTurns>0))return;
+    if(move.crack&&tiles.some(item=>item.crackedTurns>0))return;
     const weight=[45,35,20][index]||25;
     for(let i=0;i<weight;i++)weightedIndexes.push(index);
   });
