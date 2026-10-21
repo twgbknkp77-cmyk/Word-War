@@ -150,20 +150,20 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .pip-part { position: absolute; display: block; object-fit: contain; pointer-events: none; }
 .pip-tail { left: 124px; top: 124px; z-index: 0; width: 46px; height: 58px; transform-origin: 18% 22%; animation: pip-tail-idle 5.6s ease-in-out infinite; }
 .pip-torso { left: 58px; top: 62px; z-index: 5; width: 96px; height: 102px; }
-.pip-head { left: 34px; top: 12px; z-index: 6; width: 105px; height: 90px; transform-origin: 63% 92%; animation: pip-head-idle 3.8s ease-in-out infinite; }
+.pip-head { left: 34px; top: 18px; z-index: 6; width: 105px; height: 90px; transform-origin: 63% 92%; animation: pip-head-idle 3.8s ease-in-out infinite; }
 .pip-held-pipes { left: 41px; top: 50px; z-index: 10; width: 34px; height: 66px; opacity: 0; transform: rotate(-72deg) scale(.75); transform-origin: 50% 85%; }
 .pip-limb { position: absolute; display: block; transform-origin: 50% 10%; }
 .pip-limb > img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-.pip-lower-leg-right { left: 103px; top: 174px; z-index: 2; width: 45px; height: 69px; transform: rotate(-7deg); }
-.pip-lower-leg-left { left: 67px; top: 174px; z-index: 2; width: 45px; height: 69px; transform: rotate(6deg); }
+.pip-lower-leg-right { left: 103px; top: 162px; z-index: 2; width: 45px; height: 69px; transform: rotate(-7deg); }
+.pip-lower-leg-left { left: 67px; top: 162px; z-index: 2; width: 45px; height: 69px; transform: rotate(6deg); }
 .pip-upper-leg-right { left: 102px; top: 139px; z-index: 3; width: 48px; height: 58px; transform: rotate(-7deg); }
 .pip-upper-leg-left { left: 66px; top: 139px; z-index: 3; width: 48px; height: 58px; transform: rotate(6deg); }
-.pip-upper-arm-right { left: 119px; top: 73px; z-index: 3; width: 46px; height: 51px; transform: rotate(-11deg); }
+.pip-upper-arm-right { left: 119px; top: 73px; z-index: 7; width: 46px; height: 51px; transform: rotate(-11deg); }
 .pip-upper-arm-right > img,
 .pip-forearm-right > img { transform: scaleX(-1); }
-.pip-upper-arm-left { left: 46px; top: 73px; z-index: 7; width: 46px; height: 51px; transform: rotate(11deg); }
-.pip-forearm-left { left: 44px; top: 107px; z-index: 8; width: 52px; height: 61px; transform: rotate(0); }
-.pip-forearm-right { left: 117px; top: 107px; z-index: 9; width: 52px; height: 61px; transform: rotate(0); }
+.pip-upper-arm-left { left: 46px; top: 73px; z-index: 3; width: 46px; height: 51px; transform: rotate(11deg); }
+.pip-forearm-left { left: 44px; top: 96px; z-index: 8; width: 52px; height: 61px; transform: rotate(0); }
+.pip-forearm-right { left: 117px; top: 96px; z-index: 9; width: 52px; height: 61px; transform: rotate(0); }
 .enemy-art.pip {
   background-image: none;
   transform-origin: 50% 100%;
