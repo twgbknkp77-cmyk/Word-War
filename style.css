@@ -225,7 +225,13 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .battle.walking .hero-fighter { animation: journey 3.2s linear both; }
 .battle.walking .hero-art { animation: walk-bob .35s ease-in-out infinite alternate; }
 .battle.walking .scenery { animation: road-scroll 3.2s linear both; }
-.hero-art.cast { animation: cast .55s ease; }
+.hero-art.cast {
+  z-index: 5;
+  background: url("assets/syntax-attack.png") center bottom / contain no-repeat;
+  animation: syntax-bite .86s cubic-bezier(.3,.05,.25,1);
+}
+.hero-art.cast::before { animation: syntax-attack-neutral .86s linear; }
+.hero-art.cast::after { opacity: 0; }
 .hero-art.hit { animation: syntax-flinch .78s cubic-bezier(.3,.05,.25,1); }
 .hero-art.hit::before { animation: syntax-neutral-face .78s linear; }
 .hero-art.hit::after { animation: syntax-flinch-face .78s linear; }
@@ -235,6 +241,20 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 
 @keyframes breathe { 50% { transform: translateY(-5px); } }
 @keyframes cast { 50% { transform: translateY(-9px) rotate(-3deg) scale(1.06); } }
+@keyframes syntax-bite {
+  0% { transform: translateX(0) scale(1); }
+  14% { transform: translateX(-8px) scale(.96); }
+  40% { transform: translateX(112%) scale(1.03, .97); }
+  52% { transform: translateX(112%) scale(1.03, .97); }
+  72% { transform: translateX(14%) scale(.99); }
+  84% { transform: translateX(-3px) scale(1.01); }
+  100% { transform: translateX(0) scale(1); }
+}
+@keyframes syntax-attack-neutral {
+  0%, 16% { opacity: 1; }
+  16.1%, 78% { opacity: 0; }
+  78.1%, 100% { opacity: 1; }
+}
 @keyframes enemy-cast { 50% { transform: translateX(-13px) scale(1.05); } }
 @keyframes hit { 35% { transform: translateX(-10px) rotate(-4deg); filter: brightness(1.6); } 70% { transform: translateX(8px) rotate(3deg); } }
 @keyframes syntax-flinch {

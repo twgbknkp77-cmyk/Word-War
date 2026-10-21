@@ -85,20 +85,23 @@ async function attack(){
   const damage=preview(), prizes=reward(attempt.length), used=[...selected];
   let healing=0;
   used.forEach(i=>{const c=tiles[i].charge;if(c){ward+=c.block||0;healing+=c.heal||0;}});
-  heroHP=Math.min(PLAYER_MAX,heroHP+healing); enemyHP=Math.max(0,enemyHP-damage);
-  pose(el.heroArt,"cast");pose(el.enemyArt,"hit");effect(`-${damage}`,"enemy");health();
+  heroHP=Math.min(PLAYER_MAX,heroHP+healing);
+  pose(el.heroArt,"cast",880);
+  await delay(350);
+  enemyHP=Math.max(0,enemyHP-damage);
+  pose(el.enemyArt,"hit");effect(`-${damage}`,"enemy");health();
   el.message.textContent=`${attempt.toUpperCase()} dealt ${damage} damage${prizes?` and charged ${prizes} new ${prizes===1?"tile":"tiles"}`:""}.`;
   selected=[]; disabled.clear();
   used.forEach(i=>tiles[i]=tile(pick((i%3===0?vowels:consonants))));
   for(let i=0;i<Math.min(prizes,used.length);i++) tiles[used[i]].charge=charges[Math.floor(Math.random()*charges.length)];
   render();updateWord();
-  await delay(750);
+  await delay(510);
   if(enemyHP<=0){await victory();return;}
   await enemyTurn();
 }
 
 async function shuffle(){
-  if(busy||finished)return;busy=true;controls();el.grid.classList.add("shuffling");el.message.textContent="Owlysses reshuffles the letters. The enemy takes a turn.";await delay(520);el.grid.classList.remove("shuffling");freshGrid();await enemyTurn();
+  if(busy||finished)return;busy=true;controls();el.grid.classList.add("shuffling");el.message.textContent="Syntax reshuffles the letters. The enemy takes a turn.";await delay(520);el.grid.classList.remove("shuffling");freshGrid();await enemyTurn();
 }
 
 async function enemyTurn(){
@@ -118,14 +121,14 @@ async function enemyTurn(){
 async function victory(){
   const defeated=enemies[enemyIndex];
   if(enemyIndex===enemies.length-1){finish(true);return;}
-  el.message.textContent=`${defeated.name} is defeated. Owlysses continues along the mythic road…`;
+  el.message.textContent=`${defeated.name} is defeated. Syntax continues along the mythic road…`;
   el.battle.classList.add("walking");await delay(1600);enemyIndex++;moveIndex=0;setupEnemy();
   el.chapter.textContent=`Chapter ${enemyIndex+1}: ${enemies[enemyIndex].place}`;el.chapter.classList.remove("show");void el.chapter.offsetWidth;el.chapter.classList.add("show");
   await delay(1650);el.battle.classList.remove("walking");freshGrid();el.message.textContent=`${enemies[enemyIndex].name} blocks the road!`;busy=false;controls();
 }
 
 function setupEnemy(){const enemy=enemies[enemyIndex];enemyHP=enemy.hp;el.enemyName.textContent=enemy.name;el.enemyArt.style.setProperty("--enemy-position",`${enemy.pos}%`);el.enemyArt.setAttribute("aria-label",enemy.name);health();}
-function finish(won){finished=true;busy=true;controls();el.restart.style.display="block";el.message.textContent=won?"The Summit Archive is free! Owlysses has completed the first Word Odyssey.":"Owlysses' scroll has gone quiet. Begin again and choose stronger words.";}
+function finish(won){finished=true;busy=true;controls();el.restart.style.display="block";el.message.textContent=won?"The Summit Archive is free! Syntax has completed the first Word Odyssey.":"Syntax has run out of strength. Begin again and choose stronger words.";}
 function restart(){heroHP=PLAYER_MAX;enemyIndex=0;moveIndex=0;ward=0;finished=false;busy=false;el.restart.style.display="none";setupEnemy();freshGrid();el.message.textContent="Choose any three or more letters.";controls();}
 
 async function loadDictionary(){
