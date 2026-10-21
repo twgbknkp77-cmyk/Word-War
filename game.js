@@ -7,22 +7,28 @@ const charges = [
   {id:"ward",symbol:"⬟",label:"Ward",block:3},
   {id:"bloom",symbol:"✦",label:"Bloom",heal:3}
 ];
+const blockedWords = new Set([
+  "arse","arses","asshole","assholes","bastard","bastards","bitch","bitches","bollock","bollocks","boner","bullshit","cock","cocks","crap","cunt","cunts","damn","dick","dicks","dildo","fag","fags","fuck","fucks","fucked","fucker","fuckers","fucking","motherfucker","piss","pissed","prick","pricks","pussy","shit","shits","shitty","slut","sluts","tit","tits","twat","twats","wank","wanker","wankers","whore","whores"
+]);
+const moveTypes = {
+  physical:{symbol:"⚔",label:"Physical attack"},magic:{symbol:"✦",label:"Magical attack"},grid:{symbol:"▦",label:"Grid attack"},power:{symbol:"▲",label:"Power-up"},healing:{symbol:"♥",label:"Healing attack"},curse:{symbol:"◆",label:"Status attack"}
+};
 
 const enemies = [
   {name:"Pip the Satyr",place:"The Whispering Olive Grove",hp:42,pos:0,moves:[
-    {name:"Horn Rush",damage:4,pose:"rush"},{name:"Pipe Puzzle",damage:3,scramble:true,pose:"pipes"},{name:"Mule Kick",damage:7,pose:"kick"}
+    {name:"Horn Rush",damage:4,pose:"rush",type:"physical"},{name:"Pipe Puzzle",damage:3,scramble:true,pose:"pipes",type:"grid"},{name:"Mule Kick",damage:7,pose:"kick",type:"physical"}
   ]},
   {name:"Brontes the Minotaur",place:"The Crooked Labyrinth",hp:60,pos:23,moves:[
-    {name:"Horn Rush",damage:6},{name:"Maze Seal",damage:3,lock:3,turns:3},{name:"Wall Breaker",damage:9}
+    {name:"Horn Rush",damage:6,type:"physical"},{name:"Maze Seal",damage:3,lock:3,turns:3,type:"grid"},{name:"Wall Breaker",damage:9,type:"physical"}
   ]},
   {name:"Melia the Gorgon",place:"The Silent Statue Garden",hp:76,pos:48,moves:[
-    {name:"Snake Snap",damage:6},{name:"Stone Glance",damage:4,petrify:4,turns:2},{name:"Marble Gaze",damage:10}
+    {name:"Snake Snap",damage:6,type:"physical"},{name:"Stone Glance",damage:4,petrify:4,turns:2,type:"grid"},{name:"Marble Gaze",damage:10,type:"magic"}
   ]},
   {name:"The Marsh Hydra",place:"The Reedy Moon Marsh",hp:94,pos:70,moves:[
-    {name:"Triple Nip",damage:9,hits:3},{name:"Rising Fury",damage:0,power:5},{name:"Regrow",damage:4,heal:7}
+    {name:"Triple Nip",damage:9,hits:3,type:"physical"},{name:"Rising Fury",damage:0,power:5,type:"power"},{name:"Regrow",damage:4,heal:7,type:"healing"}
   ]},
   {name:"Polyphemus the Scribe",place:"The Summit Archive",hp:118,pos:95,moves:[
-    {name:"Tablet Thump",damage:8},{name:"Bad Revision",damage:5,crack:4,turns:3},{name:"Final Draft",damage:13,erode:true}
+    {name:"Tablet Thump",damage:8,type:"physical"},{name:"Bad Revision",damage:5,crack:4,turns:3,type:"grid"},{name:"Final Draft",damage:13,erode:true,type:"curse"}
   ]}
 ];
 
@@ -121,6 +127,7 @@ let heroMax = PLAYER_STARTING_MAX, heroHP = heroMax, enemyHP = 0, enemyIndex = 0
 let permanentAttackBuff = 0, temporaryAttackBuff = 0, attackBuffTurns = 0, shieldTurns = 0, enemyPower = 0;
 let busy = true, finished = false;
 let pipIdleTimer = 0;
+let attackFeedbackTimer = 0;
 
 const pick = string => string[Math.floor(Math.random() * string.length)];
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -180,7 +187,17 @@ function preview(){
   const base=selected.reduce((n,i)=>n+score(i)+(tiles[i].charge?.damage||0),0)+bonus(selected.length);
   return Math.max(1,base+permanentAttackBuff+(attackBuffTurns>0?temporaryAttackBuff:0)-(shieldTurns>0?2:0));
 }
-function updateWord(){ el.word.textContent=word()||"Choose letters"; el.damage.textContent=`${preview()} damage`; }
+function isBlockedWord(candidate){return blockedWords.has(candidate.toLowerCase());}
+function updateWord(){
+  const current=word(),valid=current.length>=3&&dictionary.has(current.toLowerCase())&&!isBlockedWord(current);
+  el.word.textContent=current||"Choose letters";el.damage.textContent=`${preview()} damage`;
+  el.attack.classList.toggle("word-valid",valid);el.attack.classList.remove("word-invalid");
+  if(!attackFeedbackTimer)el.attack.textContent="Attack";
+}
+function rejectAttack(label,message){
+  clearTimeout(attackFeedbackTimer);el.attack.classList.remove("word-valid");el.attack.classList.add("word-invalid");el.attack.textContent=label;el.message.textContent=message;
+  attackFeedbackTimer=setTimeout(()=>{attackFeedbackTimer=0;el.attack.classList.remove("word-invalid");updateWord();},1250);
+}
 
 async function collapseUsedTiles(used, prizeCount) {
   const removed = new Set(used);
@@ -325,8 +342,9 @@ function effect(text,side){ const s=document.createElement("span"); s.className=
 async function attack(){
   if(busy||finished)return;
   const attempt=word().toLowerCase();
-  if(attempt.length<3){el.message.textContent="Build a word using at least three letters.";return;}
-  if(!dictionary.has(attempt)){el.message.textContent=`${attempt.toUpperCase()} is not in the local dictionary.`;return;}
+  if(isBlockedWord(attempt)){showBanner("WE DON'T SWEAR HERE","warning",1800);rejectAttack("Not here!","Syntax refuses to use that word.");return;}
+  if(attempt.length<3){rejectAttack("Need 3 letters","Build a word using at least three letters.");return;}
+  if(!dictionary.has(attempt)){rejectAttack("Invalid word",`${attempt.toUpperCase()} is not in the local dictionary.`);return;}
   busy=true;controls();
   const damage=preview(), prizes=reward(attempt.length), used=[...selected];
   let healing=0;
@@ -417,7 +435,9 @@ async function victory(){
   const defeated=enemies[enemyIndex];
   if(enemyIndex===0){pose(el.enemyArt,"defeat",1250);await delay(1250);}
   showBanner("VICTORY!","victory",1600);
-  el.message.textContent=`${defeated.name} has been defeated.`;
+  const recovery=Math.ceil(heroMax*.2),before=heroHP;heroHP=Math.min(heroMax,heroHP+recovery);const restored=heroHP-before;
+  if(restored){effect(`+${restored} HP`,"hero");health();}
+  el.message.textContent=`${defeated.name} has been defeated.${restored?` Syntax recovers ${restored} HP.`:" Syntax is already at full health."}`;
   await delay(1500);
   if(enemyIndex===enemies.length-1){finish(true);return;}
   const chosen=await chooseReward();
@@ -425,14 +445,14 @@ async function victory(){
   clearBattleEffects();
   el.battle.classList.add("walking");await delay(2200);enemyIndex++;lastMoveIndex=-1;setupEnemy();
   el.chapter.textContent=`Chapter ${enemyIndex+1}: ${enemies[enemyIndex].place}`;el.chapter.classList.remove("show");void el.chapter.offsetWidth;el.chapter.classList.add("show");
-  await delay(1300);el.battle.classList.remove("walking");freshGrid();el.message.textContent=`${enemies[enemyIndex].name} blocks the road!`;busy=false;controls();
+  await delay(1300);el.battle.classList.remove("walking");render();updateWord();el.message.textContent=`${enemies[enemyIndex].name} blocks the road!`;busy=false;controls();
 }
 
 function setupEnemy(){
   const enemy=enemies[enemyIndex];enemyHP=enemy.hp;enemyPower=0;lastMoveIndex=-1;el.enemyName.textContent=enemy.name;
   el.enemyArt.classList.remove(...poseClasses,"pip");if(enemyIndex===0)el.enemyArt.classList.add("pip");
   el.enemyArt.style.setProperty("--enemy-position",`${enemy.pos}%`);el.enemyArt.setAttribute("aria-label",enemy.name);
-  el.enemyMoves.innerHTML=`<strong>Attacks</strong>${enemy.moves.map(move=>`<span>${move.name}</span>`).join("")}`;
+  el.enemyMoves.innerHTML=`<strong>Attacks</strong>${enemy.moves.map(move=>{const type=moveTypes[move.type]||moveTypes.physical;return `<span class="move-entry"><span>${move.name}</span><i title="${type.label}" aria-label="${type.label}">${type.symbol}</i></span>`;}).join("")}`;
   el.enemyMoves.hidden=true;el.enemyMovesToggle.setAttribute("aria-expanded","false");health();schedulePipIdle();
 }
 function finish(won){
@@ -443,7 +463,7 @@ function finish(won){
 function restart(){heroMax=PLAYER_STARTING_MAX;heroHP=heroMax;enemyIndex=0;lastMoveIndex=-1;ward=0;permanentAttackBuff=0;temporaryAttackBuff=0;attackBuffTurns=0;shieldTurns=0;enemyPower=0;finished=false;busy=false;el.restart.style.display="none";el.banner.classList.remove("show");setupEnemy();freshGrid();el.message.textContent="Choose any three or more letters.";controls();}
 
 async function loadDictionary(){
-  try{const responses=await Promise.all([fetch("words.txt"),fetch("custom-words.txt")]);if(responses.some(r=>!r.ok))throw Error();const text=(await Promise.all(responses.map(r=>r.text()))).join("\n");dictionary=new Set(text.split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>/^[a-z]{3,}$/.test(w)));busy=false;controls();el.message.textContent=`The scroll knows ${dictionary.size.toLocaleString()} words.`;}
+  try{const responses=await Promise.all([fetch("words.txt"),fetch("custom-words.txt")]);if(responses.some(r=>!r.ok))throw Error();const text=(await Promise.all(responses.map(r=>r.text()))).join("\n");dictionary=new Set(text.split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>/^[a-z]{3,}$/.test(w)&&!blockedWords.has(w)));busy=false;controls();updateWord();el.message.textContent=`The scroll knows ${dictionary.size.toLocaleString()} words.`;}
   catch{el.message.textContent="The dictionary could not load. Publish words.txt beside index.html.";}
 }
 
