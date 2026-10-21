@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Syntax: Word Odyssey</title>
-  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
   <main class="game" aria-label="Syntax: Word Odyssey">
@@ -48,6 +48,27 @@
             <span class="pip-limb pip-forearm-left"><img src="assets/pip-part-forearm-left.png" alt=""></span>
             <span class="pip-limb pip-forearm-right"><img src="assets/pip-part-forearm-left.png" alt=""></span>
             <img class="pip-part pip-held-pipes" src="assets/pip-part-pipes.png" alt="">
+            <svg id="pip-skeleton" class="pip-skeleton" viewBox="0 0 205 215" aria-hidden="true">
+              <g class="pip-bones">
+                <line data-from="neck" data-to="chest"></line>
+                <line data-from="chest" data-to="leftShoulder"></line>
+                <line data-from="leftShoulder" data-to="leftElbow"></line>
+                <line data-from="leftElbow" data-to="leftHand"></line>
+                <line data-from="chest" data-to="rightShoulder"></line>
+                <line data-from="rightShoulder" data-to="rightElbow"></line>
+                <line data-from="rightElbow" data-to="rightHand"></line>
+                <line data-from="chest" data-to="pelvis"></line>
+                <line data-from="pelvis" data-to="leftHip"></line>
+                <line data-from="leftHip" data-to="leftKnee"></line>
+                <line data-from="leftKnee" data-to="leftHoof"></line>
+                <line data-from="pelvis" data-to="rightHip"></line>
+                <line data-from="rightHip" data-to="rightKnee"></line>
+                <line data-from="rightKnee" data-to="rightHoof"></line>
+                <line data-from="pelvis" data-to="tailBase"></line>
+                <line data-from="tailBase" data-to="tailTip"></line>
+              </g>
+              <g class="pip-joints"></g>
+            </svg>
           </span>
         </div>
       </article>
@@ -72,6 +93,6 @@
       <button id="restart" class="restart" type="button">Begin a new odyssey</button>
     </section>
   </main>
-  <script src="game.js?v=17"></script>
+  <script src="game.js?v=18"></script>
 </body>
 </html>

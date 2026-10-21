@@ -29,6 +29,41 @@ const enemies = [
 const $ = s => document.querySelector(s);
 const el = {battle:$("#battle"),chapter:$("#chapter-card"),heroF:$("#hero-fighter"),enemyF:$("#enemy-fighter"),heroArt:$("#hero-art"),enemyArt:$("#enemy-art"),enemyName:$("#enemy-name"),heroHp:$("#hero-hp"),enemyHp:$("#enemy-hp"),enemyMax:$("#enemy-max"),heroBar:$("#hero-bar"),enemyBar:$("#enemy-bar"),effects:$("#effects"),grid:$("#grid"),word:$("#word"),damage:$("#damage"),message:$("#message"),shuffle:$("#shuffle"),attack:$("#attack"),restart:$("#restart")};
 
+// Screen-left and screen-right are used deliberately so visual feedback maps
+// directly to these coordinates. This object is Pip's single skeleton source.
+const pipSkeleton = {
+  neck:{x:105,y:72,label:"N"}, chest:{x:105,y:95,label:"C"},
+  leftShoulder:{x:70,y:83,label:"LS"}, leftElbow:{x:70,y:112,label:"LE"}, leftHand:{x:58,y:146,label:"LH"},
+  rightShoulder:{x:140,y:83,label:"RS"}, rightElbow:{x:140,y:112,label:"RE"}, rightHand:{x:153,y:146,label:"RH"},
+  pelvis:{x:106,y:148,label:"P"},
+  leftHip:{x:88,y:148,label:"LHi"}, leftKnee:{x:88,y:172,label:"LK"}, leftHoof:{x:82,y:210,label:"LF"},
+  rightHip:{x:126,y:148,label:"RHi"}, rightKnee:{x:124,y:172,label:"RK"}, rightHoof:{x:132,y:210,label:"RF"},
+  tailBase:{x:145,y:148,label:"TB"}, tailTip:{x:168,y:167,label:"TT"}
+};
+
+function positionPipSkeleton(){
+  const puppet=$(".pip-puppet"),svg=$("#pip-skeleton");
+  if(!puppet||!svg)return;
+  Object.entries(pipSkeleton).forEach(([name,joint])=>{
+    const cssName=name.replace(/[A-Z]/g,letter=>`-${letter.toLowerCase()}`);
+    puppet.style.setProperty(`--${cssName}-x`,`${joint.x}px`);
+    puppet.style.setProperty(`--${cssName}-y`,`${joint.y}px`);
+  });
+  svg.querySelectorAll("line[data-from]").forEach(line=>{
+    const from=pipSkeleton[line.dataset.from],to=pipSkeleton[line.dataset.to];
+    line.setAttribute("x1",from.x);line.setAttribute("y1",from.y);
+    line.setAttribute("x2",to.x);line.setAttribute("y2",to.y);
+  });
+  const group=svg.querySelector(".pip-joints"),ns="http://www.w3.org/2000/svg";
+  group.innerHTML="";
+  Object.values(pipSkeleton).forEach(joint=>{
+    const circle=document.createElementNS(ns,"circle");
+    circle.setAttribute("cx",joint.x);circle.setAttribute("cy",joint.y);circle.setAttribute("r",3.5);group.appendChild(circle);
+    const label=document.createElementNS(ns,"text");
+    label.setAttribute("x",joint.x+5);label.setAttribute("y",joint.y-4);label.textContent=joint.label;group.appendChild(label);
+  });
+}
+
 let dictionary = new Set(), tiles = [], selected = [], disabled = new Set();
 let heroHP = PLAYER_MAX, enemyHP = 0, enemyIndex = 0, moveIndex = 0, ward = 0;
 let busy = true, finished = false;
@@ -217,4 +252,4 @@ async function loadDictionary(){
 }
 
 el.attack.addEventListener("click",attack);el.shuffle.addEventListener("click",shuffle);el.restart.addEventListener("click",restart);
-setupEnemy();freshGrid();controls();loadDictionary();
+positionPipSkeleton();setupEnemy();freshGrid();controls();loadDictionary();
