@@ -1606,6 +1606,408 @@
     min-height: 50px;
   }
 }
+    /* Physical beveled cartoon tiles */
+
+.letter-tile {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+
+  border: 3px solid #171820;
+  border-radius: 8px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f8e9c5 0%,
+      #f8e9c5 12%,
+      #c99f61 12%,
+      #c99f61 82%,
+      #8d653b 82%,
+      #8d653b 100%
+    );
+
+  color: #171820;
+
+  box-shadow: none !important;
+  transform: none !important;
+
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    Arial,
+    sans-serif;
+
+  transition:
+    transform 0.08s ease,
+    background 0.08s ease;
+}
+
+/* Remove the alternating rotations */
+
+.letter-tile:nth-child(4n + 1),
+.letter-tile:nth-child(4n + 2),
+.letter-tile:nth-child(4n + 3),
+.letter-tile:nth-child(4n) {
+  transform: none;
+}
+
+/* Raised square in the centre */
+
+.letter-tile::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  z-index: -1;
+
+  background: #f2e2b8;
+  border: 2px solid #6f5538;
+  border-radius: 3px;
+}
+
+/* A thin highlight along the raised face */
+
+.letter-tile::after {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  z-index: -1;
+
+  border-top: 2px solid #fff3d2;
+  border-left: 2px solid #fff3d2;
+  border-right: 2px solid #c5a675;
+  border-bottom: 2px solid #c5a675;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Pressing makes the central face feel depressed */
+
+.letter-tile:active {
+  transform: scale(0.98) !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #aa7b43 0%,
+      #aa7b43 15%,
+      #c99f61 15%,
+      #c99f61 88%,
+      #f0d49a 88%,
+      #f0d49a 100%
+    );
+}
+
+.letter-tile:active::before {
+  inset:
+    11px
+    8px
+    7px
+    11px;
+}
+
+/* Selected normal tile */
+
+.letter-tile.selected {
+  border-color: #171820;
+
+  background:
+    linear-gradient(
+      135deg,
+      #8d653b 0%,
+      #8d653b 15%,
+      #d8a52e 15%,
+      #d8a52e 87%,
+      #f3cf65 87%,
+      #f3cf65 100%
+    );
+
+  box-shadow: none !important;
+  transform: scale(0.98) !important;
+}
+
+.letter-tile.selected::before {
+  inset:
+    11px
+    8px
+    7px
+    11px;
+
+  background: #e2b94e;
+  border-color: #6f4827;
+}
+
+.letter-tile.selected::after {
+  inset:
+    13px
+    10px
+    9px
+    13px;
+
+  border-top-color: #c79628;
+  border-left-color: #c79628;
+  border-right-color: #f5d979;
+  border-bottom-color: #f5d979;
+}
+
+/* Keep text and small indicators above the tile face */
+
+.letter-value,
+.selection-order,
+.charge-mark {
+  z-index: 4;
+}
+
+/* Ember physical tile */
+
+.letter-tile.charge-ember {
+  background:
+    linear-gradient(
+      135deg,
+      #f4b080 0%,
+      #f4b080 12%,
+      #c65e32 12%,
+      #c65e32 82%,
+      #78362b 82%,
+      #78362b 100%
+    );
+
+  border-color: #331d1a;
+  box-shadow: none !important;
+}
+
+.letter-tile.charge-ember::before {
+  background: #eaa078;
+  border-color: #71352b;
+}
+
+.letter-tile.charge-ember::after {
+  border-top-color: #ffd0aa;
+  border-left-color: #ffd0aa;
+  border-right-color: #a44b34;
+  border-bottom-color: #a44b34;
+}
+
+/* Ward physical tile */
+
+.letter-tile.charge-ward {
+  background:
+    linear-gradient(
+      135deg,
+      #a8cad4 0%,
+      #a8cad4 12%,
+      #4f8293 12%,
+      #4f8293 82%,
+      #29475a 82%,
+      #29475a 100%
+    );
+
+  border-color: #182631;
+  box-shadow: none !important;
+}
+
+.letter-tile.charge-ward::before {
+  background: #8fb8c5;
+  border-color: #34586a;
+}
+
+.letter-tile.charge-ward::after {
+  border-top-color: #d0e8ed;
+  border-left-color: #d0e8ed;
+  border-right-color: #5f91a1;
+  border-bottom-color: #5f91a1;
+}
+
+/* Bloom physical tile */
+
+.letter-tile.charge-bloom {
+  background:
+    linear-gradient(
+      135deg,
+      #bed093 0%,
+      #bed093 12%,
+      #71864b 12%,
+      #71864b 82%,
+      #3e512f 82%,
+      #3e512f 100%
+    );
+
+  border-color: #25301f;
+  box-shadow: none !important;
+}
+
+.letter-tile.charge-bloom::before {
+  background: #a9bd7e;
+  border-color: #50643a;
+}
+
+.letter-tile.charge-bloom::after {
+  border-top-color: #d9e7b7;
+  border-left-color: #d9e7b7;
+  border-right-color: #7d9257;
+  border-bottom-color: #7d9257;
+}
+
+/* Preserve charge colours when selected */
+
+.letter-tile.charge-ember.selected::before {
+  background: #dc8057;
+}
+
+.letter-tile.charge-ward.selected::before {
+  background: #729eac;
+}
+
+.letter-tile.charge-bloom.selected::before {
+  background: #8da460;
+}
+
+/* Printed corner symbols */
+
+.charge-mark {
+  top: 5px;
+  right: 6px;
+
+  width: 21px;
+  height: 21px;
+
+  display: grid;
+  place-items: center;
+
+  background: transparent !important;
+  border: 0;
+  color: #171820;
+  filter: none;
+}
+
+.charge-ember .charge-mark::before {
+  content: "✦";
+}
+
+.charge-ward .charge-mark::before {
+  content: "◆";
+}
+
+.charge-bloom .charge-mark::before {
+  content: "✿";
+}
+
+/* Physical wide buttons */
+
+.controls button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  border: 3px solid #171820;
+  border-radius: 11px;
+
+  box-shadow: none !important;
+
+  transition:
+    transform 0.08s ease,
+    background 0.08s ease;
+}
+
+.controls button::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  z-index: -1;
+
+  border: 2px solid rgba(23, 24, 32, 0.55);
+  border-radius: 6px;
+}
+
+/* Shuffle bevel */
+
+#shuffle-button {
+  background:
+    linear-gradient(
+      135deg,
+      #f0cb67 0%,
+      #f0cb67 10%,
+      #d8a52e 10%,
+      #d8a52e 84%,
+      #91651f 84%,
+      #91651f 100%
+    );
+}
+
+#shuffle-button::before {
+  background: #e4b844;
+}
+
+/* Attack bevel */
+
+#attack-button,
+.controls .primary {
+  background:
+    linear-gradient(
+      135deg,
+      #a2b77b 0%,
+      #a2b77b 10%,
+      #62733d 10%,
+      #62733d 84%,
+      #35452c 84%,
+      #35452c 100%
+    );
+
+  color: #101710;
+}
+
+#attack-button::before,
+.controls .primary::before {
+  background: #84985a;
+}
+
+/* Depressed button state */
+
+.controls button:active {
+  transform: scale(0.98);
+  box-shadow: none !important;
+}
+
+.controls button:active::before {
+  inset:
+    8px
+    5px
+    4px
+    8px;
+}
+
+/* Phone sizing */
+
+@media (max-width: 600px) {
+  .letter-grid {
+    gap: 7px;
+  }
+
+  .letter-tile::before {
+    inset: 7px;
+  }
+
+  .letter-tile::after {
+    inset: 9px;
+  }
+
+  .letter-tile.selected::before,
+  .letter-tile:active::before {
+    inset:
+      9px
+      6px
+      5px
+      9px;
+  }
+
+  .letter-tile.selected::after {
+    inset:
+      11px
+      8px
+      7px
+      11px;
+  }
+}
   </style>
 </head>
 
