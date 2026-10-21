@@ -164,10 +164,14 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .pip-upper-arm-left { left: calc(var(--left-shoulder-x) - 24px); top: calc(var(--left-shoulder-y) - 10px); z-index: 3; width: 46px; height: 51px; transform: rotate(11deg); }
 .pip-forearm-left { left: calc(var(--left-elbow-x) - 26px); top: calc(var(--left-elbow-y) - 16px); z-index: 8; width: 52px; height: 61px; transform: rotate(0); }
 .pip-forearm-right { left: calc(var(--right-elbow-x) - 23px); top: calc(var(--right-elbow-y) - 16px); z-index: 9; width: 52px; height: 61px; transform: rotate(0); }
+.pip-puppet.skeleton-edit > .pip-tail,
+.pip-puppet.skeleton-edit > .pip-torso,
+.pip-puppet.skeleton-edit > .pip-head,
+.pip-puppet.skeleton-edit > .pip-limb { opacity: .42; }
 .pip-skeleton { position: absolute; inset: 0; z-index: 30; width: 205px; height: 215px; overflow: visible; pointer-events: none; }
-.pip-bones line { stroke: #21efff; stroke-width: 2; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-.pip-joints circle { fill: #ff3f73; stroke: #fff7d2; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-.pip-joints text { fill: #fff7d2; stroke: #18233a; stroke-width: 2.5px; paint-order: stroke; font: 700 7px/1 sans-serif; letter-spacing: 0; }
+.pip-bones line { stroke: #16efff; stroke-width: 3.2; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.pip-joints circle { fill: #ff3569; stroke: #fff7d2; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.pip-joints text { fill: #fff7d2; stroke: #18233a; stroke-width: 4px; paint-order: stroke; font: 800 8.5px/1 sans-serif; letter-spacing: 0; }
 .enemy-art.pip {
   background-image: none;
   transform-origin: 50% 100%;

@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Syntax: Word Odyssey</title>
-  <link rel="stylesheet" href="style.css?v=18">
+  <link rel="stylesheet" href="style.css?v=19">
 </head>
 <body>
   <main class="game" aria-label="Syntax: Word Odyssey">
@@ -35,7 +35,7 @@
 
       <article id="enemy-fighter" class="fighter enemy-fighter">
         <div id="enemy-art" class="enemy-art" role="img">
-          <span class="pip-puppet" aria-hidden="true">
+          <span class="pip-puppet skeleton-edit" aria-hidden="true">
             <img class="pip-part pip-tail" src="assets/pip-part-tail.png" alt="">
             <span class="pip-limb pip-lower-leg-right"><img src="assets/pip-part-lower-leg-right.png" alt=""></span>
             <span class="pip-limb pip-lower-leg-left"><img src="assets/pip-part-lower-leg-left.png" alt=""></span>
@@ -60,10 +60,12 @@
                 <line data-from="chest" data-to="pelvis"></line>
                 <line data-from="pelvis" data-to="leftHip"></line>
                 <line data-from="leftHip" data-to="leftKnee"></line>
-                <line data-from="leftKnee" data-to="leftHoof"></line>
+                <line data-from="leftKnee" data-to="leftAnkle"></line>
+                <line data-from="leftAnkle" data-to="leftHoof"></line>
                 <line data-from="pelvis" data-to="rightHip"></line>
                 <line data-from="rightHip" data-to="rightKnee"></line>
-                <line data-from="rightKnee" data-to="rightHoof"></line>
+                <line data-from="rightKnee" data-to="rightAnkle"></line>
+                <line data-from="rightAnkle" data-to="rightHoof"></line>
                 <line data-from="pelvis" data-to="tailBase"></line>
                 <line data-from="tailBase" data-to="tailTip"></line>
               </g>
@@ -93,6 +95,6 @@
       <button id="restart" class="restart" type="button">Begin a new odyssey</button>
     </section>
   </main>
-  <script src="game.js?v=18"></script>
+  <script src="game.js?v=19"></script>
 </body>
 </html>

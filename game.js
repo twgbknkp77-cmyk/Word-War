@@ -33,11 +33,11 @@ const el = {battle:$("#battle"),chapter:$("#chapter-card"),heroF:$("#hero-fighte
 // directly to these coordinates. This object is Pip's single skeleton source.
 const pipSkeleton = {
   neck:{x:105,y:72,label:"N"}, chest:{x:105,y:95,label:"C"},
-  leftShoulder:{x:70,y:83,label:"LS"}, leftElbow:{x:70,y:112,label:"LE"}, leftHand:{x:58,y:146,label:"LH"},
-  rightShoulder:{x:140,y:83,label:"RS"}, rightElbow:{x:140,y:112,label:"RE"}, rightHand:{x:153,y:146,label:"RH"},
+  leftShoulder:{x:72,y:87,label:"LS"}, leftElbow:{x:54,y:106,label:"LE"}, leftHand:{x:81,y:125,label:"LH"},
+  rightShoulder:{x:138,y:87,label:"RS"}, rightElbow:{x:156,y:106,label:"RE"}, rightHand:{x:129,y:125,label:"RH"},
   pelvis:{x:106,y:148,label:"P"},
-  leftHip:{x:88,y:148,label:"LHi"}, leftKnee:{x:88,y:172,label:"LK"}, leftHoof:{x:82,y:210,label:"LF"},
-  rightHip:{x:126,y:148,label:"RHi"}, rightKnee:{x:124,y:172,label:"RK"}, rightHoof:{x:132,y:210,label:"RF"},
+  leftHip:{x:88,y:148,label:"LHi"}, leftKnee:{x:88,y:172,label:"LK"}, leftAnkle:{x:78,y:197,label:"LA"}, leftHoof:{x:82,y:210,label:"LF"},
+  rightHip:{x:126,y:148,label:"RHi"}, rightKnee:{x:124,y:172,label:"RK"}, rightAnkle:{x:134,y:197,label:"RA"}, rightHoof:{x:132,y:210,label:"RF"},
   tailBase:{x:145,y:148,label:"TB"}, tailTip:{x:168,y:167,label:"TT"}
 };
 
@@ -58,7 +58,7 @@ function positionPipSkeleton(){
   group.innerHTML="";
   Object.values(pipSkeleton).forEach(joint=>{
     const circle=document.createElementNS(ns,"circle");
-    circle.setAttribute("cx",joint.x);circle.setAttribute("cy",joint.y);circle.setAttribute("r",3.5);group.appendChild(circle);
+    circle.setAttribute("cx",joint.x);circle.setAttribute("cy",joint.y);circle.setAttribute("r",4.2);group.appendChild(circle);
     const label=document.createElementNS(ns,"text");
     label.setAttribute("x",joint.x+5);label.setAttribute("y",joint.y-4);label.textContent=joint.label;group.appendChild(label);
   });
