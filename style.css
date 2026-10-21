@@ -148,6 +148,9 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   transform-origin: 50% 100%;
 }
 .pip-part { position: absolute; display: block; object-fit: contain; pointer-events: none; }
+.pip-calibration-art { position: absolute; inset: 0; z-index: 1; display: none; width: 205px; height: 215px; object-fit: contain; object-position: center bottom; pointer-events: none; }
+.pip-puppet.calibration-mode > .pip-calibration-art { display: block; opacity: .62; }
+.pip-puppet.calibration-mode > :not(.pip-calibration-art):not(.pip-skeleton) { display: none; }
 .pip-tail { left: calc(var(--tail-base-x) - 21px); top: calc(var(--tail-base-y) - 24px); z-index: 0; width: 46px; height: 58px; transform-origin: 18% 22%; animation: pip-tail-idle 5.6s ease-in-out infinite; }
 .pip-torso { left: calc(var(--chest-x) - 47px); top: calc(var(--chest-y) - 33px); z-index: 5; width: 96px; height: 102px; }
 .pip-head { left: calc(var(--neck-x) - 71px); top: calc(var(--neck-y) - 54px); z-index: 6; width: 105px; height: 90px; transform-origin: 63% 92%; animation: pip-head-idle 3.8s ease-in-out infinite; }

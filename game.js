@@ -32,13 +32,13 @@ const el = {battle:$("#battle"),chapter:$("#chapter-card"),heroF:$("#hero-fighte
 // Screen-left and screen-right are used deliberately so visual feedback maps
 // directly to these coordinates. This object is Pip's single skeleton source.
 const pipSkeleton = {
-  neck:{x:105,y:72,label:"N"}, chest:{x:105,y:95,label:"C"},
-  leftShoulder:{x:72,y:87,label:"LS"}, leftElbow:{x:54,y:106,label:"LE"}, leftHand:{x:81,y:125,label:"LH"},
-  rightShoulder:{x:138,y:87,label:"RS"}, rightElbow:{x:156,y:106,label:"RE"}, rightHand:{x:129,y:125,label:"RH"},
-  pelvis:{x:106,y:148,label:"P"},
-  leftHip:{x:88,y:148,label:"LHi"}, leftKnee:{x:88,y:172,label:"LK"}, leftAnkle:{x:78,y:197,label:"LA"}, leftHoof:{x:82,y:210,label:"LF"},
-  rightHip:{x:126,y:148,label:"RHi"}, rightKnee:{x:124,y:172,label:"RK"}, rightAnkle:{x:134,y:197,label:"RA"}, rightHoof:{x:132,y:210,label:"RF"},
-  tailBase:{x:145,y:148,label:"TB"}, tailTip:{x:168,y:167,label:"TT"}
+  neck:{x:102,y:66,label:"N"}, chest:{x:105,y:90,label:"C"},
+  leftShoulder:{x:78,y:74,label:"LS"}, leftElbow:{x:69,y:102,label:"LE"}, leftHand:{x:48,y:138,label:"LH"},
+  rightShoulder:{x:120,y:71,label:"RS"}, rightElbow:{x:139,y:98,label:"RE"}, rightHand:{x:166,y:120,label:"RH"},
+  pelvis:{x:104,y:123,label:"P"},
+  leftHip:{x:88,y:131,label:"LHi"}, leftKnee:{x:93,y:161,label:"LK"}, leftAnkle:{x:75,y:186,label:"LA"}, leftHoof:{x:72,y:204,label:"LF"},
+  rightHip:{x:120,y:131,label:"RHi"}, rightKnee:{x:132,y:161,label:"RK"}, rightAnkle:{x:153,y:188,label:"RA"}, rightHoof:{x:163,y:206,label:"RF"},
+  tailBase:{x:131,y:134,label:"TB"}, tailTip:{x:159,y:144,label:"TT"}
 };
 
 function positionPipSkeleton(){
