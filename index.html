@@ -970,6 +970,122 @@
     min-height: 42px;
   }
 }
+    /* Simplified phone gameplay layout */
+
+@media (max-width: 600px) {
+  /* Hide information that is not essential during gameplay */
+
+  .game-header,
+  .enemy-warning,
+  .status-row,
+  .tile-info {
+    display: none !important;
+  }
+
+  .game {
+    width: 100%;
+    min-height: 100dvh;
+  }
+
+  /* Battlefield occupies roughly the upper portion */
+
+  .battle-scene {
+    height: clamp(180px, 27dvh, 235px);
+  }
+
+  .portrait {
+    width: clamp(100px, 28vw, 130px);
+    height: clamp(112px, 32vw, 145px);
+  }
+
+  .fighter {
+    bottom: 6px;
+  }
+
+  .ground {
+    height: 78px;
+  }
+
+  .mountain {
+    bottom: 76px;
+  }
+
+  /* Use remaining space efficiently */
+
+  .game-panel {
+    padding: 9px 12px 10px;
+  }
+
+  .word-display {
+    min-height: 42px;
+    padding: 8px 10px;
+  }
+
+  .letter-grid {
+    width: min(
+      100%,
+      calc(100dvh - 330px)
+    );
+    max-width: 100%;
+    margin: 8px auto 0;
+    gap: 6px;
+  }
+
+  .letter-tile {
+    width: 100%;
+    aspect-ratio: 1;
+    font-size: clamp(1.4rem, 7vw, 1.9rem);
+  }
+
+  .controls {
+    margin-top: 9px;
+    gap: 6px;
+  }
+
+  .controls button {
+    min-height: 44px;
+    padding: 7px 4px;
+  }
+
+  .message {
+    min-height: 27px;
+    margin-top: 7px;
+    font-size: 0.73rem;
+  }
+
+  /* Keep introduction and victory screens full-sized */
+
+  .campaign-screen {
+    display: grid;
+    position: fixed;
+  }
+
+  .campaign-screen.hidden {
+    display: none;
+  }
+}
+
+/* Extra adjustment for short phone screens */
+
+@media (max-width: 600px) and (max-height: 700px) {
+  .battle-scene {
+    height: 165px;
+  }
+
+  .portrait {
+    width: 88px;
+    height: 100px;
+  }
+
+  .letter-grid {
+    width: min(100%, 300px);
+    gap: 5px;
+  }
+
+  .controls button {
+    min-height: 40px;
+  }
+}
   </style>
 </head>
 
