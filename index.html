@@ -1256,6 +1256,356 @@
     bottom: 82px;
   }
 }
+    /* Retro hand-drawn cartoon grid */
+
+:root {
+  --retro-ink: #171820;
+  --retro-navy: #17233b;
+  --retro-cream: #f2e2b8;
+  --retro-cream-light: #fff2cf;
+  --retro-mustard: #d8a52e;
+  --retro-orange: #c65e32;
+  --retro-teal: #3f7774;
+  --retro-purple: #66507a;
+  --retro-green: #62733d;
+}
+
+/* Word display becomes a cartoon caption panel */
+
+.word-display {
+  background: var(--retro-cream);
+  border: 3px solid var(--retro-ink);
+  border-radius: 11px;
+  color: var(--retro-ink);
+  box-shadow: 5px 5px 0 var(--retro-orange);
+}
+
+#current-word {
+  color: var(--retro-ink);
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    Arial,
+    sans-serif;
+  font-weight: 900;
+}
+
+#damage-preview {
+  color: #8d3d29;
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    Arial,
+    sans-serif;
+}
+
+/* Base letter tile */
+
+.letter-tile {
+  overflow: visible;
+  border: 3px solid var(--retro-ink);
+  border-radius: 10px;
+  background: var(--retro-cream);
+  color: var(--retro-ink);
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    Arial,
+    sans-serif;
+  font-weight: 900;
+  box-shadow:
+    5px 6px 0 var(--retro-orange);
+  transform: rotate(0deg);
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    background 0.1s ease;
+}
+
+/* Slight alternating animation-drawing character */
+
+.letter-tile:nth-child(4n + 1) {
+  transform: rotate(-0.35deg);
+}
+
+.letter-tile:nth-child(4n + 2) {
+  transform: rotate(0.25deg);
+}
+
+.letter-tile:nth-child(4n + 3) {
+  transform: rotate(-0.15deg);
+}
+
+.letter-tile:nth-child(4n) {
+  transform: rotate(0.35deg);
+}
+
+/* Tile press */
+
+.letter-tile:active {
+  transform:
+    translate(4px, 5px)
+    scale(0.96);
+  box-shadow:
+    1px 1px 0 var(--retro-orange);
+}
+
+/* Selected normal tile */
+
+.letter-tile.selected {
+  background: var(--retro-mustard);
+  border-color: var(--retro-ink);
+  box-shadow:
+    3px 4px 0 #8d3d29;
+  transform:
+    translate(2px, 2px)
+    rotate(-1deg)
+    scale(0.96);
+}
+
+/* Selection-order stamp */
+
+.selection-order {
+  top: 5px;
+  left: 6px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 4px;
+  background: var(--retro-ink);
+  border: 2px solid var(--retro-cream-light);
+  color: var(--retro-cream-light);
+  font-size: 0.62rem;
+  box-shadow: 1px 1px 0 #8d3d29;
+}
+
+/* Letter value */
+
+.letter-value {
+  right: 7px;
+  bottom: 5px;
+  color: var(--retro-ink);
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    Arial,
+    sans-serif;
+  font-weight: 900;
+}
+
+/* Charged tile: Ember */
+
+.letter-tile.charge-ember {
+  background: #e99462;
+  border-color: #662f28;
+  box-shadow:
+    5px 6px 0 #963f2d;
+}
+
+.letter-tile.charge-ember.selected {
+  background: #d97948;
+  border-color: var(--retro-ink);
+  box-shadow:
+    3px 4px 0 #713025;
+}
+
+/* Charged tile: Ward */
+
+.letter-tile.charge-ward {
+  background: #82afbd;
+  border-color: #263e59;
+  box-shadow:
+    5px 6px 0 #3f6878;
+}
+
+.letter-tile.charge-ward.selected {
+  background: #6596a7;
+  border-color: var(--retro-ink);
+  box-shadow:
+    3px 4px 0 #304d60;
+}
+
+/* Charged tile: Bloom */
+
+.letter-tile.charge-bloom {
+  background: #9caf72;
+  border-color: #35452e;
+  box-shadow:
+    5px 6px 0 #59693b;
+}
+
+.letter-tile.charge-bloom.selected {
+  background: #83995a;
+  border-color: var(--retro-ink);
+  box-shadow:
+    3px 4px 0 #40502f;
+}
+
+/* Printed charge symbols */
+
+.charge-mark {
+  top: 5px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  background: transparent !important;
+  border: 0;
+  border-radius: 0;
+  color: var(--retro-ink);
+  font-size: 1rem;
+  filter: none;
+}
+
+.charge-mark::before {
+  font-weight: 900;
+  line-height: 1;
+}
+
+.charge-ember .charge-mark::before {
+  content: "✦";
+}
+
+.charge-ward .charge-mark::before {
+  content: "◆";
+}
+
+.charge-bloom .charge-mark::before {
+  content: "✿";
+}
+
+/* Cartoon caption tooltip */
+
+.charge-tooltip {
+  right: -5px;
+  bottom: calc(100% + 8px);
+  padding: 8px 10px;
+  background: var(--retro-cream-light);
+  border: 3px solid var(--retro-ink);
+  border-radius: 8px;
+  color: var(--retro-ink);
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    Arial,
+    sans-serif;
+  font-size: 0.7rem;
+  box-shadow: 4px 4px 0 var(--retro-purple);
+}
+
+.charge-tooltip::after {
+  border-top-color: var(--retro-ink);
+}
+
+/* Ink-hidden tile */
+
+.letter-tile.inked {
+  background: #443652;
+  border-color: var(--retro-ink);
+  box-shadow:
+    5px 6px 0 #272032;
+}
+
+.letter-tile.inked::after {
+  color: var(--retro-cream);
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    Arial,
+    sans-serif;
+}
+
+/* Remove Clear and create two equal buttons */
+
+#clear-button {
+  display: none !important;
+}
+
+.controls {
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.controls button {
+  min-height: 52px;
+  border: 3px solid var(--retro-ink);
+  border-radius: 11px;
+  color: var(--retro-ink);
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    Arial,
+    sans-serif;
+  font-size: 0.95rem;
+  font-weight: 900;
+  box-shadow: 5px 6px 0 var(--retro-ink);
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+}
+
+.controls button:active {
+  transform: translate(4px, 5px);
+  box-shadow: 1px 1px 0 var(--retro-ink);
+}
+
+/* Remove the “uses turn” line */
+
+#shuffle-button small,
+#shuffle-button br {
+  display: none;
+}
+
+#shuffle-button {
+  background: var(--retro-mustard);
+}
+
+#attack-button,
+.controls .primary {
+  background: #779057;
+  color: #111b12;
+}
+
+/* Phone refinements */
+
+@media (max-width: 600px) {
+  .word-display {
+    box-shadow: 4px 4px 0 var(--retro-orange);
+  }
+
+  .letter-grid {
+    gap: 8px;
+  }
+
+  .letter-tile {
+    border-width: 3px;
+    box-shadow:
+      4px 5px 0 var(--retro-orange);
+  }
+
+  .letter-tile.charge-ember {
+    box-shadow:
+      4px 5px 0 #963f2d;
+  }
+
+  .letter-tile.charge-ward {
+    box-shadow:
+      4px 5px 0 #3f6878;
+  }
+
+  .letter-tile.charge-bloom {
+    box-shadow:
+      4px 5px 0 #59693b;
+  }
+
+  .controls {
+    gap: 10px;
+  }
+
+  .controls button {
+    min-height: 50px;
+  }
+}
   </style>
 </head>
 
