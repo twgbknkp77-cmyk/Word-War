@@ -254,3 +254,34 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
 }
+/* More compact battle characters */
+.fighter {
+  width: 43%;
+}
+
+.hero-art,
+.enemy-art {
+  width: min(38vw, 205px);
+  height: clamp(155px, 24dvh, 215px);
+  margin: -2px auto -8px;
+}
+
+/* Compact phone layout */
+@media (max-height: 900px) and (max-width: 620px) {
+  .battle {
+    height: 285px;
+    min-height: 285px;
+  }
+
+  .hero-art,
+  .enemy-art {
+    width: min(36vw, 170px);
+    height: 168px;
+    margin-bottom: -5px;
+  }
+
+  .play-panel {
+    min-height: calc(100dvh - 285px);
+    padding-top: 8px;
+  }
+}
