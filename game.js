@@ -98,7 +98,7 @@ async function attack(){
   await delay(510);
   if(enemyHP<=0){await victory();return;}
   el.message.textContent += " The enemy prepares to answer…";
-  await delay(1500);
+  await delay(2500);
   await enemyTurn();
 }
 
