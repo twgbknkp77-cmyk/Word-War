@@ -41,6 +41,45 @@ const pipSkeleton = Object.freeze({
   tailBase:{x:134,y:139,label:"TB"}, tailTip:{x:159,y:144,label:"TT"}
 });
 
+// Pixel-space anchor points measured on the transparent source artwork.
+// Each segment is fitted so its two anchors land on the matching skeleton bone.
+const pipArtworkAnchors = Object.freeze({
+  upperArm:{width:300,height:310,scale:.18,from:{x:242,y:58},to:{x:82,y:250}},
+  forearm:{width:310,height:245,scale:.18,from:{x:244,y:40},to:{x:60,y:205}},
+  upperLeg:{width:290,height:415,scale:.15,from:{x:180,y:50},to:{x:145,y:360}},
+  lowerLeg:{width:260,height:380,scale:.18,from:{x:150,y:40},to:{x:70,y:350}}
+});
+
+function fitPipSegment(selector,artKey,fromName,toName,mirrored=false){
+  const node=$(selector),art=pipArtworkAnchors[artKey],from=pipSkeleton[fromName],to=pipSkeleton[toName];
+  if(!node||!art||!from||!to)return;
+  const width=art.width*art.scale,height=art.height*art.scale;
+  const sourceFrom={x:(mirrored?art.width-art.from.x:art.from.x)*art.scale,y:art.from.y*art.scale};
+  const sourceTo={x:(mirrored?art.width-art.to.x:art.to.x)*art.scale,y:art.to.y*art.scale};
+  const sourceDX=sourceTo.x-sourceFrom.x,sourceDY=sourceTo.y-sourceFrom.y;
+  const targetDX=to.x-from.x,targetDY=to.y-from.y;
+  const sourceLength=Math.hypot(sourceDX,sourceDY),targetLength=Math.hypot(targetDX,targetDY);
+  const scale=targetLength/sourceLength;
+  const angle=Math.atan2(targetDY,targetDX)-Math.atan2(sourceDY,sourceDX);
+  const cos=Math.cos(angle)*scale,sin=Math.sin(angle)*scale;
+  const translatedX=from.x-(sourceFrom.x*cos-sourceFrom.y*sin);
+  const translatedY=from.y-(sourceFrom.x*sin+sourceFrom.y*cos);
+  node.style.left="0px";node.style.top="0px";node.style.width=`${width}px`;node.style.height=`${height}px`;
+  node.style.transformOrigin="0 0";
+  node.style.transform=`translate(${translatedX}px,${translatedY}px) rotate(${angle}rad) scale(${scale})`;
+}
+
+function fitPipArtworkToSkeleton(){
+  fitPipSegment(".pip-upper-arm-left","upperArm","leftShoulder","leftElbow");
+  fitPipSegment(".pip-forearm-left","forearm","leftElbow","leftHand");
+  fitPipSegment(".pip-upper-arm-right","upperArm","rightShoulder","rightElbow",true);
+  fitPipSegment(".pip-forearm-right","forearm","rightElbow","rightHand",true);
+  fitPipSegment(".pip-upper-leg-left","upperLeg","leftHip","leftKnee");
+  fitPipSegment(".pip-lower-leg-left","lowerLeg","leftKnee","leftHoof");
+  fitPipSegment(".pip-upper-leg-right","upperLeg","rightHip","rightKnee",true);
+  fitPipSegment(".pip-lower-leg-right","lowerLeg","rightKnee","rightHoof",true);
+}
+
 function positionPipSkeleton(){
   const puppet=$(".pip-puppet"),svg=$("#pip-skeleton");
   if(!puppet||!svg)return;
@@ -252,4 +291,4 @@ async function loadDictionary(){
 }
 
 el.attack.addEventListener("click",attack);el.shuffle.addEventListener("click",shuffle);el.restart.addEventListener("click",restart);
-positionPipSkeleton();setupEnemy();freshGrid();controls();loadDictionary();
+positionPipSkeleton();fitPipArtworkToSkeleton();setupEnemy();freshGrid();controls();loadDictionary();
