@@ -1,6 +1,6 @@
 const PLAYER_STARTING_MAX = 60;
 const values = {A:1,B:2,C:2,D:2,E:1,F:3,G:2,H:3,I:1,J:4,K:4,L:1,M:2,N:1,O:1,P:2,Q:5,R:1,S:1,T:1,U:1,V:3,W:3,X:4,Y:3,Z:5};
-const vowels = "AAAAAAAEEEEEEEEEEIIIIIIOOOOOOUUUY";
+const vowels = "AAAAAAAEEEEEEEEEEIIIIIIOOOOOOUUU";
 const consonants = "BBBBCCCDDDDFFGGGGHHHJKLLLLMMMMNNNNNNPPQRRRRRRSSSSSSTTTTTTVVWWXYZ";
 const charges = [
   {id:"ember",symbol:"◆",label:"Ember",damage:3},
@@ -33,7 +33,7 @@ const enemies = [
 ];
 
 const $ = s => document.querySelector(s);
-const el = {battle:$("#battle"),chapter:$("#chapter-card"),heroF:$("#hero-fighter"),enemyF:$("#enemy-fighter"),heroArt:$("#hero-art"),enemyArt:$("#enemy-art"),enemyName:$("#enemy-name"),heroHp:$("#hero-hp"),heroMax:$("#hero-max"),enemyHp:$("#enemy-hp"),enemyMax:$("#enemy-max"),heroBar:$("#hero-bar"),enemyBar:$("#enemy-bar"),heroStatusIcons:$("#hero-status-icons"),enemyStatusIcons:$("#enemy-status-icons"),enemyMovesToggle:$("#enemy-moves-toggle"),enemyMoves:$("#enemy-moves"),effects:$("#effects"),banner:$("#battle-banner"),rewardModal:$("#reward-modal"),rewardOptions:$("#reward-options"),grid:$("#grid"),word:$("#word"),damage:$("#damage"),message:$("#message"),shuffle:$("#shuffle"),attack:$("#attack"),restart:$("#restart")};
+const el = {battle:$("#battle"),chapter:$("#chapter-card"),heroF:$("#hero-fighter"),enemyF:$("#enemy-fighter"),heroArt:$("#hero-art"),enemyArt:$("#enemy-art"),enemyName:$("#enemy-name"),heroHp:$("#hero-hp"),heroMax:$("#hero-max"),enemyHp:$("#enemy-hp"),enemyMax:$("#enemy-max"),heroBar:$("#hero-bar"),enemyBar:$("#enemy-bar"),heroStatusIcons:$("#hero-status-icons"),enemyStatusIcons:$("#enemy-status-icons"),enemyMovesToggle:$("#enemy-moves-toggle"),enemyMoves:$("#enemy-moves"),effects:$("#effects"),banner:$("#battle-banner"),rewardModal:$("#reward-modal"),rewardOptions:$("#reward-options"),grid:$("#grid"),word:$("#word"),damage:$("#damage"),clearSelection:$("#clear-selection"),tileInfo:$("#tile-info"),message:$("#message"),shuffle:$("#shuffle"),attack:$("#attack"),restart:$("#restart")};
 
 // Screen-left and screen-right are used deliberately so visual feedback maps
 // directly to these coordinates. This object is Pip's single skeleton source.
@@ -128,15 +128,25 @@ let permanentAttackBuff = 0, temporaryAttackBuff = 0, attackBuffTurns = 0, shiel
 let busy = true, finished = false;
 let pipIdleTimer = 0;
 let attackFeedbackTimer = 0;
+let tileInfoTimer = 0;
+const introducedCharges = new Set();
 
 const pick = string => string[Math.floor(Math.random() * string.length)];
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 function tile(letter, charge=null) { return {letter: letter || pick(consonants), charge, modifier:0,lockTurns:0,stoneTurns:0,crackedTurns:0}; }
+const vowelSet=new Set("AEIOU"),rareLetters=new Set("JQXZ"),uncommonLetters=new Set("KVWY");
+function letterCap(letter){return rareLetters.has(letter)?1:uncommonLetters.has(letter)?2:vowelSet.has(letter)?4:3;}
+function letterCounts(letters){return letters.reduce((counts,letter)=>{counts[letter]=(counts[letter]||0)+1;return counts;},{});}
+function weightedLetter(pool,counts){
+  let choices=[...pool].filter(letter=>(counts[letter]||0)<letterCap(letter)&&(letter!=="Q"||(counts.U||0)>0));
+  if(!choices.length)choices=[..."AEINORST"].filter(letter=>(counts[letter]||0)<letterCap(letter));
+  const letter=choices[Math.floor(Math.random()*choices.length)];counts[letter]=(counts[letter]||0)+1;return letter;
+}
 
 function balancedLetters() {
-  const letters = [];
-  for (let i=0;i<6;i++) letters.push(pick(vowels));
-  while (letters.length<16) letters.push(pick(consonants));
+  const letters = [],counts={};
+  for (let i=0;i<6;i++) letters.push(weightedLetter(vowels,counts));
+  while (letters.length<16) letters.push(weightedLetter(consonants,counts));
   letters.sort(()=>Math.random()-.5);
   return letters;
 }
@@ -168,27 +178,48 @@ function render() {
     if(disabled.has(i)) b.classList.add("locked");
     if(item.charge) b.classList.add(`charge-${item.charge.id}`);
     const unavailable=busy||disabled.has(i)||item.lockTurns>0; b.disabled=unavailable;
-    b.title=item.charge?`${item.charge.label}: ${chargeHelp(item.charge)}`:`${item.letter}: ${score(i)} points`;
+    b.title=item.lockTurns?`Maze locked: unavailable for ${item.lockTurns} more ${item.lockTurns===1?"play":"plays"}`:item.stoneTurns?`Petrified: usable as a letter but worth 0 damage for ${item.stoneTurns} more ${item.stoneTurns===1?"play":"plays"}`:item.crackedTurns?`Cracked: usable as a letter but worth 0 damage for ${item.crackedTurns} more ${item.crackedTurns===1?"play":"plays"}`:item.charge?`${item.charge.label}: ${chargeHelp(item.charge)}`:`${item.letter}: ${score(i)} points`;
     b.setAttribute("aria-label",b.title);
     const turnCount=item.lockTurns||item.stoneTurns||item.crackedTurns;
-    b.innerHTML=`<span class="letter">${item.letter}</span>${item.charge?`<span class="charge">${item.charge.symbol}</span>`:""}${item.lockTurns?'<span class="lock-cross" aria-hidden="true"></span>':""}${item.crackedTurns?'<span class="crack-mark" aria-hidden="true"></span>':""}${turnCount?`<span class="status-turns">${turnCount}</span>`:""}`;
-    b.addEventListener("click",()=>toggle(i)); el.grid.appendChild(b);
+    const effectLabel=item.lockTurns?"LOCKED":item.stoneTurns?"STONE · 0":item.crackedTurns?"BROKEN · 0":"";
+    b.innerHTML=`<span class="letter">${item.letter}</span>${item.charge?`<span class="charge" role="button" aria-label="Explain ${item.charge.label}">${item.charge.symbol}</span><span class="special-label">${chargeLabel(item.charge)}</span>`:""}${item.lockTurns?'<span class="lock-cross" aria-hidden="true"></span>':""}${item.crackedTurns?'<span class="crack-mark" aria-hidden="true"></span>':""}${effectLabel?`<span class="effect-label">${effectLabel}</span>`:""}${turnCount?`<span class="status-turns">${turnCount}</span>`:""}`;
+    b.addEventListener("click",()=>toggle(i));
+    if(item.charge)b.querySelector(".charge").addEventListener("click",event=>{event.stopPropagation();showChargeInfo(item.charge);});
+    el.grid.appendChild(b);
   });
 }
 
 function chargeHelp(c){ return c.damage?"adds 3 damage":c.block?"blocks 3 damage":"heals 7 HP"; }
+function chargeLabel(c){return c.damage?"+3 DMG":c.block?"BLOCK 3":"+7 HP";}
+function showChargeInfo(charge,first=false){
+  clearTimeout(tileInfoTimer);el.tileInfo.hidden=false;el.tileInfo.className=`tile-info info-${charge.id}`;
+  el.tileInfo.innerHTML=`<strong>${first?"New special — ":""}${charge.label}</strong><span>${charge.damage?"Adds 3 damage when used in a valid word.":charge.block?"Blocks 3 damage from the enemy's next attack.":"Restores 7 HP when used in a valid word."}</span>`;
+  tileInfoTimer=setTimeout(()=>{el.tileInfo.hidden=true;},first?3200:2400);
+}
+function showStatusInfo(item){
+  if(!item.stoneTurns&&!item.crackedTurns)return;
+  clearTimeout(tileInfoTimer);el.tileInfo.hidden=false;el.tileInfo.className="tile-info info-status";
+  el.tileInfo.innerHTML=item.stoneTurns?`<strong>Petrified</strong><span>This letter can complete a word, but contributes 0 damage and no length bonus.</span>`:`<strong>Broken</strong><span>This letter can complete a word, but contributes 0 damage and no length bonus.</span>`;
+  tileInfoTimer=setTimeout(()=>{el.tileInfo.hidden=true;},2800);
+}
 function score(i){ const item=tiles[i];if(item.stoneTurns||item.crackedTurns)return 0;return Math.max(1,values[item.letter]+item.modifier); }
-function toggle(i){ if(busy||disabled.has(i)||tiles[i].lockTurns)return; const at=selected.indexOf(i); at<0?selected.push(i):selected.splice(at,1); render(); updateWord(); }
+function toggle(i){
+  if(busy||disabled.has(i)||tiles[i].lockTurns)return;
+  const at=selected.indexOf(i);
+  if(at<0){selected.push(i);if(tiles[i].charge)showChargeInfo(tiles[i].charge);else showStatusInfo(tiles[i]);}else selected.splice(at,1);
+  render();updateWord();
+}
 function word(){ return selected.map(i=>tiles[i].letter).join(""); }
 function bonus(n){ return n>=8?12:n===7?8:n===6?5:n===5?3:n===4?1:0; }
 function reward(n){ return n>=8?3:n>=6?2:n===5?1:0; }
 function preview(){
   if(!selected.length)return 0;
-  const length=selected.length;
-  const base=selected.reduce((n,i)=>n+score(i),0)+bonus(length);
+  const scoringLength=selected.filter(i=>!tiles[i].stoneTurns&&!tiles[i].crackedTurns).length;
+  if(!scoringLength)return 0;
+  const base=selected.reduce((n,i)=>n+score(i),0)+bonus(scoringLength);
   const ember=selected.some(i=>tiles[i].charge?.damage)?charges.find(c=>c.id==="ember").damage:0;
   const availableBuff=permanentAttackBuff+(attackBuffTurns>0?temporaryAttackBuff:0);
-  const buffCap=length===3?3:length===4?5:Infinity;
+  const buffCap=scoringLength<=3?3:scoringLength===4?5:Infinity;
   return Math.max(1,base+ember+Math.min(availableBuff,buffCap)-(shieldTurns>0?2:0));
 }
 function isBlockedWord(candidate){return blockedWords.has(candidate.toLowerCase());}
@@ -196,6 +227,7 @@ function updateWord(){
   const current=word(),valid=current.length>=3&&dictionary.has(current.toLowerCase())&&!isBlockedWord(current);
   el.word.textContent=current?(valid?`${current} · ${preview()} DAMAGE`:current):"Choose letters";el.damage.textContent=`${preview()} damage`;
   el.word.closest(".word-panel")?.classList.toggle("valid",valid);
+  el.clearSelection.hidden=!selected.length;
   el.attack.classList.toggle("word-valid",valid);el.attack.classList.remove("word-invalid");
   if(!attackFeedbackTimer)el.attack.textContent="Attack";
 }
@@ -210,6 +242,7 @@ async function collapseUsedTiles(used, prizeCount) {
   const next = Array(16);
   const newPositions = [];
   const affectedColumns = new Set(used.map(index=>index%4));
+  const survivorsByColumn=[];
 
   for (let column=0; column<4; column++) {
     const survivors = [];
@@ -217,10 +250,21 @@ async function collapseUsedTiles(used, prizeCount) {
       const index=row*4+column;
       if(!removed.has(index)) survivors.push(tiles[index]);
     }
+    survivorsByColumn[column]=survivors;
+  }
+  const survivorLetters=survivorsByColumn.flat().map(item=>item.letter),counts=letterCounts(survivorLetters);
+  let neededVowels=Math.max(0,5-survivorLetters.filter(letter=>vowelSet.has(letter)).length);
 
+  for (let column=0; column<4; column++) {
+    const survivors=survivorsByColumn[column];
     const replacements=[];
     while(replacements.length<4-survivors.length) {
-      const letter=replacements.length%3===0?pick(vowels):pick(consonants);
+      let pool;
+      if((counts.Q||0)>0&&(counts.U||0)===0)pool="UUUU";
+      else if(neededVowels>0)pool=vowels;
+      else pool=Math.random()<.38?vowels:consonants;
+      const letter=weightedLetter(pool,counts);
+      if(vowelSet.has(letter)&&neededVowels>0)neededVowels--;
       replacements.push(tile(letter));
     }
 
@@ -230,13 +274,16 @@ async function collapseUsedTiles(used, prizeCount) {
   }
 
   tiles=next;
+  const newlyIntroduced=[];
   for(let i=0;i<Math.min(prizeCount,newPositions.length);i++) {
-    tiles[newPositions[i]].charge=charges[Math.floor(Math.random()*charges.length)];
+    const charge=charges[Math.floor(Math.random()*charges.length)];tiles[newPositions[i]].charge=charge;
+    if(!introducedCharges.has(charge.id)){introducedCharges.add(charge.id);newlyIntroduced.push(charge);}
   }
   selected=[];
   disabled.clear();
   render();
   updateWord();
+  if(newlyIntroduced.length)showChargeInfo(newlyIntroduced[0],true);
 
   const buttons=[...el.grid.children];
   const firstTile=buttons[0];
@@ -366,10 +413,10 @@ async function attack(){
   el.message.textContent=`${attempt.toUpperCase()} dealt ${damage} damage${prizes?` and charged ${prizes} new ${prizes===1?"tile":"tiles"}`:""}.`;
   ageTileEffects();
   await collapseUsedTiles(used,prizes);
-  await delay(510);
+  await delay(80);
   if(enemyHP<=0){consumeBoonPlay();await victory();return;}
   el.message.textContent += " The enemy prepares to answer…";
-  await delay(2500);
+  await delay(500);
   await enemyTurn();
 }
 
@@ -480,5 +527,6 @@ async function loadDictionary(){
 }
 
 el.attack.addEventListener("click",attack);el.shuffle.addEventListener("click",shuffle);el.restart.addEventListener("click",restart);
+el.clearSelection.addEventListener("click",()=>{if(busy)return;selected=[];render();updateWord();});
 el.enemyMovesToggle.addEventListener("click",()=>{const open=el.enemyMoves.hidden;el.enemyMoves.hidden=!open;el.enemyMovesToggle.setAttribute("aria-expanded",String(open));});
 positionPipSkeleton();fitPipArtworkToSkeleton();setupEnemy();freshGrid();controls();loadDictionary();

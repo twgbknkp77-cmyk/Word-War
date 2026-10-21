@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Syntax: Word Odyssey</title>
-  <link rel="stylesheet" href="style.css?v=28">
+  <link rel="stylesheet" href="style.css?v=30">
 </head>
 <body>
   <main class="game" aria-label="Syntax: Word Odyssey">
@@ -89,7 +89,10 @@
       <div class="word-panel">
         <span id="word">Loading dictionary…</span>
         <span id="damage">0 damage</span>
+        <button id="clear-selection" class="clear-selection" type="button" aria-label="Clear selected letters" hidden>×</button>
       </div>
+
+      <div id="tile-info" class="tile-info" role="status" aria-live="polite" hidden></div>
 
       <div id="grid" class="grid" aria-label="Letter grid"></div>
 
@@ -111,6 +114,6 @@
       </section>
     </div>
   </main>
-  <script src="game.js?v=28"></script>
+  <script src="game.js?v=30"></script>
 </body>
 </html>
