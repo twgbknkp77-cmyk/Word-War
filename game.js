@@ -27,7 +27,7 @@ const enemies = [
 ];
 
 const $ = s => document.querySelector(s);
-const el = {battle:$("#battle"),chapter:$("#chapter-card"),heroF:$("#hero-fighter"),enemyF:$("#enemy-fighter"),heroArt:$("#hero-art"),enemyArt:$("#enemy-art"),enemyName:$("#enemy-name"),heroHp:$("#hero-hp"),enemyHp:$("#enemy-hp"),enemyMax:$("#enemy-max"),heroBar:$("#hero-bar"),enemyBar:$("#enemy-bar"),effects:$("#effects"),grid:$("#grid"),word:$("#word"),damage:$("#damage"),message:$("#message"),shuffle:$("#shuffle"),attack:$("#attack"),restart:$("#restart")};
+const el = {battle:$("#battle"),chapter:$("#chapter-card"),heroF:$("#hero-fighter"),enemyF:$("#enemy-fighter"),heroArt:$("#hero-art"),enemyArt:$("#enemy-art"),enemyName:$("#enemy-name"),heroHp:$("#hero-hp"),enemyHp:$("#enemy-hp"),enemyMax:$("#enemy-max"),heroBar:$("#hero-bar"),enemyBar:$("#enemy-bar"),heroStatusIcons:$("#hero-status-icons"),enemyMovesToggle:$("#enemy-moves-toggle"),enemyMoves:$("#enemy-moves"),effects:$("#effects"),banner:$("#battle-banner"),rewardModal:$("#reward-modal"),rewardOptions:$("#reward-options"),grid:$("#grid"),word:$("#word"),damage:$("#damage"),message:$("#message"),shuffle:$("#shuffle"),attack:$("#attack"),restart:$("#restart")};
 
 // Screen-left and screen-right are used deliberately so visual feedback maps
 // directly to these coordinates. This object is Pip's single skeleton source.
@@ -118,6 +118,7 @@ function positionPipSkeleton(){
 
 let dictionary = new Set(), tiles = [], selected = [], disabled = new Set();
 let heroHP = PLAYER_MAX, enemyHP = 0, enemyIndex = 0, moveIndex = 0, ward = 0;
+let attackBuff = 0, shieldTurns = 0;
 let busy = true, finished = false;
 let pipIdleTimer = 0;
 
@@ -170,7 +171,11 @@ function toggle(i){ if(busy||disabled.has(i))return; const at=selected.indexOf(i
 function word(){ return selected.map(i=>tiles[i].letter).join(""); }
 function bonus(n){ return n>=8?15:n===7?10:n===6?6:n===5?3:0; }
 function reward(n){ return n>=8?3:n>=6?2:n===5?1:0; }
-function preview(){ return selected.reduce((n,i)=>n+score(i)+(tiles[i].charge?.damage||0),0)+bonus(selected.length); }
+function preview(){
+  if(!selected.length)return 0;
+  const base=selected.reduce((n,i)=>n+score(i)+(tiles[i].charge?.damage||0),0)+bonus(selected.length);
+  return Math.max(1,base+attackBuff-(shieldTurns>0?2:0));
+}
 function updateWord(){ el.word.textContent=word()||"Choose letters"; el.damage.textContent=`${preview()} damage`; }
 
 async function collapseUsedTiles(used, prizeCount) {
@@ -229,7 +234,59 @@ async function collapseUsedTiles(used, prizeCount) {
 }
 
 function controls(){ const off=busy||finished; el.shuffle.disabled=off; el.attack.disabled=off; render(); }
-function health(){ const enemy=enemies[enemyIndex]; el.heroHp.textContent=heroHP; el.enemyHp.textContent=enemyHP; el.enemyMax.textContent=enemy.hp; el.heroBar.style.width=`${heroHP/PLAYER_MAX*100}%`; el.enemyBar.style.width=`${enemyHP/enemy.hp*100}%`; }
+function health(){
+  const enemy=enemies[enemyIndex];
+  el.heroHp.textContent=heroHP;el.enemyHp.textContent=enemyHP;el.enemyMax.textContent=enemy.hp;
+  el.heroBar.style.width=`${heroHP/PLAYER_MAX*100}%`;el.enemyBar.style.width=`${enemyHP/enemy.hp*100}%`;
+  const icons=[];
+  if(attackBuff)icons.push(`<span class="status-icon sword" title="Words deal ${attackBuff} extra damage" aria-label="${attackBuff} extra word damage">⚔<small>+${attackBuff}</small></span>`);
+  if(shieldTurns)icons.push(`<span class="status-icon shield" title="Shield: ${shieldTurns} plays remaining" aria-label="Shield, ${shieldTurns} plays remaining">◆<small>${shieldTurns}</small></span>`);
+  el.heroStatusIcons.innerHTML=icons.join("");
+  updateWord();
+}
+
+function showBanner(text,tone="victory",duration=1200){
+  el.banner.textContent=text;el.banner.className=`battle-banner ${tone} show`;
+  clearTimeout(showBanner.timer);showBanner.timer=setTimeout(()=>el.banner.classList.remove("show"),duration);
+}
+
+function weighted(values){return values[Math.floor(Math.random()*values.length)];}
+function rewardChoices(){
+  const damageValues=[1,1,2,2,2,3,3,3,4,4,5,5,6,7];
+  const first=weighted(damageValues);
+  const choices=[
+    {type:"damage",value:first,icon:"⚔",name:"Sharper Words",text:`Permanently add ${first} damage to every valid word.`},
+    {type:"shield",value:5,icon:"◆",name:"Measured Guard",text:"For 5 plays, block 3 incoming damage but deal 2 less word damage."}
+  ];
+  if(heroHP<=PLAYER_MAX*.5){
+    const amount=weighted([10,10,10,10,20,20,20,30,30,40,50]);
+    choices.push({type:"heal",value:amount,icon:"♥",name:"Second Wind",text:`Restore ${amount}% of Syntax's maximum health.`});
+  }else{
+    let second=weighted(damageValues);while(second===first)second=weighted(damageValues);
+    choices.push({type:"damage",value:second,icon:"⚔",name:"Power Phrase",text:`Permanently add ${second} damage to every valid word.`});
+  }
+  return choices.sort(()=>Math.random()-.5);
+}
+
+function chooseReward(){
+  return new Promise(resolve=>{
+    el.rewardOptions.innerHTML="";
+    rewardChoices().forEach(choice=>{
+      const button=document.createElement("button");button.type="button";button.className=`reward-option reward-${choice.type}`;
+      button.innerHTML=`<span class="reward-icon">${choice.icon}</span><strong>${choice.name}</strong><span>${choice.text}</span>`;
+      button.addEventListener("click",()=>{
+        if(choice.type==="damage")attackBuff+=choice.value;
+        if(choice.type==="shield")shieldTurns=choice.value;
+        if(choice.type==="heal")heroHP=Math.min(PLAYER_MAX,heroHP+Math.round(PLAYER_MAX*choice.value/100));
+        el.rewardModal.hidden=true;health();resolve(choice);
+      },{once:true});
+      el.rewardOptions.appendChild(button);
+    });
+    el.rewardModal.hidden=false;
+  });
+}
+
+function consumeShieldPlay(){if(shieldTurns>0)shieldTurns--;health();}
 const poseClasses=["cast","hit","scratch","move-rush","move-pipes","move-kick","defeat"];
 function pose(node,name,ms=550){ node.classList.remove(...poseClasses); void node.offsetWidth; node.classList.add(name); setTimeout(()=>node.classList.remove(name),ms); }
 function schedulePipIdle(){
@@ -258,7 +315,7 @@ async function attack(){
   el.message.textContent=`${attempt.toUpperCase()} dealt ${damage} damage${prizes?` and charged ${prizes} new ${prizes===1?"tile":"tiles"}`:""}.`;
   await collapseUsedTiles(used,prizes);
   await delay(510);
-  if(enemyHP<=0){await victory();return;}
+  if(enemyHP<=0){consumeShieldPlay();await victory();return;}
   el.message.textContent += " The enemy prepares to answer…";
   await delay(2500);
   await enemyTurn();
@@ -273,7 +330,10 @@ async function enemyTurn(){
   pose(el.enemyArt,enemyIndex===0?`move-${move.pose}`:"cast",1120);
   await delay(520);
   pose(el.heroArt,"hit",820);
-  let amount=move.damage,blocked=Math.min(ward,amount);ward-=blocked;amount-=blocked;heroHP=Math.max(0,heroHP-amount);effect(`-${amount}`,"hero");
+  let amount=move.damage,blocked=0;
+  if(shieldTurns>0){const shielded=Math.min(3,amount);amount-=shielded;blocked+=shielded;}
+  const warded=Math.min(ward,amount);ward-=warded;amount-=warded;blocked+=warded;
+  heroHP=Math.max(0,heroHP-amount);effect(`-${amount}`,"hero");
   if(move.scramble){tiles.sort(()=>Math.random()-.5);selected=[];}
   if(move.lock||move.ink){disabled.clear();const count=move.lock||move.ink;while(disabled.size<count)disabled.add(Math.floor(Math.random()*16));}
   if(move.heal){enemyHP=Math.min(enemy.hp,enemyHP+move.heal);effect(`+${move.heal}`,"enemy");}
@@ -281,22 +341,37 @@ async function enemyTurn(){
   moveIndex=(moveIndex+1)%enemy.moves.length;health();render();updateWord();
   el.message.textContent=`${enemy.name} used ${move.name}: ${amount} damage${blocked?` (${blocked} blocked)`:""}.`;
   await delay(600);
+  consumeShieldPlay();
   if(heroHP<=0){finish(false);return;}busy=false;controls();
 }
 
 async function victory(){
   const defeated=enemies[enemyIndex];
-  if(enemyIndex===enemies.length-1){finish(true);return;}
   if(enemyIndex===0){pose(el.enemyArt,"defeat",1250);await delay(1250);}
-  el.message.textContent=`${defeated.name} is defeated. Syntax continues along the mythic road…`;
-  el.battle.classList.add("walking");await delay(1600);enemyIndex++;moveIndex=0;setupEnemy();
+  showBanner("VICTORY!","victory",1600);
+  el.message.textContent=`${defeated.name} has been defeated.`;
+  await delay(1500);
+  if(enemyIndex===enemies.length-1){finish(true);return;}
+  const chosen=await chooseReward();
+  el.message.textContent=`${chosen.name} gained. Syntax continues along the mythic road…`;
+  el.battle.classList.add("walking");await delay(2200);enemyIndex++;moveIndex=0;setupEnemy();
   el.chapter.textContent=`Chapter ${enemyIndex+1}: ${enemies[enemyIndex].place}`;el.chapter.classList.remove("show");void el.chapter.offsetWidth;el.chapter.classList.add("show");
-  await delay(1650);el.battle.classList.remove("walking");freshGrid();el.message.textContent=`${enemies[enemyIndex].name} blocks the road!`;busy=false;controls();
+  await delay(1300);el.battle.classList.remove("walking");freshGrid();el.message.textContent=`${enemies[enemyIndex].name} blocks the road!`;busy=false;controls();
 }
 
-function setupEnemy(){const enemy=enemies[enemyIndex];enemyHP=enemy.hp;el.enemyName.textContent=enemy.name;el.enemyArt.classList.remove(...poseClasses,"pip");if(enemyIndex===0)el.enemyArt.classList.add("pip");el.enemyArt.style.setProperty("--enemy-position",`${enemy.pos}%`);el.enemyArt.setAttribute("aria-label",enemy.name);health();schedulePipIdle();}
-function finish(won){finished=true;busy=true;controls();el.restart.style.display="block";el.message.textContent=won?"The Summit Archive is free! Syntax has completed the first Word Odyssey.":"Syntax has run out of strength. Begin again and choose stronger words.";}
-function restart(){heroHP=PLAYER_MAX;enemyIndex=0;moveIndex=0;ward=0;finished=false;busy=false;el.restart.style.display="none";setupEnemy();freshGrid();el.message.textContent="Choose any three or more letters.";controls();}
+function setupEnemy(){
+  const enemy=enemies[enemyIndex];enemyHP=enemy.hp;el.enemyName.textContent=enemy.name;
+  el.enemyArt.classList.remove(...poseClasses,"pip");if(enemyIndex===0)el.enemyArt.classList.add("pip");
+  el.enemyArt.style.setProperty("--enemy-position",`${enemy.pos}%`);el.enemyArt.setAttribute("aria-label",enemy.name);
+  el.enemyMoves.innerHTML=`<strong>Attacks</strong>${enemy.moves.map(move=>`<span>${move.name}</span>`).join("")}`;
+  el.enemyMoves.hidden=true;el.enemyMovesToggle.setAttribute("aria-expanded","false");health();schedulePipIdle();
+}
+function finish(won){
+  finished=true;busy=true;controls();el.restart.style.display="block";
+  if(won){showBanner("ODYSSEY COMPLETE","victory",4000);el.message.textContent="The Summit Archive is free! Syntax has completed the first Word Odyssey.";}
+  else{showBanner("YOU HAVE PERISHED","perished",86400000);el.message.textContent="Syntax has run out of strength. Begin again and choose stronger words.";}
+}
+function restart(){heroHP=PLAYER_MAX;enemyIndex=0;moveIndex=0;ward=0;attackBuff=0;shieldTurns=0;finished=false;busy=false;el.restart.style.display="none";el.banner.classList.remove("show");setupEnemy();freshGrid();el.message.textContent="Choose any three or more letters.";controls();}
 
 async function loadDictionary(){
   try{const responses=await Promise.all([fetch("words.txt"),fetch("custom-words.txt")]);if(responses.some(r=>!r.ok))throw Error();const text=(await Promise.all(responses.map(r=>r.text()))).join("\n");dictionary=new Set(text.split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>/^[a-z]{3,}$/.test(w)));busy=false;controls();el.message.textContent=`The scroll knows ${dictionary.size.toLocaleString()} words.`;}
@@ -304,4 +379,5 @@ async function loadDictionary(){
 }
 
 el.attack.addEventListener("click",attack);el.shuffle.addEventListener("click",shuffle);el.restart.addEventListener("click",restart);
+el.enemyMovesToggle.addEventListener("click",()=>{const open=el.enemyMoves.hidden;el.enemyMoves.hidden=!open;el.enemyMovesToggle.setAttribute("aria-expanded",String(open));});
 positionPipSkeleton();fitPipArtworkToSkeleton();setupEnemy();freshGrid();controls();loadDictionary();

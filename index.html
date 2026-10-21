@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Syntax: Word Odyssey</title>
-  <link rel="stylesheet" href="style.css?v=24">
+  <link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
   <main class="game" aria-label="Syntax: Word Odyssey">
@@ -18,13 +18,17 @@
       <div class="battle-status hero-status">
         <strong>Syntax</strong>
         <div class="health"><i id="hero-bar"></i></div>
-        <span>HP <b id="hero-hp">60</b> / 60</span>
+        <span class="hp-line">HP <b id="hero-hp">60</b> / 60 <span id="hero-status-icons" class="status-icons" aria-label="Active effects"></span></span>
       </div>
 
       <div class="battle-status enemy-status">
         <strong id="enemy-name"></strong>
         <div class="health"><i id="enemy-bar"></i></div>
-        <span>HP <b id="enemy-hp"></b> / <b id="enemy-max"></b></span>
+        <span class="hp-line enemy-hp-line">
+          <button id="enemy-moves-toggle" class="enemy-moves-toggle" type="button" aria-expanded="false" aria-controls="enemy-moves" aria-label="Show enemy attacks">⌄</button>
+          HP <b id="enemy-hp"></b> / <b id="enemy-max"></b>
+        </span>
+        <div id="enemy-moves" class="enemy-moves" hidden></div>
       </div>
 
       <article id="hero-fighter" class="fighter hero-fighter">
@@ -77,6 +81,7 @@
       </article>
 
       <div id="effects" class="effects" aria-live="polite"></div>
+      <div id="battle-banner" class="battle-banner" role="status" aria-live="assertive"></div>
     </section>
 
     <section class="play-panel">
@@ -95,7 +100,16 @@
       <p id="message" class="message" aria-live="polite">Preparing the road…</p>
       <button id="restart" class="restart" type="button">Begin a new odyssey</button>
     </section>
+
+    <div id="reward-modal" class="reward-modal" hidden>
+      <section class="reward-card" role="dialog" aria-modal="true" aria-labelledby="reward-title">
+        <p class="reward-kicker">Choose your boon</p>
+        <h2 id="reward-title">Victory!</h2>
+        <p>Syntax may carry one reward down the road.</p>
+        <div id="reward-options" class="reward-options"></div>
+      </section>
+    </div>
   </main>
-  <script src="game.js?v=24"></script>
+  <script src="game.js?v=25"></script>
 </body>
 </html>
