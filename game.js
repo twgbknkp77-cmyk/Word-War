@@ -1,405 +1,137 @@
-const PLAYER_MAX_HEALTH = 60;
-
-const letterValues = {
-  A: 1, B: 2, C: 2, D: 2, E: 1, F: 3, G: 2, H: 3, I: 1,
-  J: 5, K: 4, L: 1, M: 2, N: 1, O: 1, P: 2, Q: 5, R: 1,
-  S: 1, T: 1, U: 1, V: 3, W: 3, X: 5, Y: 3, Z: 5
-};
-
-const letterPool = (
-  "AAAA" + "B" + "C" + "DD" + "EEEEE" + "F" + "GG" + "H" +
-  "III" + "J" + "K" + "LL" + "M" + "NNN" + "OOO" + "P" +
-  "Q" + "RRR" + "SSS" + "TTT" + "UU" + "V" + "W" + "X" + "Y" + "Z"
-).split("");
-
-const chargeTypes = [
-  { id: "ember", symbol: "◆", label: "Ember", damage: 4 },
-  { id: "ward", symbol: "⬟", label: "Ward", block: 3 },
-  { id: "bloom", symbol: "✦", label: "Bloom", heal: 3 }
+const PLAYER_MAX = 60;
+const values = {A:1,B:2,C:2,D:2,E:1,F:3,G:2,H:3,I:1,J:5,K:4,L:1,M:2,N:1,O:1,P:2,Q:5,R:1,S:1,T:1,U:1,V:3,W:3,X:5,Y:3,Z:5};
+const vowels = "AAAAAAAEEEEEEEEEEIIIIIIOOOOOOUUUY";
+const consonants = "BBBBCCCDDDDFFGGGGHHHJKLLLLMMMMNNNNNNPPQRRRRRRSSSSSSTTTTTTVVWWXYZ";
+const charges = [
+  {id:"ember",symbol:"◆",label:"Ember",damage:4},
+  {id:"ward",symbol:"⬟",label:"Ward",block:3},
+  {id:"bloom",symbol:"✦",label:"Bloom",heal:3}
 ];
 
 const enemies = [
-  {
-    name: "Ink Goblin",
-    sprite: "goblin",
-    health: 45,
-    moves: [
-      { name: "Quick Scratch", damage: 4, text: "4 damage" },
-      { name: "Ink Bomb", damage: 3, ink: 3, text: "3 damage and hides 3 tiles" },
-      { name: "Wild Splash", damage: 7, text: "7 damage" }
-    ]
-  },
-  {
-    name: "Stone Archivist",
-    sprite: "archivist",
-    health: 70,
-    moves: [
-      { name: "Page Slam", damage: 6, text: "6 damage" },
-      { name: "Sealing Script", damage: 4, ink: 4, text: "4 damage and seals 4 tiles" },
-      { name: "Grand Index", damage: 11, text: "a heavy 11-damage attack" }
-    ]
-  }
+  {name:"Pip the Satyr",place:"The Whispering Olive Grove",hp:42,pos:0,moves:[
+    {name:"Reed Racket",damage:4},{name:"Hoof Shuffle",damage:3,scramble:true},{name:"Prankster's Kick",damage:7}
+  ]},
+  {name:"Brontes the Minotaur",place:"The Crooked Labyrinth",hp:58,pos:23,moves:[
+    {name:"Horn Rush",damage:6},{name:"Maze Seal",damage:3,lock:3},{name:"Wall Breaker",damage:9}
+  ]},
+  {name:"Melia the Gorgon",place:"The Silent Statue Garden",hp:68,pos:48,moves:[
+    {name:"Snake Snap",damage:6},{name:"Stone Glance",damage:4,lock:4},{name:"Marble Gaze",damage:10}
+  ]},
+  {name:"The Marsh Hydra",place:"The Reedy Moon Marsh",hp:80,pos:70,moves:[
+    {name:"Triple Nip",damage:7},{name:"Mire Spray",damage:5,ink:3},{name:"Regrow",damage:4,heal:7}
+  ]},
+  {name:"Polyphemus the Scribe",place:"The Summit Archive",hp:96,pos:95,moves:[
+    {name:"Tablet Thump",damage:8},{name:"Bad Revision",damage:5,devalue:5},{name:"Final Draft",damage:13}
+  ]}
 ];
 
-const $ = selector => document.querySelector(selector);
-const elements = {
-  grid: $("#letter-grid"), word: $("#current-word"), damage: $("#damage-preview"),
-  message: $("#message"), enemyMove: $("#enemy-move"), playerHealth: $("#player-health"),
-  enemyHealth: $("#enemy-health"), enemyMaxHealth: $("#enemy-max-health"),
-  playerBar: $("#player-health-bar"), enemyBar: $("#enemy-health-bar"),
-  playerCharacter: $("#player-character"), enemyCharacter: $("#enemy-character"),
-  enemyName: $("#enemy-name"), enemySprite: $("#enemy-sprite"), effects: $("#effect-layer"),
-  clear: $("#clear-button"), shuffle: $("#shuffle-button"), attack: $("#attack-button"),
-  continue: $("#continue-button"), restart: $("#restart-button")
-};
+const $ = s => document.querySelector(s);
+const el = {battle:$("#battle"),chapter:$("#chapter-card"),heroF:$("#hero-fighter"),enemyF:$("#enemy-fighter"),heroArt:$("#hero-art"),enemyArt:$("#enemy-art"),enemyName:$("#enemy-name"),heroHp:$("#hero-hp"),enemyHp:$("#enemy-hp"),enemyMax:$("#enemy-max"),heroBar:$("#hero-bar"),enemyBar:$("#enemy-bar"),effects:$("#effects"),grid:$("#grid"),word:$("#word"),damage:$("#damage"),message:$("#message"),shuffle:$("#shuffle"),attack:$("#attack"),restart:$("#restart")};
 
-let dictionary = new Set();
-let grid = [];
-let selected = [];
-let inked = new Set();
-let playerHealth = PLAYER_MAX_HEALTH;
-let enemyHealth = 0;
-let enemyIndex = 0;
-let enemyMoveIndex = 0;
-let ward = 0;
-let busy = true;
-let gameOver = false;
+let dictionary = new Set(), tiles = [], selected = [], disabled = new Set();
+let heroHP = PLAYER_MAX, enemyHP = 0, enemyIndex = 0, moveIndex = 0, ward = 0;
+let busy = true, finished = false;
 
-function randomLetter() {
-  return letterPool[Math.floor(Math.random() * letterPool.length)];
+const pick = string => string[Math.floor(Math.random() * string.length)];
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+function tile(letter, charge=null) { return {letter: letter || pick(consonants), charge, modifier:0}; }
+
+function freshGrid() {
+  const letters = [];
+  for (let i=0;i<6;i++) letters.push(pick(vowels));
+  while (letters.length<16) letters.push(pick(consonants));
+  letters.sort(()=>Math.random()-.5);
+  tiles = letters.map(letter=>tile(letter));
+  selected=[]; disabled.clear(); render(); updateWord();
 }
 
-function newTile(charge = null) {
-  return { letter: randomLetter(), charge };
-}
-
-function createGrid() {
-  grid = Array.from({ length: 16 }, () => newTile());
-  selected = [];
-  inked.clear();
-  renderGrid();
-}
-
-function renderGrid() {
-  elements.grid.innerHTML = "";
-  grid.forEach((tile, index) => {
-    const button = document.createElement("button");
-    button.className = "letter-tile";
-    button.disabled = busy || inked.has(index);
-    if (selected.includes(index)) button.classList.add("selected");
-    if (inked.has(index)) button.classList.add("inked");
-    if (tile.charge) button.classList.add("charge-" + tile.charge.id);
-    button.setAttribute("aria-label", inked.has(index) ? "Hidden tile" : `Letter ${tile.letter}`);
-    button.append(document.createTextNode(tile.letter));
-
-    const value = document.createElement("span");
-    value.className = "letter-value";
-    value.textContent = letterValues[tile.letter];
-    button.appendChild(value);
-
-    if (tile.charge) {
-      const mark = document.createElement("span");
-      mark.className = "charge-mark";
-      mark.textContent = tile.charge.symbol;
-      mark.title = tile.charge.label;
-      button.appendChild(mark);
-    }
-
-    button.addEventListener("click", () => toggleTile(index));
-    elements.grid.appendChild(button);
+function render() {
+  el.grid.innerHTML="";
+  tiles.forEach((item,i)=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="tile"; b.style.setProperty("--i",i);
+    if(selected.includes(i)) b.classList.add("selected");
+    if(disabled.has(i)) b.classList.add(disabled.get?.(i)||"locked");
+    if(item.charge) b.classList.add(`charge-${item.charge.id}`);
+    const unavailable=busy||disabled.has(i); b.disabled=unavailable;
+    b.title=item.charge?`${item.charge.label}: ${chargeHelp(item.charge)}`:`${item.letter}: ${score(i)} points`;
+    b.setAttribute("aria-label",b.title);
+    b.innerHTML=`<span class="letter">${item.letter}</span><span class="value">${score(i)}</span>${item.charge?`<span class="charge">${item.charge.symbol}</span>`:""}`;
+    b.addEventListener("click",()=>toggle(i)); el.grid.appendChild(b);
   });
 }
 
-function toggleTile(index) {
-  if (busy || inked.has(index)) return;
-  const position = selected.indexOf(index);
-  position === -1 ? selected.push(index) : selected.splice(position, 1);
-  renderGrid();
-  updateWordDisplay();
+function chargeHelp(c){ return c.damage?"adds 4 damage":c.block?"blocks 3 damage":"heals 3 HP"; }
+function score(i){ return Math.max(1,values[tiles[i].letter]+tiles[i].modifier); }
+function toggle(i){ if(busy||disabled.has(i))return; const at=selected.indexOf(i); at<0?selected.push(i):selected.splice(at,1); render(); updateWord(); }
+function word(){ return selected.map(i=>tiles[i].letter).join(""); }
+function bonus(n){ return n>=8?15:n===7?10:n===6?6:n===5?3:0; }
+function reward(n){ return n>=8?3:n>=6?2:n===5?1:0; }
+function preview(){ return selected.reduce((n,i)=>n+score(i)+(tiles[i].charge?.damage||0),0)+bonus(selected.length); }
+function updateWord(){ el.word.textContent=word()||"Choose letters"; el.damage.textContent=`${preview()} damage`; }
+
+function controls(){ const off=busy||finished; el.shuffle.disabled=off; el.attack.disabled=off; render(); }
+function health(){ const enemy=enemies[enemyIndex]; el.heroHp.textContent=heroHP; el.enemyHp.textContent=enemyHP; el.enemyMax.textContent=enemy.hp; el.heroBar.style.width=`${heroHP/PLAYER_MAX*100}%`; el.enemyBar.style.width=`${enemyHP/enemy.hp*100}%`; }
+function pose(node,name,ms=550){ node.classList.remove("cast","hit"); void node.offsetWidth; node.classList.add(name); setTimeout(()=>node.classList.remove(name),ms); }
+function effect(text,side){ const s=document.createElement("span"); s.className=`effect ${side}`; s.textContent=text; el.effects.appendChild(s); setTimeout(()=>s.remove(),1000); }
+
+async function attack(){
+  if(busy||finished)return;
+  const attempt=word().toLowerCase();
+  if(attempt.length<3){el.message.textContent="Build a word using at least three letters.";return;}
+  if(!dictionary.has(attempt)){el.message.textContent=`${attempt.toUpperCase()} is not in the local dictionary.`;return;}
+  busy=true;controls();
+  const damage=preview(), prizes=reward(attempt.length), used=[...selected];
+  let healing=0;
+  used.forEach(i=>{const c=tiles[i].charge;if(c){ward+=c.block||0;healing+=c.heal||0;}});
+  heroHP=Math.min(PLAYER_MAX,heroHP+healing); enemyHP=Math.max(0,enemyHP-damage);
+  pose(el.heroArt,"cast");pose(el.enemyArt,"hit");effect(`-${damage}`,"enemy");health();
+  el.message.textContent=`${attempt.toUpperCase()} dealt ${damage} damage${prizes?` and charged ${prizes} new ${prizes===1?"tile":"tiles"}`:""}.`;
+  selected=[]; disabled.clear();
+  used.forEach(i=>tiles[i]=tile(pick((i%3===0?vowels:consonants))));
+  for(let i=0;i<Math.min(prizes,used.length);i++) tiles[used[i]].charge=charges[Math.floor(Math.random()*charges.length)];
+  render();updateWord();
+  await delay(750);
+  if(enemyHP<=0){await victory();return;}
+  await enemyTurn();
 }
 
-function currentWord() {
-  return selected.map(index => grid[index].letter).join("");
+async function shuffle(){
+  if(busy||finished)return;busy=true;controls();el.grid.classList.add("shuffling");el.message.textContent="Owlysses reshuffles the letters. The enemy takes a turn.";await delay(520);el.grid.classList.remove("shuffling");freshGrid();await enemyTurn();
 }
 
-function lengthBonus(length) {
-  if (length >= 8) return 15;
-  if (length === 7) return 10;
-  if (length === 6) return 6;
-  if (length === 5) return 3;
-  return 0;
+async function enemyTurn(){
+  const enemy=enemies[enemyIndex], move=enemy.moves[moveIndex];
+  pose(el.enemyArt,"cast");pose(el.heroArt,"hit");
+  let amount=move.damage,blocked=Math.min(ward,amount);ward-=blocked;amount-=blocked;heroHP=Math.max(0,heroHP-amount);effect(`-${amount}`,"hero");
+  if(move.scramble){tiles.sort(()=>Math.random()-.5);selected=[];}
+  if(move.lock||move.ink){disabled.clear();const count=move.lock||move.ink;while(disabled.size<count)disabled.add(Math.floor(Math.random()*16));}
+  if(move.heal){enemyHP=Math.min(enemy.hp,enemyHP+move.heal);effect(`+${move.heal}`,"enemy");}
+  if(move.devalue){[...tiles].sort(()=>Math.random()-.5).slice(0,move.devalue).forEach(t=>t.modifier=-1);}
+  moveIndex=(moveIndex+1)%enemy.moves.length;health();render();updateWord();
+  el.message.textContent=`${enemy.name} used ${move.name}: ${amount} damage${blocked?` (${blocked} blocked)`:""}.`;
+  await delay(520);
+  if(heroHP<=0){finish(false);return;}busy=false;controls();
 }
 
-function chargeReward(length) {
-  if (length >= 8) return 3;
-  if (length >= 6) return 2;
-  if (length === 5) return 1;
-  return 0;
+async function victory(){
+  const defeated=enemies[enemyIndex];
+  if(enemyIndex===enemies.length-1){finish(true);return;}
+  el.message.textContent=`${defeated.name} is defeated. Owlysses continues along the mythic road…`;
+  el.battle.classList.add("walking");await delay(1600);enemyIndex++;moveIndex=0;setupEnemy();
+  el.chapter.textContent=`Chapter ${enemyIndex+1}: ${enemies[enemyIndex].place}`;el.chapter.classList.remove("show");void el.chapter.offsetWidth;el.chapter.classList.add("show");
+  await delay(1650);el.battle.classList.remove("walking");freshGrid();el.message.textContent=`${enemies[enemyIndex].name} blocks the road!`;busy=false;controls();
 }
 
-function attackPreview() {
-  const base = selected.reduce((sum, index) => sum + letterValues[grid[index].letter], 0);
-  const chargeDamage = selected.reduce((sum, index) => sum + (grid[index].charge?.damage || 0), 0);
-  return base + lengthBonus(selected.length) + chargeDamage;
+function setupEnemy(){const enemy=enemies[enemyIndex];enemyHP=enemy.hp;el.enemyName.textContent=enemy.name;el.enemyArt.style.setProperty("--enemy-position",`${enemy.pos}%`);el.enemyArt.setAttribute("aria-label",enemy.name);health();}
+function finish(won){finished=true;busy=true;controls();el.restart.style.display="block";el.message.textContent=won?"The Summit Archive is free! Owlysses has completed the first Word Odyssey.":"Owlysses' scroll has gone quiet. Begin again and choose stronger words.";}
+function restart(){heroHP=PLAYER_MAX;enemyIndex=0;moveIndex=0;ward=0;finished=false;busy=false;el.restart.style.display="none";setupEnemy();freshGrid();el.message.textContent="Choose any three or more letters.";controls();}
+
+async function loadDictionary(){
+  try{const responses=await Promise.all([fetch("words.txt"),fetch("custom-words.txt")]);if(responses.some(r=>!r.ok))throw Error();const text=(await Promise.all(responses.map(r=>r.text()))).join("\n");dictionary=new Set(text.split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>/^[a-z]{3,}$/.test(w)));busy=false;controls();el.message.textContent=`The scroll knows ${dictionary.size.toLocaleString()} words.`;}
+  catch{el.message.textContent="The dictionary could not load. Publish words.txt beside index.html.";}
 }
 
-function updateWordDisplay() {
-  elements.word.textContent = currentWord() || "Choose letters";
-  elements.damage.textContent = `${attackPreview()} damage`;
-}
-
-function clearSelection() {
-  if (busy) return;
-  selected = [];
-  renderGrid();
-  updateWordDisplay();
-  elements.message.textContent = "Select any three or more letters to build a word.";
-}
-
-function applySelectedCharges() {
-  let healing = 0;
-  selected.forEach(index => {
-    const charge = grid[index].charge;
-    if (!charge) return;
-    ward += charge.block || 0;
-    healing += charge.heal || 0;
-  });
-  if (healing) {
-    const actualHealing = Math.min(healing, PLAYER_MAX_HEALTH - playerHealth);
-    playerHealth += actualHealing;
-    if (actualHealing) showEffect(`+${actualHealing}`, "heal");
-  }
-}
-
-function replaceUsedTiles(rewardCount) {
-  const used = [...selected];
-  selected = [];
-  used.forEach(index => { grid[index] = newTile(); });
-  for (let i = 0; i < Math.min(rewardCount, used.length); i++) {
-    const charge = chargeTypes[Math.floor(Math.random() * chargeTypes.length)];
-    grid[used[i]].charge = charge;
-  }
-  renderGrid();
-  updateWordDisplay();
-}
-
-async function attack() {
-  if (busy || gameOver) return;
-  const word = currentWord().toLowerCase();
-  if (word.length < 3) {
-    elements.message.textContent = "Words must contain at least three letters.";
-    return;
-  }
-  if (!dictionary.has(word)) {
-    elements.message.textContent = `${word.toUpperCase()} is not in this game's dictionary.`;
-    return;
-  }
-
-  busy = true;
-  setControls();
-  const damage = attackPreview();
-  const reward = chargeReward(word.length);
-  applySelectedCharges();
-  enemyHealth = Math.max(0, enemyHealth - damage);
-  showEffect(`-${damage}`, "enemy-side");
-  animate(elements.playerCharacter, "cast");
-  animate(elements.enemyCharacter, "hit");
-  updateHealth();
-
-  let text = `${word.toUpperCase()} dealt ${damage} damage.`;
-  if (reward) text += ` ${reward} newly drawn ${reward === 1 ? "letter was" : "letters were"} charged.`;
-  if (ward) text += ` Ward strength: ${ward}.`;
-  elements.message.textContent = text;
-
-  inked.clear();
-  replaceUsedTiles(reward);
-  if (enemyHealth === 0) return window.setTimeout(enemyDefeated, 750);
-  window.setTimeout(enemyAttack, 950);
-}
-
-function shuffleGrid() {
-  if (busy || gameOver) return;
-  busy = true;
-  setControls();
-  createGrid();
-  updateWordDisplay();
-  elements.message.textContent = "The grid was reshuffled. The enemy gets its turn.";
-  window.setTimeout(enemyAttack, 750);
-}
-
-function enemyAttack() {
-  const enemy = enemies[enemyIndex];
-  const move = enemy.moves[enemyMoveIndex];
-  let damage = move.damage;
-  const blocked = Math.min(ward, damage);
-  ward -= blocked;
-  damage -= blocked;
-  playerHealth = Math.max(0, playerHealth - damage);
-
-  animate(elements.enemyCharacter, "cast");
-  animate(elements.playerCharacter, "hit");
-  showEffect(`-${damage}`, "player-side");
-  updateHealth();
-
-  let text = `${enemy.name} used ${move.name} for ${damage} damage.`;
-  if (blocked) text += ` Your Ward blocked ${blocked}.`;
-  if (move.ink) {
-    applyInk(move.ink);
-    text += ` ${move.ink} letters are hidden until you complete a word or shuffle.`;
-  }
-  elements.message.textContent += " " + text;
-
-  enemyMoveIndex = (enemyMoveIndex + 1) % enemy.moves.length;
-  updateEnemyMove();
-  if (playerHealth === 0) return finishGame(false);
-  busy = false;
-  setControls();
-  renderGrid();
-}
-
-function applyInk(count) {
-  inked.clear();
-  const choices = [...Array(16).keys()];
-  while (inked.size < count && choices.length) {
-    const choice = choices.splice(Math.floor(Math.random() * choices.length), 1)[0];
-    inked.add(choice);
-  }
-}
-
-function enemyDefeated() {
-  if (enemyIndex < enemies.length - 1) {
-    gameOver = true;
-    elements.message.textContent = `${enemies[enemyIndex].name} is defeated. A stronger guardian approaches.`;
-    elements.continue.style.display = "block";
-    setControls();
-  } else {
-    finishGame(true);
-  }
-}
-
-function continueBattle() {
-  enemyIndex++;
-  enemyMoveIndex = 0;
-  inked.clear();
-  selected = [];
-  gameOver = false;
-  setupEnemy();
-  createGrid();
-  updateWordDisplay();
-  elements.continue.style.display = "none";
-  elements.message.textContent = `${enemies[enemyIndex].name} enters the battle!`;
-  busy = false;
-  setControls();
-  renderGrid();
-}
-
-function setupEnemy() {
-  const enemy = enemies[enemyIndex];
-  enemyHealth = enemy.health;
-  elements.enemyName.textContent = enemy.name;
-  elements.enemySprite.className = `sprite ${enemy.sprite}`;
-  elements.enemySprite.alt = enemy.name;
-  elements.enemyMaxHealth.textContent = enemy.health;
-  updateEnemyMove();
-  updateHealth();
-}
-
-function updateEnemyMove() {
-  const move = enemies[enemyIndex].moves[enemyMoveIndex];
-  elements.enemyMove.textContent = `${move.name} — ${move.text}`;
-}
-
-function updateHealth() {
-  const enemyMax = enemies[enemyIndex].health;
-  elements.playerHealth.textContent = playerHealth;
-  elements.enemyHealth.textContent = enemyHealth;
-  elements.playerBar.style.width = `${playerHealth / PLAYER_MAX_HEALTH * 100}%`;
-  elements.enemyBar.style.width = `${enemyHealth / enemyMax * 100}%`;
-}
-
-function showEffect(text, className) {
-  const effect = document.createElement("span");
-  effect.className = `float-effect ${className}`;
-  effect.textContent = text;
-  elements.effects.appendChild(effect);
-  window.setTimeout(() => effect.remove(), 1000);
-}
-
-function animate(element, className) {
-  element.classList.remove(className);
-  void element.offsetWidth;
-  element.classList.add(className);
-  window.setTimeout(() => element.classList.remove(className), 500);
-}
-
-function setControls() {
-  const disabled = busy || gameOver;
-  elements.clear.disabled = disabled;
-  elements.shuffle.disabled = disabled;
-  elements.attack.disabled = disabled;
-  renderGrid();
-}
-
-function finishGame(won) {
-  gameOver = true;
-  busy = true;
-  setControls();
-  elements.restart.style.display = "block";
-  elements.message.textContent = won
-    ? "Victory! You defeated both guardians of the Wild Archive."
-    : "Your spellbook has fallen silent. Try the battle again.";
-}
-
-function restartGame() {
-  playerHealth = PLAYER_MAX_HEALTH;
-  enemyIndex = 0;
-  enemyMoveIndex = 0;
-  ward = 0;
-  gameOver = false;
-  busy = false;
-  elements.restart.style.display = "none";
-  elements.continue.style.display = "none";
-  setupEnemy();
-  createGrid();
-  updateWordDisplay();
-  elements.message.textContent = "Select any three or more letters to build a word.";
-  setControls();
-}
-
-async function loadDictionary() {
-  try {
-    const responses = await Promise.all([
-      fetch("words.txt"),
-      fetch("custom-words.txt")
-    ]);
-    if (responses.some(response => !response.ok)) {
-      throw new Error("Word list failed to load");
-    }
-    const text = (await Promise.all(
-      responses.map(response => response.text())
-    )).join("\n");
-    dictionary = new Set(
-      text.split(/\r?\n/)
-        .map(word => word.trim().toLowerCase())
-        .filter(word => /^[a-z]{3,}$/.test(word))
-    );
-    busy = false;
-    setControls();
-    elements.message.textContent = `Dictionary ready: ${dictionary.size.toLocaleString()} words.`;
-    updateWordDisplay();
-  } catch (error) {
-    elements.message.textContent = "The local dictionary did not load. Check that words.txt and custom-words.txt were uploaded beside index.html.";
-  }
-}
-
-elements.clear.addEventListener("click", clearSelection);
-elements.shuffle.addEventListener("click", shuffleGrid);
-elements.attack.addEventListener("click", attack);
-elements.continue.addEventListener("click", continueBattle);
-elements.restart.addEventListener("click", restartGame);
-
-setupEnemy();
-createGrid();
-updateWordDisplay();
-setControls();
-loadDictionary();
+el.attack.addEventListener("click",attack);el.shuffle.addEventListener("click",shuffle);el.restart.addEventListener("click",restart);
+setupEnemy();freshGrid();controls();loadDictionary();
