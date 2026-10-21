@@ -44,11 +44,21 @@ const pipSkeleton = Object.freeze({
 // Pixel-space anchor points measured on the transparent source artwork.
 // Each segment is fitted so its two anchors land on the matching skeleton bone.
 const pipArtworkAnchors = Object.freeze({
+  head:{width:555,height:470,scale:105/555,anchor:{x:365,y:430}},
   upperArm:{width:300,height:310,scale:.18,from:{x:242,y:58},to:{x:82,y:250}},
   forearm:{width:310,height:245,scale:.18,from:{x:244,y:40},to:{x:60,y:205}},
   upperLeg:{width:290,height:415,scale:.15,from:{x:180,y:50},to:{x:145,y:360}},
   lowerLeg:{width:260,height:380,scale:.18,from:{x:150,y:40},to:{x:70,y:350}}
 });
+
+function fitPipPoint(selector,artKey,jointName){
+  const node=$(selector),art=pipArtworkAnchors[artKey],joint=pipSkeleton[jointName];
+  if(!node||!art?.anchor||!joint)return;
+  const width=art.width*art.scale,height=art.height*art.scale;
+  node.style.left=`${joint.x-art.anchor.x*art.scale}px`;
+  node.style.top=`${joint.y-art.anchor.y*art.scale}px`;
+  node.style.width=`${width}px`;node.style.height=`${height}px`;
+}
 
 function fitPipSegment(selector,artKey,fromName,toName,mirrored=false){
   const node=$(selector),art=pipArtworkAnchors[artKey],from=pipSkeleton[fromName],to=pipSkeleton[toName];
@@ -70,6 +80,7 @@ function fitPipSegment(selector,artKey,fromName,toName,mirrored=false){
 }
 
 function fitPipArtworkToSkeleton(){
+  fitPipPoint(".pip-head","head","neck");
   fitPipSegment(".pip-upper-arm-left","upperArm","leftShoulder","leftElbow");
   fitPipSegment(".pip-forearm-left","forearm","leftElbow","leftHand");
   fitPipSegment(".pip-upper-arm-right","upperArm","rightShoulder","rightElbow",true);

@@ -175,7 +175,7 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
 .pip-puppet.skeleton-edit > .pip-tail,
 .pip-puppet.skeleton-edit > .pip-torso,
 .pip-puppet.skeleton-edit > .pip-head,
-.pip-puppet.skeleton-edit > .pip-limb { opacity: .68; }
+.pip-puppet.skeleton-edit > .pip-limb { opacity: .68; animation: none !important; }
 .pip-skeleton { position: absolute; inset: 0; z-index: 30; width: 205px; height: 215px; overflow: visible; pointer-events: none; }
 .pip-bones line { stroke: #16efff; stroke-width: 3.2; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .pip-joints circle { fill: #ff3569; stroke: #fff7d2; stroke-width: 2; vector-effect: non-scaling-stroke; }
