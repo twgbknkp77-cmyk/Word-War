@@ -146,55 +146,10 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   background-repeat: no-repeat;
   pointer-events: none;
 }
-.pip-rig { background-image: url("assets/pip-neutral.png"); }
-.pip-rig-base {
-  z-index: 2;
-  background-image: url("assets/pip-rig-base.png");
-  transform-origin: 50% 100%;
-  animation: pip-rig-breathe 3.6s ease-in-out infinite;
-}
-.pip-rig-head {
-  z-index: 5;
-  clip-path: polygon(18% 0, 75% 0, 75% 38%, 47% 42%, 19% 34%);
-  transform-origin: 45% 36%;
-  animation: pip-rig-head-idle 3.6s ease-in-out infinite;
-}
-.pip-rig-far-arm {
-  z-index: 3;
-  clip-path: polygon(55% 24%, 100% 25%, 100% 71%, 73% 70%, 57% 46%);
-  transform-origin: 62% 30%;
-}
-.pip-arm-rig {
-  z-index: 6;
-  background-image: none;
-  transform-origin: 42% 31%;
-}
-.pip-arm-piece,
-.pip-arm-forearm-joint {
-  position: absolute;
-  inset: 0;
-  display: block;
+.pip-neutral {
   background-image: url("assets/pip-neutral.png");
-  background-position: center bottom;
-  background-size: contain;
-  background-repeat: no-repeat;
-  pointer-events: none;
-}
-.pip-rig-upper-arm {
-  clip-path: polygon(28% 27%, 48% 26%, 45% 51%, 29% 56%, 20% 47%);
-}
-.pip-arm-forearm-joint {
-  background-image: none;
-  transform-origin: 33% 48%;
-}
-.pip-rig-forearm {
-  clip-path: polygon(12% 39%, 38% 39%, 36% 70%, 5% 72%, 4% 58%);
-}
-.pip-rig-tail {
-  z-index: 1;
-  clip-path: polygon(65% 50%, 100% 50%, 100% 79%, 69% 78%);
-  transform-origin: 73% 61%;
-  animation: pip-rig-tail-idle 5.2s ease-in-out infinite;
+  transform-origin: 50% 100%;
+  animation: pip-neutral-idle 3.8s ease-in-out infinite;
 }
 .pip-rush { background-image: url("assets/pip-rush.png"); }
 .pip-pipes { background-image: url("assets/pip-pipes.png"); }
@@ -207,18 +162,14 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   transform-origin: 50% 100%;
   animation: none;
 }
-.enemy-art.pip .pip-rig { opacity: 1; visibility: visible; }
-.enemy-art.pip:is(.move-rush,.move-pipes,.move-kick,.hit,.defeat) .pip-rig { opacity: 0; visibility: hidden; }
+.enemy-art.pip .pip-neutral { opacity: 1; visibility: visible; }
+.enemy-art.pip:is(.move-rush,.move-pipes,.move-kick,.hit,.defeat) .pip-neutral { opacity: 0; visibility: hidden; }
 .enemy-art.pip.move-rush .pip-rush,
 .enemy-art.pip.move-pipes .pip-pipes,
 .enemy-art.pip.move-kick .pip-kick,
 .enemy-art.pip.hit .pip-hit,
 .enemy-art.pip.defeat .pip-defeat { opacity: 1; visibility: visible; }
-.enemy-art.pip.scratch .pip-rig-base { animation: pip-rig-breathe 3.6s ease-in-out infinite; }
-.enemy-art.pip.scratch .pip-rig-head { animation: pip-rig-head-scratch 1.75s cubic-bezier(.45,0,.25,1); }
-.enemy-art.pip.scratch .pip-arm-rig { animation: pip-rig-upper-scratch 1.75s cubic-bezier(.45,0,.25,1); }
-.enemy-art.pip.scratch .pip-arm-forearm-joint { animation: pip-rig-forearm-scratch 1.75s cubic-bezier(.45,0,.25,1); }
-.enemy-art.pip.scratch .pip-rig-tail { animation: pip-rig-tail-idle 5.2s ease-in-out infinite; }
+.enemy-art.pip.scratch .pip-neutral { animation: pip-neutral-scratch 1.75s ease-in-out; }
 .enemy-art.pip.move-rush { animation: pip-rush-motion 1.12s cubic-bezier(.25,.05,.25,1); z-index: 5; }
 .enemy-art.pip.move-pipes { animation: pip-pipes-motion 1.12s ease-in-out; }
 .enemy-art.pip.move-kick { animation: pip-kick-motion 1.12s cubic-bezier(.25,.05,.25,1); z-index: 5; }
@@ -380,49 +331,36 @@ button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color:
   0%, 100% { transform: rotate(-.7deg); }
   50% { transform: rotate(.7deg); }
 }
-@keyframes pip-rig-breathe {
-  0%, 100% { transform: scale(1, 1); }
-  48%, 56% { transform: scale(1.002, .996); }
+@keyframes pip-neutral-idle {
+  0%, 100% { transform: rotate(-.35deg) scale(1); }
+  48%, 56% { transform: rotate(.35deg) scale(1.002, .996); }
 }
-@keyframes pip-rig-head-idle {
-  0%, 100% { transform: rotate(-.35deg); }
-  48%, 56% { transform: rotate(.65deg); }
-}
-@keyframes pip-rig-tail-idle {
-  0%, 72%, 100% { transform: rotate(0); }
-  79% { transform: rotate(5deg); }
-  86% { transform: rotate(-3deg); }
-  92% { transform: rotate(2deg); }
-}
-@keyframes pip-rig-head-scratch {
-  0%, 100% { transform: rotate(-.35deg); }
-  34%, 68% { transform: translate(-1.5%, 1%) rotate(-6deg); }
-}
-@keyframes pip-rig-upper-scratch {
-  0%, 100% { transform: rotate(0); }
-  34%, 68% { transform: rotate(30deg); }
-}
-@keyframes pip-rig-forearm-scratch {
-  0%, 100% { transform: rotate(0); }
-  34%, 68% { transform: rotate(110deg); }
+@keyframes pip-neutral-scratch {
+  0%, 100% { transform: rotate(-.35deg) translate(0, 0); }
+  28% { transform: rotate(-1.2deg) translate(-1px, 1px); }
+  52%, 68% { transform: rotate(-2deg) translate(-2px, 2px); }
+  84% { transform: rotate(.4deg) translate(0, 0); }
 }
 @keyframes pip-rush-motion {
   0% { transform: translateX(0); }
-  28% { transform: translateX(10px) scale(.97); }
-  52% { transform: translateX(-72%) scale(1.03); }
-  66% { transform: translateX(-72%) scale(1.03); }
+  22% { transform: translateX(11px) translateY(2px) scale(.96); }
+  48% { transform: translateX(-72%) translateY(-1px) scale(1.035); }
+  62% { transform: translateX(-72%) translateY(-1px) scale(1.035); }
+  82% { transform: translateX(-10%) scale(.985); }
   100% { transform: translateX(0); }
 }
 @keyframes pip-pipes-motion {
   0%, 100% { transform: translateY(0); }
-  28%, 72% { transform: translateY(-2px) scale(1.015); }
-  48% { transform: translateY(-3px) scale(1.025); }
+  22% { transform: translateY(2px) rotate(-1deg) scale(.985); }
+  42%, 68% { transform: translateY(-3px) rotate(.5deg) scale(1.02); }
+  84% { transform: translateY(1px) rotate(-.3deg); }
 }
 @keyframes pip-kick-motion {
   0% { transform: translateX(0) rotate(0); }
-  30% { transform: translateX(8px) rotate(2deg); }
-  53% { transform: translateX(-54%) rotate(-2deg); }
-  68% { transform: translateX(-54%) rotate(-2deg); }
+  24% { transform: translateX(10px) translateY(2px) rotate(2deg) scale(.97); }
+  48% { transform: translateX(-54%) translateY(-1px) rotate(-2deg) scale(1.025); }
+  63% { transform: translateX(-54%) translateY(-1px) rotate(-2deg) scale(1.025); }
+  82% { transform: translateX(-8%) rotate(.5deg) scale(.99); }
   100% { transform: translateX(0) rotate(0); }
 }
 @keyframes pip-hit-motion {
