@@ -37,13 +37,27 @@ const pick = string => string[Math.floor(Math.random() * string.length)];
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 function tile(letter, charge=null) { return {letter: letter || pick(consonants), charge, modifier:0}; }
 
-function freshGrid() {
+function balancedLetters() {
   const letters = [];
   for (let i=0;i<6;i++) letters.push(pick(vowels));
   while (letters.length<16) letters.push(pick(consonants));
   letters.sort(()=>Math.random()-.5);
+  return letters;
+}
+
+function freshGrid() {
+  const letters = balancedLetters();
   tiles = letters.map(letter=>tile(letter));
   selected=[]; disabled.clear(); render(); updateWord();
+}
+
+function reshuffleLetters() {
+  const letters=balancedLetters();
+  tiles=tiles.map((item,index)=>tile(letters[index],item.charge));
+  selected=[];
+  disabled.clear();
+  render();
+  updateWord();
 }
 
 function render() {
@@ -71,10 +85,12 @@ function reward(n){ return n>=8?3:n>=6?2:n===5?1:0; }
 function preview(){ return selected.reduce((n,i)=>n+score(i)+(tiles[i].charge?.damage||0),0)+bonus(selected.length); }
 function updateWord(){ el.word.textContent=word()||"Choose letters"; el.damage.textContent=`${preview()} damage`; }
 
-function collapseUsedTiles(used, prizeCount) {
+async function collapseUsedTiles(used, prizeCount) {
   const removed = new Set(used);
+  const oldPositions = new Map(tiles.map((item,index)=>[item,index]));
   const next = Array(16);
   const newPositions = [];
+  const affectedColumns = new Set(used.map(index=>index%4));
 
   for (let column=0; column<4; column++) {
     const survivors = [];
@@ -102,8 +118,26 @@ function collapseUsedTiles(used, prizeCount) {
   disabled.clear();
   render();
   updateWord();
-  el.grid.classList.add("falling");
-  setTimeout(()=>el.grid.classList.remove("falling"),420);
+
+  const buttons=[...el.grid.children];
+  const firstTile=buttons[0];
+  const gap=parseFloat(getComputedStyle(el.grid).rowGap)||0;
+  const pitch=(firstTile?.getBoundingClientRect().height||0)+gap;
+  affectedColumns.forEach(column=>{
+    const incoming=newPositions.filter(index=>index%4===column).length;
+    for(let row=0;row<4;row++) {
+      const index=row*4+column;
+      const item=tiles[index];
+      const oldIndex=oldPositions.get(item);
+      const fallRows=oldIndex===undefined?incoming:(row-Math.floor(oldIndex/4));
+      if(fallRows>0) {
+        buttons[index].style.setProperty("--fall-distance",`${fallRows*pitch}px`);
+        buttons[index].style.setProperty("--fall-delay",`${column*35+row*22}ms`);
+        buttons[index].classList.add("falling");
+      }
+    }
+  });
+  await delay(680);
 }
 
 function controls(){ const off=busy||finished; el.shuffle.disabled=off; el.attack.disabled=off; render(); }
@@ -126,7 +160,7 @@ async function attack(){
   enemyHP=Math.max(0,enemyHP-damage);
   pose(el.enemyArt,"hit");effect(`-${damage}`,"enemy");health();
   el.message.textContent=`${attempt.toUpperCase()} dealt ${damage} damage${prizes?` and charged ${prizes} new ${prizes===1?"tile":"tiles"}`:""}.`;
-  collapseUsedTiles(used,prizes);
+  await collapseUsedTiles(used,prizes);
   await delay(510);
   if(enemyHP<=0){await victory();return;}
   el.message.textContent += " The enemy prepares to answer…";
@@ -135,7 +169,7 @@ async function attack(){
 }
 
 async function shuffle(){
-  if(busy||finished)return;busy=true;controls();el.grid.classList.add("shuffling");el.message.textContent="Syntax reshuffles the letters. The enemy takes a turn.";await delay(520);el.grid.classList.remove("shuffling");freshGrid();await enemyTurn();
+  if(busy||finished)return;busy=true;controls();el.grid.classList.add("shuffling");el.message.textContent="Syntax reshuffles the letters. Special tiles keep their power.";await delay(270);reshuffleLetters();el.grid.classList.add("shuffling");await delay(300);el.grid.classList.remove("shuffling");el.message.textContent="The enemy takes a turn.";await enemyTurn();
 }
 
 async function enemyTurn(){

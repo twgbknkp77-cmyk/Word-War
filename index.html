@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Syntax: Word Odyssey</title>
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
   <main class="game" aria-label="Syntax: Word Odyssey">
@@ -15,20 +15,26 @@
       <div class="scenery"></div>
       <div id="chapter-card" class="chapter-card" aria-live="polite"></div>
 
+      <div class="battle-status hero-status">
+        <strong>Syntax</strong>
+        <span>HP <b id="hero-hp">60</b> / 60</span>
+        <div class="health"><i id="hero-bar"></i></div>
+      </div>
+
+      <div class="battle-status enemy-status">
+        <strong id="enemy-name"></strong>
+        <span>HP <b id="enemy-hp"></b> / <b id="enemy-max"></b></span>
+        <div class="health"><i id="enemy-bar"></i></div>
+      </div>
+
       <article id="hero-fighter" class="fighter hero-fighter">
-        <strong class="nameplate">Syntax</strong>
         <div id="hero-art" class="hero-art" role="img" aria-label="Syntax">
           <span class="hero-attack-layer" aria-hidden="true"></span>
         </div>
-        <div class="health"><i id="hero-bar"></i></div>
-        <span><b id="hero-hp">60</b> / 60 HP</span>
       </article>
 
       <article id="enemy-fighter" class="fighter enemy-fighter">
-        <strong id="enemy-name" class="nameplate"></strong>
         <div id="enemy-art" class="enemy-art" role="img"></div>
-        <div class="health"><i id="enemy-bar"></i></div>
-        <span><b id="enemy-hp"></b> / <b id="enemy-max"></b> HP</span>
       </article>
 
       <div id="effects" class="effects" aria-live="polite"></div>
@@ -51,6 +57,6 @@
       <button id="restart" class="restart" type="button">Begin a new odyssey</button>
     </section>
   </main>
-  <script src="game.js?v=6"></script>
+  <script src="game.js?v=7"></script>
 </body>
 </html>
