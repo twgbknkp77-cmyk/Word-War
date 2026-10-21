@@ -2,13 +2,14 @@
   font-family: "Trebuchet MS", ui-rounded, system-ui, sans-serif;
   color: #191a22;
   background: #367caf;
-  color-scheme: only light;
+  color-scheme: light only;
 }
 
 * { box-sizing: border-box; }
+html { background-color: #367caf; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 html, body { min-height: 100%; margin: 0; }
 body { background: #367caf; overscroll-behavior: none; }
-button { appearance: none; -webkit-appearance: none; font: inherit; color: inherit; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+button { appearance: none; -webkit-appearance: none; font: inherit; color: inherit; opacity: 1; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 
 .game {
   width: min(100%, 620px);
@@ -74,7 +75,9 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 .status-icons { display: inline-flex !important; margin: 0 0 0 5px !important; gap: 4px; vertical-align: middle; }
 .status-icon { position: relative; width: 22px; height: 22px; display: inline-grid !important; place-items: center; margin: -6px 0 -5px !important; border: 2px solid #fff2cc; border-radius: 50%; color: #fff; text-shadow: 0 1px #171923; }
 .status-icon.sword { background-color: #a63f32; }
+.status-icon.sword.temporary { background-color: #c65a27; }
 .status-icon.shield { background-color: #3978b8; }
+.status-icon.fury { background-color: #8d2d28; }
 .status-icon small { position: absolute; right: -6px; bottom: -5px; min-width: 14px; padding: 1px 2px; border-radius: 8px; background-color: #171923; font-size: .55rem; line-height: 1; }
 .enemy-moves-toggle { width: 24px; height: 22px; margin: -5px 2px -4px 0; padding: 0; border: 2px solid #fff2cc; border-radius: 50%; background-color: #1d2c48; color: #fff8df; font-weight: 900; line-height: 14px; vertical-align: middle; transition: transform .18s ease, background-color .18s ease; }
 .enemy-moves-toggle[aria-expanded="true"] { transform: rotate(180deg); background-color: #963a2b; }
@@ -319,8 +322,17 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 .tile.inked::before { background: #514765; box-shadow: inset 3px 3px #746a83, inset -3px -3px #2c2738; }
 .tile.inked .letter, .tile.inked .value { visibility: hidden; }
 .tile.inked::after { content: "?"; position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; color: #f5e8ba; }
-.tile.locked::before { background: #aaa28e; }
-.tile.locked::after { content: "▦"; position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; color: #565044; }
+.tile.locked::before { background: #b9aa87; filter: saturate(.55); }
+.tile.locked .letter { color: #51442e; -webkit-text-fill-color: #51442e; }
+.lock-cross { position: absolute !important; inset: 4%; z-index: 5 !important; pointer-events: none; }
+.lock-cross::before,.lock-cross::after { content: ""; position: absolute; left: 44%; top: -5%; width: 16%; height: 110%; border: 2px solid #2c251d; border-radius: 4px; background: repeating-linear-gradient(0deg,#65513b 0 8px,#a48755 8px 12px,#65513b 12px 18px); box-shadow: inset 2px 0 #c6aa73,inset -2px 0 #403225; transform: rotate(45deg); }
+.lock-cross::after { transform: rotate(-45deg); }
+.status-turns { position: absolute !important; right: 5%; bottom: 5%; z-index: 7 !important; min-width: 1.35rem; height: 1.35rem; display: grid; place-items: center; border: 2px solid #fff1c8; border-radius: 50%; background-color: #171923; color: #fff1c8; font-size: .65rem; line-height: 1; }
+.tile.petrified { background-color: #777b80; }
+.tile.petrified::before { background: linear-gradient(145deg,#d6d5ca,#8c9294 55%,#65696d); box-shadow: inset 3px 3px #f0eee1,inset -3px -3px #53575b; }
+.tile.petrified .letter { color: #3f4346; -webkit-text-fill-color: #3f4346; text-shadow: 0 1px #e4e1d4; }
+.tile.cracked::before { background: #d3b777; filter: saturate(.7); }
+.crack-mark { position: absolute !important; inset: 9%; z-index: 5 !important; opacity: .9; background: linear-gradient(62deg,transparent 46%,#3d3026 47% 49%,transparent 50%) 41% 10%/36% 55% no-repeat,linear-gradient(118deg,transparent 46%,#3d3026 47% 50%,transparent 51%) 63% 43%/42% 52% no-repeat,linear-gradient(35deg,transparent 47%,#3d3026 48% 50%,transparent 51%) 30% 62%/48% 34% no-repeat; pointer-events: none; }
 .tile.charge-ember { background: #d46d35; }
 .tile.charge-ember::before { background: linear-gradient(145deg,#ffe0a1 0%,#ff8c38 52%,#df401f 100%); }
 .tile.charge-ward { background-color: #185fa8; }
@@ -355,6 +367,9 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 .effect { position: absolute; top: 40%; z-index: 8; color: #fff; font-size: 1.7rem; font-weight: 900; text-shadow: 0 3px #661c1c; animation: float 1s ease forwards; }
 .effect.hero { left: 20%; }
 .effect.enemy { right: 20%; }
+.music-note { position: absolute; z-index: 20; left: 67%; top: 38%; color: #ffe56c; font-size: 2rem; font-weight: 900; text-shadow: 2px 2px #522a61; animation: music-flight 1s ease-out forwards; }
+.music-note.note-2 { animation-delay: .1s; font-size: 2.5rem; }
+.music-note.note-3 { animation-delay: .2s; }
 .chapter-card { position: absolute; inset: 35% 12% auto; z-index: 8; padding: 12px; border: 4px solid #171923; border-radius: 14px; background: #f3dfaaed; text-align: center; font-weight: 900; opacity: 0; transform: scale(.85); pointer-events: none; }
 .chapter-card.show { animation: chapter 2.1s ease both; }
 
@@ -377,6 +392,8 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 .reward-option > span:last-child { font-size: .72rem; line-height: 1.25; }
 .reward-icon { display: grid; place-items: center; width: 42px; height: 42px; margin: auto; border: 3px solid #171923; border-radius: 50%; background-color: #fff0c7; font-size: 1.35rem; }
 .reward-damage .reward-icon { color: #a63f32; }.reward-shield .reward-icon { color: #3978b8; }.reward-heal .reward-icon { color: #328540; }
+.reward-permanent .reward-icon,.reward-temporary .reward-icon { color: #a63f32; }
+.reward-maxhp .reward-icon { color: #328540; }
 
 .battle.walking .enemy-fighter { opacity: 0; transform: translateX(-45%); }
 .battle.walking .hero-fighter { animation: journey 2.2s ease-in-out both; }
@@ -401,6 +418,7 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 .enemy-art.cast { animation: enemy-cast .5s ease; }
 .enemy-art.hit { animation: hit .45s ease; }
 .grid.shuffling .tile { animation: tile-shuffle .5s ease both; animation-delay: calc(var(--i) * 18ms); }
+.grid.pipe-scramble .tile { animation: pipe-tile-swirl .68s cubic-bezier(.3,.1,.25,1) both; animation-delay: calc(var(--i) * 13ms); }
 .tile.falling {
   animation: tile-fall .58s cubic-bezier(.2,.78,.25,1) both;
   animation-delay: var(--fall-delay, 0ms);
@@ -504,6 +522,8 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 @keyframes battle-banner-in { to { opacity: 1; transform: scale(1); } }
 @keyframes reward-arrive { from { opacity: 0; transform: translateY(20px) scale(.92); } to { opacity: 1; transform: none; } }
 @keyframes special-shine { 0%,45% { left: -65%; opacity: 0; } 55% { opacity: 1; } 78%,100% { left: 125%; opacity: 0; } }
+@keyframes music-flight { from { transform: translate(0,0) rotate(-8deg); opacity: 0; } 22% { opacity: 1; } to { transform: translate(-190px,95px) rotate(18deg); opacity: 0; } }
+@keyframes pipe-tile-swirl { 0%,100% { transform: translate(0) rotate(0) scale(1); } 42% { transform: translateY(-8px) rotate(7deg) scale(.9); } 72% { transform: translateY(3px) rotate(-4deg) scale(.95); } }
 @keyframes tile-shuffle {
   0%, 100% { transform: rotate(0) scale(1); opacity: 1; }
   48% { transform: rotate(7deg) scale(.8); opacity: .55; }

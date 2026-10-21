@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#367caf">
+  <meta name="color-scheme" content="light">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Syntax: Word Odyssey</title>
-  <link rel="stylesheet" href="style.css?v=25">
+  <link rel="stylesheet" href="style.css?v=26">
 </head>
 <body>
   <main class="game" aria-label="Syntax: Word Odyssey">
@@ -18,7 +19,7 @@
       <div class="battle-status hero-status">
         <strong>Syntax</strong>
         <div class="health"><i id="hero-bar"></i></div>
-        <span class="hp-line">HP <b id="hero-hp">60</b> / 60 <span id="hero-status-icons" class="status-icons" aria-label="Active effects"></span></span>
+        <span class="hp-line">HP <b id="hero-hp">60</b> / <b id="hero-max">60</b> <span id="hero-status-icons" class="status-icons" aria-label="Active effects"></span></span>
       </div>
 
       <div class="battle-status enemy-status">
@@ -26,7 +27,7 @@
         <div class="health"><i id="enemy-bar"></i></div>
         <span class="hp-line enemy-hp-line">
           <button id="enemy-moves-toggle" class="enemy-moves-toggle" type="button" aria-expanded="false" aria-controls="enemy-moves" aria-label="Show enemy attacks">⌄</button>
-          HP <b id="enemy-hp"></b> / <b id="enemy-max"></b>
+          HP <b id="enemy-hp"></b> / <b id="enemy-max"></b> <span id="enemy-status-icons" class="status-icons" aria-label="Enemy effects"></span>
         </span>
         <div id="enemy-moves" class="enemy-moves" hidden></div>
       </div>
@@ -110,6 +111,6 @@
       </section>
     </div>
   </main>
-  <script src="game.js?v=25"></script>
+  <script src="game.js?v=26"></script>
 </body>
 </html>
