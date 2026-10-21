@@ -2008,6 +2008,204 @@
       11px;
   }
 }
+    /* Final grid interaction polish */
+
+/* Physical word-building display */
+
+.word-display {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f8e9c5 0%,
+      #f8e9c5 8%,
+      #c99f61 8%,
+      #c99f61 88%,
+      #8d653b 88%,
+      #8d653b 100%
+    );
+
+  border: 3px solid #171820;
+  border-radius: 10px;
+  box-shadow: none !important;
+}
+
+.word-display::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  z-index: -1;
+
+  background: #f2e2b8;
+  border: 2px solid #6f5538;
+  border-radius: 5px;
+}
+
+.word-display::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: -1;
+
+  border-top: 2px solid #fff3d2;
+  border-left: 2px solid #fff3d2;
+  border-right: 2px solid #c5a675;
+  border-bottom: 2px solid #c5a675;
+  border-radius: 3px;
+}
+
+#current-word,
+#damage-preview {
+  position: relative;
+  z-index: 2;
+}
+
+/* Move values inside the raised square */
+
+.letter-value {
+  right: 12%;
+  bottom: 11%;
+  z-index: 5;
+
+  padding: 1px 2px;
+  color: #171820;
+  font-size: clamp(0.58rem, 2.4vw, 0.75rem);
+  line-height: 1;
+}
+
+/* Button press animation */
+
+@keyframes physical-button-press {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  45% {
+    transform: translateY(3px) scale(0.975);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.controls button.button-pressed {
+  animation: physical-button-press 0.22s ease;
+}
+
+.controls button.button-pressed::before {
+  animation: physical-button-face 0.22s ease;
+}
+
+@keyframes physical-button-face {
+  0%,
+  100% {
+    inset: 6px;
+  }
+
+  45% {
+    inset:
+      9px
+      5px
+      4px
+      8px;
+  }
+}
+
+/* Grid shuffle animation */
+
+.letter-grid.shuffling {
+  pointer-events: none;
+}
+
+@keyframes shuffle-left {
+  0% {
+    transform: translate(0, 0) rotate(0);
+    opacity: 1;
+  }
+
+  35% {
+    transform: translate(-18px, 8px) rotate(-8deg) scale(0.9);
+    opacity: 0.7;
+  }
+
+  65% {
+    transform: translate(14px, -7px) rotate(7deg) scale(0.88);
+    opacity: 0.55;
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shuffle-right {
+  0% {
+    transform: translate(0, 0) rotate(0);
+    opacity: 1;
+  }
+
+  35% {
+    transform: translate(17px, -7px) rotate(8deg) scale(0.9);
+    opacity: 0.7;
+  }
+
+  65% {
+    transform: translate(-13px, 8px) rotate(-7deg) scale(0.88);
+    opacity: 0.55;
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.letter-grid.shuffling .letter-tile:nth-child(odd) {
+  animation: shuffle-left 0.5s ease;
+}
+
+.letter-grid.shuffling .letter-tile:nth-child(even) {
+  animation: shuffle-right 0.5s ease;
+}
+
+.letter-grid.shuffling .letter-tile:nth-child(3n) {
+  animation-delay: 0.04s;
+}
+
+.letter-grid.shuffling .letter-tile:nth-child(4n) {
+  animation-delay: 0.08s;
+}
+
+/* Restore a clear symbol on hidden Ink Bomb tiles */
+
+.letter-tile.inked::after {
+  content: "?";
+  position: absolute;
+  inset: 9px;
+  z-index: 6;
+
+  display: grid;
+  place-items: center;
+
+  border: 2px solid #66507a;
+  border-radius: 3px;
+  background: #b8af99;
+  color: #31293d;
+
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    Arial,
+    sans-serif;
+
+  font-size: 1.5rem;
+  font-weight: 900;
+}
   </style>
 </head>
 
@@ -2710,19 +2908,30 @@
     }
 
     function shuffleGrid() {
-      if (busy || gameOver) return;
+  if (busy || gameOver) {
+    return;
+  }
 
-      busy = true;
-      setControls();
-      vibrate(25);
+  busy = true;
+  setControls();
+  vibrate([20, 20, 30]);
 
-      createBalancedGrid();
+  elements.grid.classList.add("shuffling");
 
-      elements.message.textContent =
-        "The grid was reshuffled. The enemy gets its turn.";
+  elements.message.textContent =
+    "The letters tumble into new positions...";
 
-      setTimeout(enemyAttack, 750);
-    }
+  setTimeout(function() {
+    createBalancedGrid();
+
+    elements.grid.classList.remove("shuffling");
+
+    elements.message.textContent =
+      "The grid was reshuffled. The enemy gets its turn.";
+
+    setTimeout(enemyAttack, 450);
+  }, 500);
+}
 
     function enemyAttack() {
       const enemy = enemies[enemyIndex];
@@ -3065,6 +3274,25 @@
     elements.clear.addEventListener("click", clearSelection);
     elements.shuffle.addEventListener("click", shuffleGrid);
     elements.attack.addEventListener("click", attack);
+    function animateControlButton(button) {
+  button.classList.remove("button-pressed");
+
+  void button.offsetWidth;
+
+  button.classList.add("button-pressed");
+
+  setTimeout(function() {
+    button.classList.remove("button-pressed");
+  }, 220);
+}
+
+elements.shuffle.addEventListener("click", function() {
+  animateControlButton(elements.shuffle);
+});
+
+elements.attack.addEventListener("click", function() {
+  animateControlButton(elements.attack);
+});
 
     setupEnemy();
     createBalancedGrid();
