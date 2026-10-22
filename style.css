@@ -602,3 +602,154 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
 }
+/* =========================================================
+   REUSABLE SINGLE-IMAGE ENEMY ANIMATIONS
+   ========================================================= */
+
+.enemy-sprite {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+  object-position: center bottom;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transform-origin: 50% 100%;
+  -webkit-transform-origin: 50% 100%;
+
+  will-change: transform, opacity, filter;
+}
+
+/* Only show this image while Pip is the active enemy */
+.enemy-art.pip .enemy-sprite {
+  opacity: 1;
+  visibility: visible;
+  animation: enemy-sprite-idle 2.8s ease-in-out infinite;
+}
+
+/*
+  Stop the old outer-container animations.
+  The new image now performs the movement itself.
+*/
+.enemy-art.pip.move-rush,
+.enemy-art.pip.move-pipes,
+.enemy-art.pip.move-kick,
+.enemy-art.pip.hit,
+.enemy-art.pip.defeat {
+  animation: none;
+}
+
+/* All three existing Pip attacks use the forward lunge */
+.enemy-art.pip.move-rush .enemy-sprite,
+.enemy-art.pip.move-pipes .enemy-sprite,
+.enemy-art.pip.move-kick .enemy-sprite {
+  animation: enemy-sprite-attack 1.05s ease-in-out;
+}
+
+/* Taking damage */
+.enemy-art.pip.hit .enemy-sprite {
+  animation: enemy-sprite-hit 0.5s ease-out;
+}
+
+/* Being defeated */
+.enemy-art.pip.defeat .enemy-sprite {
+  animation: enemy-sprite-defeat 1.2s ease-in forwards;
+}
+
+/* Gentle breathing/weight-shifting motion */
+@keyframes enemy-sprite-idle {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-0.35deg);
+  }
+
+  50% {
+    transform: translate3d(0, -3px, 0) rotate(0.35deg);
+  }
+}
+
+/*
+  The Satyr is on the right, so negative horizontal movement
+  sends him left towards Syntax.
+*/
+@keyframes enemy-sprite-attack {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  18% {
+    transform: translate3d(6px, 1px, 0) scale(0.98);
+  }
+
+  42% {
+    transform: translate3d(-34px, -2px, 0) scale(1.03);
+  }
+
+  58% {
+    transform: translate3d(-34px, -2px, 0) scale(1.03);
+  }
+
+  82%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+/* Quick recoil, shake and bright impact flash */
+@keyframes enemy-sprite-hit {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0);
+    filter: none;
+  }
+
+  18% {
+    transform: translate3d(9px, -1px, 0) rotate(3deg);
+    filter: brightness(1.9) saturate(0.55);
+  }
+
+  38% {
+    transform: translate3d(-7px, 1px, 0) rotate(-3deg);
+    filter: brightness(1.25);
+  }
+
+  60% {
+    transform: translate3d(5px, 0, 0) rotate(2deg);
+    filter: none;
+  }
+
+  80% {
+    transform: translate3d(-2px, 0, 0) rotate(-1deg);
+  }
+}
+
+/* Collapse downward while disappearing */
+@keyframes enemy-sprite-defeat {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0) scale(1);
+    filter: none;
+  }
+
+  30% {
+    opacity: 1;
+    transform: translate3d(4px, -2px, 0) rotate(2deg) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 38px, 0) rotate(8deg) scale(0.9);
+    filter: saturate(0.4);
+  }
+}
+
+/* Accessibility and reduced-motion support */
+@media (prefers-reduced-motion: reduce) {
+  .enemy-art.pip .enemy-sprite {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+}
