@@ -639,8 +639,32 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
   pointer-events: none;
 }
 
+.satyr-joint {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform: rotate(0deg);
+  pointer-events: none;
+}
+
+/* Locked neutral skeleton. These pivots are expressed against the shared
+   1312 x 1199 source canvas, so responsive scaling cannot misalign them. */
+.satyr-tail { z-index: 1; transform-origin: 67% 58%; }
+.satyr-rear-leg { z-index: 2; transform-origin: 40.6% 57.7%; }
+.satyr-rear-knee { transform-origin: 34.4% 70.8%; }
+.satyr-front-leg { z-index: 3; transform-origin: 61.4% 58%; }
+.satyr-front-knee { transform-origin: 70.4% 71.9%; }
+.satyr-rear-arm { z-index: 4; transform-origin: 34.7% 39.9%; }
+.satyr-rear-elbow { transform-origin: 27% 44.6%; }
+.satyr-front-arm { z-index: 5; transform-origin: 57.8% 39%; }
+.satyr-front-elbow { transform-origin: 68.4% 46.4%; }
+.satyr-core { z-index: 6; }
+.satyr-neck { z-index: 7; transform-origin: 46.5% 37.5%; }
+.satyr-panpipes { z-index: 8; }
+
 .enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat),
 .enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-rig,
+.enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-joint,
 .enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-rig-layer {
   animation: none;
 }
