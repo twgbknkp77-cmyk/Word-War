@@ -610,6 +610,8 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 
 .satyr-rig {
   --satyr-rig-scale: 1;
+  --satyr-contact-travel: clamp(96px, 24vw, 145px);
+  --satyr-kick-travel: clamp(88px, 22vw, 132px);
   position: absolute;
   left: 50%;
   bottom: 0;
@@ -678,22 +680,47 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
   will-change: transform;
 }
 
+.enemy-art.pip:not(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-rear-arm {
+  animation: satyr-idle-rear-arm 4.8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.enemy-art.pip:not(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-rear-elbow {
+  animation: satyr-idle-rear-elbow 4.8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.enemy-art.pip:not(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-front-arm {
+  animation: satyr-idle-front-arm 4.8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.enemy-art.pip:not(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-front-elbow {
+  animation: satyr-idle-front-elbow 4.8s ease-in-out infinite;
+  will-change: transform;
+}
+
 @keyframes satyr-idle-head {
-  0%, 100% { transform: rotate(-.35deg); }
-  50% { transform: rotate(.55deg); }
+  0%, 100% { transform: rotate(-.75deg); }
+  50% { transform: rotate(1.15deg); }
 }
 
 @keyframes satyr-idle-pipes {
-  0%, 100% { transform: translateY(0) rotate(-.12deg); }
-  50% { transform: translateY(-1px) rotate(.18deg); }
+  0%, 100% { transform: translateY(.5px) rotate(-.25deg); }
+  50% { transform: translateY(-2px) rotate(.4deg); }
 }
 
 @keyframes satyr-idle-tail {
   0%, 70%, 92%, 100% { transform: rotate(0deg); }
-  76% { transform: rotate(1.6deg); }
-  82% { transform: rotate(-.8deg); }
-  87% { transform: rotate(.35deg); }
+  76% { transform: rotate(3deg); }
+  82% { transform: rotate(-1.6deg); }
+  87% { transform: rotate(.7deg); }
 }
+
+@keyframes satyr-idle-rear-arm { 0%,100%{transform:rotate(-1.2deg)} 50%{transform:rotate(1.7deg)} }
+@keyframes satyr-idle-rear-elbow { 0%,100%{transform:rotate(.8deg)} 50%{transform:rotate(-1.4deg)} }
+@keyframes satyr-idle-front-arm { 0%,100%{transform:rotate(1deg)} 50%{transform:rotate(-1.5deg)} }
+@keyframes satyr-idle-front-elbow { 0%,100%{transform:rotate(-.65deg)} 50%{transform:rotate(1.15deg)} }
 
 .enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat),
 .enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-rig,
@@ -733,8 +760,8 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 
 @keyframes satyr-rush-body {
   0%,100% { transform: translateX(-50%) translateX(0) scale(var(--satyr-rig-scale)); }
-  20% { transform: translateX(-50%) translateX(5px) scale(calc(var(--satyr-rig-scale) * .98)); }
-  46%,62% { transform: translateX(-50%) translateX(-58px) scale(calc(var(--satyr-rig-scale) * 1.025)); }
+  20% { transform: translateX(-50%) translateX(5px) scale(var(--satyr-rig-scale)) scale(.98); }
+  46%,62% { transform: translateX(-50%) translateX(calc(0px - var(--satyr-contact-travel))) scale(var(--satyr-rig-scale)) scale(1.025); }
   82% { transform: translateX(-50%) translateX(-8px) scale(var(--satyr-rig-scale)); }
 }
 @keyframes satyr-rush-head { 0%,100%{transform:rotate(0)} 20%{transform:rotate(3deg)} 46%,62%{transform:rotate(-7deg)} }
@@ -761,8 +788,8 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 
 @keyframes satyr-kick-body {
   0%,100% { transform:translateX(-50%) translateX(0) scale(var(--satyr-rig-scale)); }
-  22% { transform:translateX(-50%) translateX(5px) translateY(2px) scale(calc(var(--satyr-rig-scale) * .985)); }
-  48%,64% { transform:translateX(-50%) translateX(-34px) translateY(-2px) scale(calc(var(--satyr-rig-scale) * 1.015)); }
+  22% { transform:translateX(-50%) translateX(5px) translateY(2px) scale(var(--satyr-rig-scale)) scale(.985); }
+  48%,64% { transform:translateX(-50%) translateX(calc(0px - var(--satyr-kick-travel))) translateY(-2px) scale(var(--satyr-rig-scale)) scale(1.015); }
   84% { transform:translateX(-50%) translateX(-5px) scale(var(--satyr-rig-scale)); }
 }
 @keyframes satyr-kick-head { 0%,100%{transform:rotate(0)} 24%{transform:rotate(3deg)} 48%,65%{transform:rotate(-4deg)} }
@@ -770,6 +797,50 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 @keyframes satyr-kick-knee { 0%,100%{transform:rotate(0)} 24%{transform:rotate(22deg)} 48%,65%{transform:rotate(-25deg)} 84%{transform:rotate(-4deg)} }
 @keyframes satyr-kick-rear-arm { 0%,100%{transform:rotate(0)} 26%,68%{transform:rotate(-13deg)} }
 @keyframes satyr-kick-front-arm { 0%,100%{transform:rotate(0)} 26%,68%{transform:rotate(15deg)} }
+
+/* Damage recoil: one connected flinch with a brief impact flash. */
+.enemy-art.pip.hit .satyr-rig { animation: satyr-hit-body .55s ease-out; }
+.enemy-art.pip.hit .satyr-neck { animation: satyr-hit-head .55s ease-out; }
+.enemy-art.pip.hit .satyr-rear-arm { animation: satyr-hit-rear-arm .55s ease-out; }
+.enemy-art.pip.hit .satyr-front-arm { animation: satyr-hit-front-arm .55s ease-out; }
+.enemy-art.pip.hit .satyr-tail { animation: satyr-hit-tail .55s ease-out; }
+
+@keyframes satyr-hit-body {
+  0%,100% { transform:translateX(-50%) translateX(0) rotate(0) scale(var(--satyr-rig-scale)); filter:brightness(1); }
+  24% { transform:translateX(-50%) translateX(12px) rotate(3deg) scale(var(--satyr-rig-scale)) scale(.98); filter:brightness(1.75) saturate(.65); }
+  58% { transform:translateX(-50%) translateX(6px) rotate(1.2deg) scale(var(--satyr-rig-scale)); filter:brightness(1.08); }
+}
+@keyframes satyr-hit-head { 0%,100%{transform:rotate(0)} 24%{transform:rotate(10deg)} 62%{transform:rotate(-2.5deg)} }
+@keyframes satyr-hit-rear-arm { 0%,100%{transform:rotate(0)} 25%{transform:rotate(18deg)} 62%{transform:rotate(-3deg)} }
+@keyframes satyr-hit-front-arm { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-16deg)} 62%{transform:rotate(2.5deg)} }
+@keyframes satyr-hit-tail { 0%,100%{transform:rotate(0)} 28%{transform:rotate(-7deg)} 62%{transform:rotate(2deg)} }
+
+/* Defeat: knees give way, limbs slacken, then the whole rig drops and fades. */
+.enemy-art.pip.defeat .satyr-rig { animation: satyr-defeat-body 1.25s ease-in forwards; }
+.enemy-art.pip.defeat .satyr-neck { animation: satyr-defeat-head 1.25s ease-in forwards; }
+.enemy-art.pip.defeat .satyr-rear-arm { animation: satyr-defeat-rear-arm 1.25s ease-in forwards; }
+.enemy-art.pip.defeat .satyr-front-arm { animation: satyr-defeat-front-arm 1.25s ease-in forwards; }
+.enemy-art.pip.defeat .satyr-rear-leg { animation: satyr-defeat-rear-leg 1.25s ease-in forwards; }
+.enemy-art.pip.defeat .satyr-front-leg { animation: satyr-defeat-front-leg 1.25s ease-in forwards; }
+.enemy-art.pip.defeat .satyr-rear-knee { animation: satyr-defeat-rear-knee 1.25s ease-in forwards; }
+.enemy-art.pip.defeat .satyr-front-knee { animation: satyr-defeat-front-knee 1.25s ease-in forwards; }
+.enemy-art.pip.defeat .satyr-panpipes { animation: satyr-defeat-pipes 1.25s ease-in forwards; }
+.enemy-art.pip.defeated .satyr-rig { opacity:0; visibility:hidden; }
+
+@keyframes satyr-defeat-body {
+  0% { transform:translateX(-50%) translateY(0) rotate(0) scale(var(--satyr-rig-scale)); opacity:1; filter:brightness(1); }
+  38% { transform:translateX(-50%) translateY(8px) rotate(2deg) scale(var(--satyr-rig-scale)) scale(.98); opacity:1; }
+  72% { transform:translateX(-50%) translateY(22px) rotate(5deg) scale(var(--satyr-rig-scale)) scale(.9); opacity:.88; filter:sepia(.25); }
+  100% { transform:translateX(-50%) translateY(40px) rotate(8deg) scale(var(--satyr-rig-scale)) scale(.72); opacity:0; filter:sepia(.8); }
+}
+@keyframes satyr-defeat-head { 0%{transform:rotate(0)} 42%{transform:rotate(13deg)} 100%{transform:rotate(28deg)} }
+@keyframes satyr-defeat-rear-arm { 0%{transform:rotate(0)} 45%{transform:rotate(20deg)} 100%{transform:rotate(42deg)} }
+@keyframes satyr-defeat-front-arm { 0%{transform:rotate(0)} 45%{transform:rotate(-18deg)} 100%{transform:rotate(-38deg)} }
+@keyframes satyr-defeat-rear-leg { 0%{transform:rotate(0)} 42%{transform:rotate(9deg)} 100%{transform:rotate(25deg)} }
+@keyframes satyr-defeat-front-leg { 0%{transform:rotate(0)} 42%{transform:rotate(-8deg)} 100%{transform:rotate(-22deg)} }
+@keyframes satyr-defeat-rear-knee { 0%{transform:rotate(0)} 45%{transform:rotate(-18deg)} 100%{transform:rotate(-38deg)} }
+@keyframes satyr-defeat-front-knee { 0%{transform:rotate(0)} 45%{transform:rotate(17deg)} 100%{transform:rotate(36deg)} }
+@keyframes satyr-defeat-pipes { 0%,30%{transform:translate(0,0) rotate(0);opacity:1} 100%{transform:translate(18px,38px) rotate(32deg);opacity:0} }
 
 @media (max-height: 900px) and (max-width: 620px) {
   .satyr-rig { --satyr-rig-scale: .78; }

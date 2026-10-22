@@ -380,7 +380,7 @@ function clearBattleEffects(){
   ward=0;enemyPower=0;disabled.clear();
   tiles.forEach(item=>{item.lockTurns=0;item.stoneTurns=0;item.crackedTurns=0;item.modifier=0;});
 }
-const poseClasses=["cast","hit","scratch","move-rush","move-pipes","move-kick","defeat"];
+const poseClasses=["cast","hit","scratch","move-rush","move-pipes","move-kick","defeat","defeated"];
 function pose(node,name,ms=550){ node.classList.remove(...poseClasses); void node.offsetWidth; node.classList.add(name); setTimeout(()=>node.classList.remove(name),ms); }
 function schedulePipIdle(){
   clearTimeout(pipIdleTimer);
@@ -488,7 +488,7 @@ async function enemyTurn(){
 
 async function victory(){
   const defeated=enemies[enemyIndex];
-  if(enemyIndex===0){pose(el.enemyArt,"defeat",1250);await delay(1250);}
+  if(enemyIndex===0){pose(el.enemyArt,"defeat",1250);await delay(1250);el.enemyArt.classList.add("defeated");}
   showBanner("VICTORY!","victory",1600);
   const recovery=Math.ceil(heroMax*.2),before=heroHP;heroHP=Math.min(heroMax,heroHP+recovery);const restored=heroHP-before;
   if(restored){effect(`+${restored} HP`,"hero");health();}
