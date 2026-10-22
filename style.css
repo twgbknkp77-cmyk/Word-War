@@ -654,18 +654,18 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 .satyr-rear-leg { z-index: 2; transform-origin: 133px 126px; }
 .satyr-rear-knee { transform-origin: 145px 158px; }
 .satyr-rear-thigh {
-  left: 115px;
-  top: 104px;
+  left: 105px;
+  top: 109px;
   width: 72px;
   height: 70px;
-  transform: rotate(-5deg);
+  transform: rotate(-8deg);
 }
 .satyr-rear-lower-leg {
-  left: 130px;
-  top: 135px;
+  left: 124px;
+  top: 136px;
   width: 56px;
   height: 77px;
-  transform: rotate(-3deg);
+  transform: rotate(-5deg);
 }
 
 .satyr-rear-arm { z-index: 4; transform-origin: 82px 78px; }
@@ -693,25 +693,17 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
   height: 94px;
 }
 .satyr-neck {
-  left: 79px;
-  top: 46px;
-  z-index: 7;
-  width: 40px;
-  height: 42px;
+  display: none;
 }
 .satyr-head {
-  left: 34px;
-  top: 2px;
+  left: 36px;
+  top: 5px;
   z-index: 8;
-  width: 117px;
-  height: 104px;
+  width: 114px;
+  height: 101px;
 }
 .satyr-pelvis {
-  left: 62px;
-  top: 113px;
-  z-index: 9;
-  width: 84px;
-  height: 73px;
+  display: none;
 }
 
 .satyr-front-leg { z-index: 10; transform-origin: 88px 127px; }
@@ -724,11 +716,11 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
   transform: rotate(10deg);
 }
 .satyr-front-lower-leg {
-  left: 38px;
+  left: 48px;
   top: 136px;
   width: 58px;
   height: 76px;
-  transform: rotate(9deg);
+  transform: rotate(5deg);
 }
 
 .satyr-front-arm { z-index: 11; transform-origin: 128px 78px; }
@@ -741,11 +733,11 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
   transform: rotate(-5deg);
 }
 .satyr-front-forearm {
-  left: 129px;
-  top: 87px;
+  left: 140px;
+  top: 90px;
   width: 67px;
   height: 49px;
-  transform: rotate(0deg);
+  transform: rotate(4deg);
 }
 
 .satyr-panpipes {
