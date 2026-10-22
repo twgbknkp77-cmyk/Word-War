@@ -662,6 +662,41 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 .satyr-neck { z-index: 7; transform-origin: 46.5% 37.5%; }
 .satyr-panpipes { z-index: 8; }
 
+/* First rig-motion test: grounded feet with restrained upper details. */
+.enemy-art.pip:not(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-neck {
+  animation: satyr-idle-head 4.8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.enemy-art.pip:not(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-panpipes {
+  animation: satyr-idle-pipes 3.6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.enemy-art.pip:not(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-tail {
+  animation: satyr-idle-tail 7.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes satyr-idle-head {
+  0%, 100% { transform: rotate(-0.7deg); }
+  48% { transform: rotate(1deg); }
+  56% { transform: rotate(.85deg); }
+}
+
+@keyframes satyr-idle-pipes {
+  0%, 100% { transform: translateY(0) rotate(-.25deg); }
+  50% { transform: translateY(-1.5px) rotate(.35deg); }
+}
+
+@keyframes satyr-idle-tail {
+  0%, 64%, 100% { transform: rotate(0deg); }
+  69% { transform: rotate(2.2deg); }
+  74% { transform: rotate(-1.3deg); }
+  79% { transform: rotate(.7deg); }
+  84% { transform: rotate(0deg); }
+}
+
 .enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat),
 .enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-rig,
 .enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-joint,
