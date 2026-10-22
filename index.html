@@ -1,118 +1,15 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#367caf">
-  <meta name="color-scheme" content="light">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Syntax: Word Odyssey</title>
-  <link rel="stylesheet" href="style.css?v=39">
-</head>
-<body>
-  <main class="game" aria-label="Syntax: Word Odyssey">
-    <section id="battle" class="battle" aria-label="Battlefield">
-      <div class="scenery"></div>
-      <div id="chapter-card" class="chapter-card" aria-live="polite"></div>
-
-      <div class="battle-status hero-status">
-        <strong>Syntax</strong>
-        <div class="health"><i id="hero-bar"></i></div>
-        <span class="hp-line">HP <b id="hero-hp">60</b> / <b id="hero-max">60</b> <span id="hero-status-icons" class="status-icons" aria-label="Active effects"></span></span>
-      </div>
-
-      <div class="battle-status enemy-status">
-        <strong id="enemy-name"></strong>
-        <div class="health"><i id="enemy-bar"></i></div>
-        <span class="hp-line enemy-hp-line">
-          <button id="enemy-moves-toggle" class="enemy-moves-toggle" type="button" aria-expanded="false" aria-controls="enemy-moves" aria-label="Show enemy attacks">⌄</button>
-          HP <b id="enemy-hp"></b> / <b id="enemy-max"></b> <span id="enemy-status-icons" class="status-icons" aria-label="Enemy effects"></span>
-        </span>
-        <div id="enemy-moves" class="enemy-moves" hidden></div>
-      </div>
-
-      <article id="hero-fighter" class="fighter hero-fighter">
-        <div id="hero-art" class="hero-art" role="img" aria-label="Syntax">
-          <span class="hero-attack-layer" aria-hidden="true"></span>
-        </div>
-      </article>
-
-      <article id="enemy-fighter" class="fighter enemy-fighter">
-        <div id="enemy-art" class="enemy-art" role="img">
-          <span class="satyr-rig" aria-hidden="true">
-            <img class="satyr-rig-layer satyr-tail" src="assets/characters/satyr-rig/layers/tail.png" alt="">
-
-            <span class="satyr-joint satyr-rear-leg">
-              <img class="satyr-rig-layer" src="assets/characters/satyr-rig/layers/rear_thigh.png" alt="">
-              <span class="satyr-joint satyr-rear-knee">
-                <img class="satyr-rig-layer" src="assets/characters/satyr-rig/layers/rear_lower_leg.png" alt="">
-              </span>
-            </span>
-
-            <span class="satyr-joint satyr-front-leg">
-              <img class="satyr-rig-layer" src="assets/characters/satyr-rig/layers/front_thigh.png" alt="">
-              <span class="satyr-joint satyr-front-knee">
-                <img class="satyr-rig-layer" src="assets/characters/satyr-rig/layers/front_lower_leg.png" alt="">
-              </span>
-            </span>
-
-            <span class="satyr-joint satyr-rear-arm">
-              <img class="satyr-rig-layer" src="assets/characters/satyr-rig/layers/rear_upper_arm.png" alt="">
-              <span class="satyr-joint satyr-rear-elbow">
-                <img class="satyr-rig-layer" src="assets/characters/satyr-rig/layers/rear_forearm.png" alt="">
-              </span>
-            </span>
-
-            <span class="satyr-joint satyr-front-arm">
-              <img class="satyr-rig-layer" src="assets/characters/satyr-rig/layers/front_upper_arm.png" alt="">
-              <span class="satyr-joint satyr-front-elbow">
-                <img class="satyr-rig-layer" src="assets/characters/satyr-rig/layers/front_forearm.png" alt="">
-              </span>
-            </span>
-
-            <img class="satyr-rig-layer satyr-core" src="assets/characters/satyr-rig/layers/core.png" alt="">
-            <span class="satyr-joint satyr-neck">
-              <img class="satyr-rig-layer" src="assets/characters/satyr-rig/layers/head.png" alt="">
-            </span>
-            <img class="satyr-rig-layer satyr-panpipes" src="assets/characters/satyr-rig/layers/panpipes.png" alt="">
-          </span>
-        </div>
-      </article>
-
-      <div id="effects" class="effects" aria-live="polite"></div>
-      <div id="battle-banner" class="battle-banner" role="status" aria-live="assertive"></div>
-    </section>
-
-    <section class="play-panel">
-      <div class="word-panel">
-        <span id="word">Loading dictionary…</span>
-        <span id="damage">0 damage</span>
-        <button id="clear-selection" class="clear-selection" type="button" aria-label="Clear selected letters" hidden>×</button>
-      </div>
-
-      <div id="tile-info" class="tile-info" role="status" aria-live="polite" hidden></div>
-
-      <div id="grid" class="grid" aria-label="Letter grid"></div>
-
-      <div class="controls">
-        <button id="shuffle" class="shuffle" type="button">Shuffle</button>
-        <button id="attack" class="attack" type="button">Attack</button>
-      </div>
-
-      <p id="message" class="message" aria-live="polite">Preparing the road…</p>
-      <button id="restart" class="restart" type="button">Begin a new odyssey</button>
-    </section>
-
-    <div id="reward-modal" class="reward-modal" hidden>
-      <section class="reward-card" role="dialog" aria-modal="true" aria-labelledby="reward-title">
-        <p class="reward-kicker">Choose your boon</p>
-        <h2 id="reward-title">Victory!</h2>
-        <p>Syntax may carry one reward down the road.</p>
-        <div id="reward-options" class="reward-options"></div>
-      </section>
-    </div>
-  </main>
-  <script src="game.js?v=32"></script>
-</body>
-</html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#183458"><meta name="color-scheme" content="light"><meta name="apple-mobile-web-app-capable" content="yes"><title>Word Odyssey</title><link rel="stylesheet" href="style.css?v=40"></head>
+<body><main class="game" aria-label="Word Odyssey spelling battle">
+<section id="battle" class="battle" aria-label="Battlefield">
+<header class="run-header"><span id="tier-label">Tier 1 · Fight 1 of 3</span><span id="journey-label">0 / 15 defeated</span></header>
+<section class="player-panel" aria-label="Player health"><strong>You</strong><div class="health"><i id="player-bar"></i></div><span>HP <b id="player-hp">100</b> / <b id="player-max">100</b></span></section>
+<section class="enemy-panel" aria-label="Current enemy"><div id="enemy-emoji" class="enemy-emoji" aria-hidden="true">🦅</div><h1 id="enemy-name">Harpy</h1><div class="health enemy-health"><i id="enemy-bar"></i></div><span>HP <b id="enemy-hp">30</b> / <b id="enemy-max">30</b></span></section>
+<div id="intention" class="intention" aria-live="polite">⚔️ Preparing an attack</div><div id="battle-banner" class="battle-banner" role="status" aria-live="assertive"></div>
+<button id="drawer-toggle" class="drawer-toggle" type="button" aria-expanded="false" aria-controls="god-drawer"><span id="active-god-emoji">☰</span><span class="sr-only">Choose a god card</span></button>
+<button id="drawer-scrim" class="drawer-scrim" type="button" aria-label="Close god cards" hidden></button>
+<aside id="god-drawer" class="god-drawer" aria-label="God cards" aria-hidden="true"><div class="drawer-heading"><div><small>Your hand</small><h2>Choose a god</h2></div><button id="drawer-close" type="button" aria-label="Close god cards">×</button></div><div id="god-hand" class="god-hand"></div><p id="pity-label" class="pity-label"></p></aside>
+</section>
+<section class="play-panel"><div class="word-panel"><span id="word">Loading dictionary…</span><span id="damage">0 damage</span><button id="clear-selection" class="clear-selection" type="button" aria-label="Clear selected letters" hidden>×</button></div><div id="grid" class="grid" aria-label="Letter grid"></div><div class="controls"><button id="shuffle" class="shuffle" type="button">Shuffle</button><button id="attack" class="attack" type="button">Attack</button></div><p id="message" class="message" aria-live="polite">Choose a god and spell a word.</p></section>
+<div id="end-modal" class="end-modal" hidden><section class="end-card" role="dialog" aria-modal="true" aria-labelledby="end-title"><div id="end-emoji" class="end-emoji">🏛️</div><h2 id="end-title">The odyssey continues</h2><p id="end-copy"></p><p id="end-stats" class="end-stats"></p><button id="new-run" type="button">Begin a new odyssey</button></section></div>
+</main><script src="game.js?v=40"></script></body></html>
