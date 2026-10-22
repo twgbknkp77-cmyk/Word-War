@@ -602,154 +602,170 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
 }
+
 /* =========================================================
-   REUSABLE SINGLE-IMAGE ENEMY ANIMATIONS
+   SATYR CUTOUT RIG — STATIC NEUTRAL ASSEMBLY
+   Movement is intentionally disabled until the pose is approved.
    ========================================================= */
 
-.enemy-sprite {
-  display: block;
-  width: 100%;
-  height: 100%;
-
-  object-fit: contain;
-  object-position: center bottom;
-
+.satyr-puppet {
+  --satyr-scale: 1;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 2;
+  width: 205px;
+  height: 215px;
   opacity: 0;
   visibility: hidden;
-
+  transform: translateX(-50%) scale(var(--satyr-scale));
   transform-origin: 50% 100%;
-  -webkit-transform-origin: 50% 100%;
-
-  will-change: transform, opacity, filter;
+  pointer-events: none;
 }
 
-/* Only show this image while Pip is the active enemy */
-.enemy-art.pip .enemy-sprite {
+.enemy-art.pip .satyr-puppet {
   opacity: 1;
   visibility: visible;
-  animation: enemy-sprite-idle 2.8s ease-in-out infinite;
 }
 
-/*
-  Stop the old outer-container animations.
-  The new image now performs the movement itself.
-*/
-.enemy-art.pip.move-rush,
-.enemy-art.pip.move-pipes,
-.enemy-art.pip.move-kick,
-.enemy-art.pip.hit,
-.enemy-art.pip.defeat {
+.satyr-part {
+  position: absolute;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Full-size joint layers preserve a shared coordinate system for later rigging. */
+.satyr-joint {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform: none;
+}
+
+.satyr-tail {
+  left: 129px;
+  top: 111px;
+  z-index: 1;
+  width: 59px;
+  height: 50px;
+}
+
+.satyr-rear-leg { z-index: 2; transform-origin: 133px 126px; }
+.satyr-rear-knee { transform-origin: 145px 158px; }
+.satyr-rear-thigh {
+  left: 105px;
+  top: 113px;
+  width: 68px;
+  height: 66px;
+  transform: rotate(-10deg);
+}
+.satyr-rear-lower-leg {
+  left: 126px;
+  top: 151px;
+  width: 50px;
+  height: 67px;
+  transform: rotate(-5deg);
+}
+
+.satyr-rear-arm { z-index: 4; transform-origin: 82px 78px; }
+.satyr-rear-elbow { transform-origin: 92px 105px; }
+.satyr-rear-upper-arm {
+  left: 59px;
+  top: 72px;
+  width: 51px;
+  height: 50px;
+  transform: rotate(7deg);
+}
+.satyr-rear-forearm {
+  left: 17px;
+  top: 91px;
+  width: 75px;
+  height: 47px;
+  transform: rotate(-7deg);
+}
+
+.satyr-torso {
+  left: 68px;
+  top: 66px;
+  z-index: 6;
+  width: 79px;
+  height: 94px;
+}
+.satyr-neck {
+  left: 79px;
+  top: 46px;
+  z-index: 7;
+  width: 40px;
+  height: 42px;
+}
+.satyr-head {
+  left: 34px;
+  top: 2px;
+  z-index: 8;
+  width: 117px;
+  height: 104px;
+}
+.satyr-pelvis {
+  left: 62px;
+  top: 113px;
+  z-index: 9;
+  width: 84px;
+  height: 73px;
+}
+
+.satyr-front-leg { z-index: 10; transform-origin: 88px 127px; }
+.satyr-front-knee { transform-origin: 72px 159px; }
+.satyr-front-thigh {
+  left: 50px;
+  top: 113px;
+  width: 72px;
+  height: 66px;
+  transform: rotate(8deg);
+}
+.satyr-front-lower-leg {
+  left: 34px;
+  top: 150px;
+  width: 53px;
+  height: 68px;
+  transform: rotate(7deg);
+}
+
+.satyr-front-arm { z-index: 11; transform-origin: 128px 78px; }
+.satyr-front-elbow { transform-origin: 151px 105px; }
+.satyr-front-upper-arm {
+  left: 111px;
+  top: 70px;
+  width: 52px;
+  height: 51px;
+  transform: rotate(-5deg);
+}
+.satyr-front-forearm {
+  left: 139px;
+  top: 91px;
+  width: 67px;
+  height: 49px;
+  transform: rotate(4deg);
+}
+
+.satyr-panpipes {
+  left: 168px;
+  top: 48px;
+  z-index: 12;
+  width: 38px;
+  height: 35px;
+}
+
+/* The old gameplay state classes must not move this assembly yet. */
+.enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) {
+  animation: none;
+}
+.enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-puppet,
+.enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-joint,
+.enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-part {
   animation: none;
 }
 
-/* All three existing Pip attacks use the forward lunge */
-.enemy-art.pip.move-rush .enemy-sprite,
-.enemy-art.pip.move-pipes .enemy-sprite,
-.enemy-art.pip.move-kick .enemy-sprite {
-  animation: enemy-sprite-attack 1.05s ease-in-out;
-}
-
-/* Taking damage */
-.enemy-art.pip.hit .enemy-sprite {
-  animation: enemy-sprite-hit 0.5s ease-out;
-}
-
-/* Being defeated */
-.enemy-art.pip.defeat .enemy-sprite {
-  animation: enemy-sprite-defeat 1.2s ease-in forwards;
-}
-
-/* Gentle breathing/weight-shifting motion */
-@keyframes enemy-sprite-idle {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(-0.35deg);
-  }
-
-  50% {
-    transform: translate3d(0, -3px, 0) rotate(0.35deg);
-  }
-}
-
-/*
-  The Satyr is on the right, so negative horizontal movement
-  sends him left towards Syntax.
-*/
-@keyframes enemy-sprite-attack {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  18% {
-    transform: translate3d(6px, 1px, 0) scale(0.98);
-  }
-
-  42% {
-    transform: translate3d(-34px, -2px, 0) scale(1.03);
-  }
-
-  58% {
-    transform: translate3d(-34px, -2px, 0) scale(1.03);
-  }
-
-  82%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-/* Quick recoil, shake and bright impact flash */
-@keyframes enemy-sprite-hit {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0);
-    filter: none;
-  }
-
-  18% {
-    transform: translate3d(9px, -1px, 0) rotate(3deg);
-    filter: brightness(1.9) saturate(0.55);
-  }
-
-  38% {
-    transform: translate3d(-7px, 1px, 0) rotate(-3deg);
-    filter: brightness(1.25);
-  }
-
-  60% {
-    transform: translate3d(5px, 0, 0) rotate(2deg);
-    filter: none;
-  }
-
-  80% {
-    transform: translate3d(-2px, 0, 0) rotate(-1deg);
-  }
-}
-
-/* Collapse downward while disappearing */
-@keyframes enemy-sprite-defeat {
-  0% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) rotate(0) scale(1);
-    filter: none;
-  }
-
-  30% {
-    opacity: 1;
-    transform: translate3d(4px, -2px, 0) rotate(2deg) scale(1);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate3d(0, 38px, 0) rotate(8deg) scale(0.9);
-    filter: saturate(0.4);
-  }
-}
-
-/* Accessibility and reduced-motion support */
-@media (prefers-reduced-motion: reduce) {
-  .enemy-art.pip .enemy-sprite {
-    animation-duration: 0.01ms;
-    animation-iteration-count: 1;
-  }
+@media (max-height: 900px) and (max-width: 620px) {
+  .satyr-puppet { --satyr-scale: .78; }
 }
