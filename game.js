@@ -384,10 +384,6 @@ const poseClasses=["cast","hit","scratch","move-rush","move-pipes","move-kick","
 function pose(node,name,ms=550){ node.classList.remove(...poseClasses); void node.offsetWidth; node.classList.add(name); setTimeout(()=>node.classList.remove(name),ms); }
 function schedulePipIdle(){
   clearTimeout(pipIdleTimer);
-  pipIdleTimer=setTimeout(()=>{
-    if(enemyIndex===0&&!busy&&!finished&&!el.enemyArt.classList.contains("hit")) pose(el.enemyArt,"scratch",1750);
-    schedulePipIdle();
-  },6500+Math.random()*3500);
 }
 function effect(text,side){ const s=document.createElement("span"); s.className=`effect ${side}`; s.textContent=text; el.effects.appendChild(s); setTimeout(()=>s.remove(),1000); }
 

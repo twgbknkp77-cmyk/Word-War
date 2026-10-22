@@ -679,22 +679,20 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 }
 
 @keyframes satyr-idle-head {
-  0%, 100% { transform: rotate(-0.7deg); }
-  48% { transform: rotate(1deg); }
-  56% { transform: rotate(.85deg); }
+  0%, 100% { transform: rotate(-.35deg); }
+  50% { transform: rotate(.55deg); }
 }
 
 @keyframes satyr-idle-pipes {
-  0%, 100% { transform: translateY(0) rotate(-.25deg); }
-  50% { transform: translateY(-1.5px) rotate(.35deg); }
+  0%, 100% { transform: translateY(0) rotate(-.12deg); }
+  50% { transform: translateY(-1px) rotate(.18deg); }
 }
 
 @keyframes satyr-idle-tail {
-  0%, 64%, 100% { transform: rotate(0deg); }
-  69% { transform: rotate(2.2deg); }
-  74% { transform: rotate(-1.3deg); }
-  79% { transform: rotate(.7deg); }
-  84% { transform: rotate(0deg); }
+  0%, 70%, 92%, 100% { transform: rotate(0deg); }
+  76% { transform: rotate(1.6deg); }
+  82% { transform: rotate(-.8deg); }
+  87% { transform: rotate(.35deg); }
 }
 
 .enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat),
@@ -703,6 +701,75 @@ button { appearance: none; -webkit-appearance: none; font: inherit; color: inher
 .enemy-art.pip:is(.scratch, .move-rush, .move-pipes, .move-kick, .hit, .defeat) .satyr-rig-layer {
   animation: none;
 }
+
+/* PIP ATTACKS — all movement comes from the new articulated rig. */
+.enemy-art.pip.move-rush .satyr-rig {
+  animation: satyr-rush-body 1.12s cubic-bezier(.32,.02,.2,1);
+}
+.enemy-art.pip.move-rush .satyr-neck { animation: satyr-rush-head 1.12s ease-in-out; }
+.enemy-art.pip.move-rush .satyr-rear-arm { animation: satyr-rush-rear-arm 1.12s ease-in-out; }
+.enemy-art.pip.move-rush .satyr-front-arm { animation: satyr-rush-front-arm 1.12s ease-in-out; }
+.enemy-art.pip.move-rush .satyr-rear-leg { animation: satyr-rush-rear-leg 1.12s ease-in-out; }
+.enemy-art.pip.move-rush .satyr-front-leg { animation: satyr-rush-front-leg 1.12s ease-in-out; }
+
+.enemy-art.pip.move-pipes .satyr-rig {
+  animation: satyr-pipes-body 1.12s ease-in-out;
+}
+.enemy-art.pip.move-pipes .satyr-neck { animation: satyr-pipes-head 1.12s ease-in-out; }
+.enemy-art.pip.move-pipes .satyr-rear-arm { animation: satyr-pipes-rear-arm 1.12s ease-in-out; }
+.enemy-art.pip.move-pipes .satyr-rear-elbow { animation: satyr-pipes-rear-elbow 1.12s ease-in-out; }
+.enemy-art.pip.move-pipes .satyr-front-arm { animation: satyr-pipes-front-arm 1.12s ease-in-out; }
+.enemy-art.pip.move-pipes .satyr-front-elbow { animation: satyr-pipes-front-elbow 1.12s ease-in-out; }
+.enemy-art.pip.move-pipes .satyr-panpipes { animation: satyr-pipes-instrument 1.12s ease-in-out; }
+
+.enemy-art.pip.move-kick .satyr-rig {
+  animation: satyr-kick-body 1.12s cubic-bezier(.32,.02,.2,1);
+}
+.enemy-art.pip.move-kick .satyr-neck { animation: satyr-kick-head 1.12s ease-in-out; }
+.enemy-art.pip.move-kick .satyr-rear-leg { z-index: 9; animation: satyr-kick-leg 1.12s ease-in-out; }
+.enemy-art.pip.move-kick .satyr-rear-knee { animation: satyr-kick-knee 1.12s ease-in-out; }
+.enemy-art.pip.move-kick .satyr-rear-arm { animation: satyr-kick-rear-arm 1.12s ease-in-out; }
+.enemy-art.pip.move-kick .satyr-front-arm { animation: satyr-kick-front-arm 1.12s ease-in-out; }
+
+@keyframes satyr-rush-body {
+  0%,100% { transform: translateX(-50%) translateX(0) scale(var(--satyr-rig-scale)); }
+  20% { transform: translateX(-50%) translateX(5px) scale(calc(var(--satyr-rig-scale) * .98)); }
+  46%,62% { transform: translateX(-50%) translateX(-58px) scale(calc(var(--satyr-rig-scale) * 1.025)); }
+  82% { transform: translateX(-50%) translateX(-8px) scale(var(--satyr-rig-scale)); }
+}
+@keyframes satyr-rush-head { 0%,100%{transform:rotate(0)} 20%{transform:rotate(3deg)} 46%,62%{transform:rotate(-7deg)} }
+@keyframes satyr-rush-rear-arm { 0%,100%{transform:rotate(0)} 25%,65%{transform:rotate(16deg)} }
+@keyframes satyr-rush-front-arm { 0%,100%{transform:rotate(0)} 25%,65%{transform:rotate(-13deg)} }
+@keyframes satyr-rush-rear-leg { 0%,100%{transform:rotate(0)} 20%{transform:rotate(-5deg)} 48%,65%{transform:rotate(7deg)} }
+@keyframes satyr-rush-front-leg { 0%,100%{transform:rotate(0)} 20%{transform:rotate(6deg)} 48%,65%{transform:rotate(-5deg)} }
+
+@keyframes satyr-pipes-body {
+  0%,100% { transform: translateX(-50%) scale(var(--satyr-rig-scale)); }
+  28%,74% { transform: translateX(-50%) translateY(-2px) scale(var(--satyr-rig-scale)); }
+}
+@keyframes satyr-pipes-head { 0%,100%{transform:rotate(0)} 28%,74%{transform:rotate(4deg)} }
+@keyframes satyr-pipes-rear-arm { 0%,100%{transform:rotate(0)} 28%,74%{transform:rotate(-22deg)} }
+@keyframes satyr-pipes-rear-elbow { 0%,100%{transform:rotate(0)} 28%,74%{transform:rotate(34deg)} }
+@keyframes satyr-pipes-front-arm { 0%,100%{transform:rotate(0)} 28%,74%{transform:rotate(18deg)} }
+@keyframes satyr-pipes-front-elbow { 0%,100%{transform:rotate(0)} 28%,74%{transform:rotate(-42deg)} }
+@keyframes satyr-pipes-instrument {
+  0%,100% { transform:translate(0,0) rotate(0); }
+  28%,74% { transform:translate(-78px,15px) rotate(-28deg); }
+  45% { transform:translate(-79px,14px) rotate(-26deg); }
+  58% { transform:translate(-78px,16px) rotate(-29deg); }
+}
+
+@keyframes satyr-kick-body {
+  0%,100% { transform:translateX(-50%) translateX(0) scale(var(--satyr-rig-scale)); }
+  22% { transform:translateX(-50%) translateX(5px) translateY(2px) scale(calc(var(--satyr-rig-scale) * .985)); }
+  48%,64% { transform:translateX(-50%) translateX(-34px) translateY(-2px) scale(calc(var(--satyr-rig-scale) * 1.015)); }
+  84% { transform:translateX(-50%) translateX(-5px) scale(var(--satyr-rig-scale)); }
+}
+@keyframes satyr-kick-head { 0%,100%{transform:rotate(0)} 24%{transform:rotate(3deg)} 48%,65%{transform:rotate(-4deg)} }
+@keyframes satyr-kick-leg { 0%,100%{transform:rotate(0)} 24%{transform:rotate(-9deg)} 48%,65%{transform:rotate(39deg)} 84%{transform:rotate(5deg)} }
+@keyframes satyr-kick-knee { 0%,100%{transform:rotate(0)} 24%{transform:rotate(22deg)} 48%,65%{transform:rotate(-25deg)} 84%{transform:rotate(-4deg)} }
+@keyframes satyr-kick-rear-arm { 0%,100%{transform:rotate(0)} 26%,68%{transform:rotate(-13deg)} }
+@keyframes satyr-kick-front-arm { 0%,100%{transform:rotate(0)} 26%,68%{transform:rotate(15deg)} }
 
 @media (max-height: 900px) and (max-width: 620px) {
   .satyr-rig { --satyr-rig-scale: .78; }
