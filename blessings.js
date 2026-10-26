@@ -1,59 +1,75 @@
 (function(root){
 "use strict";
-const G=[
-["zeus","Zeus","⚡","Lightning",[["thunderbolt","Thunderbolt","Every successful word deals +2 lightning damage."],["staticShock","Static Shock","Successful words add Shock (max 5); each stack deals 1 damage for 3 monster turns."],["stormcaller","Stormcaller","Words of 7+ letters strike again for the base word damage."]]],
-["poseidon","Poseidon","🔱","Sea and earthquakes",[["tidalSurge","Tidal Surge","Every 3rd successful word deals +8 damage."],["undertow","Undertow","Words with 3+ vowels weaken the next attack by 20%."],["earthshaker","Earthshaker","Water-related words deal +10 damage."]]],
-["hades","Hades","💀","The Underworld",[["soulDrain","Soul Drain","Heal 5% of actual damage dealt, rounded up (maximum 3 HP per word)."],["underworldCurse","Underworld Curse","Each word adds Curse (max 10), increasing damage taken by 2% per stack."],["deathsDoor","Death's Door","Deal +25% damage while the monster is below 25% HP."]]],
-["athena","Athena","🛡️","Wisdom and defence",[["aegis","Aegis","Words of 5+ letters grant a 15 HP shield once every 5 player turns; lasts 3 monster turns."],["battleWisdom","Battle Wisdom","Words of 6+ letters weaken the next attack by 20%."],["calculatedStrike","Calculated Strike","Each J, Q, X or Z adds +5% damage and 5% next-attack reduction (max 20%)."]]],
-["ares","Ares","⚔️","War",[["warCry","War Cry","Every successful word deals +3 damage."],["recklessAssault","Reckless Assault","Deal +10% damage, but receive +20% monster damage."],["warpath","Warpath","Every 4th successful word strikes again for the base word damage."]]],
-["apollo","Apollo","☀️","Sun and healing",[["healingLight","Healing Light","Words of 6+ letters restore 4 HP."],["sunfire","Sunfire","Words apply Burn for 3 turns, dealing 2 damage before each monster attack."],["blindingRadiance","Blinding Radiance","Each word has a 5% chance to make the next attack miss."]]],
-["artemis","Artemis","🏹","Hunting",[["huntersInstinct","Hunter's Instinct","Each word has a 10% critical-hit chance."],["piercingArrow","Piercing Arrow","Every 5th word deals +10 armour-piercing damage."],["perfectShot","Perfect Shot","Words containing J, Q, X or Z gain +15% critical-hit chance."]]],
-["hermes","Hermes","🪽","Speed and trickery",[["quickWords","Quick Words","Words of 3–4 letters deal +4 damage."],["fleetfoot","Fleetfoot","Each word grants a 10% chance to dodge the next attack."],["divineExchange","Divine Exchange","Once per encounter, replace 3 random grid letters."]]],
-["demeter","Demeter","🌾","Harvest and seasons",[["harvest","Harvest","Every 5th word restores 10 HP."],["wintersGrip","Winter's Grip","Every 4th word freezes the monster's next attack."],["regrowth","Regrowth","Restore 5 HP at the start of each encounter."]]],
-["hephaestus","Hephaestus","🔨","The forge",[["forgedWeapon","Forged Weapon","Every 3rd word grants +5 damage for the next 3 attacks; refreshes."],["divineArmour","Divine Armour","Begin each encounter with 5 armour that absorbs damage."],["anvilStrike","Anvil Strike","Repeated letters contribute double their normal tile value."]]],
-["dionysus","Dionysus","🍇","Wine and intoxication",[["intoxication","Intoxication","Each word adds Poison (max 6); stacks deal 1 damage before attacks."],["confusion","Confusion","Every word weakens the next attack by 10%."],["wildRevelry","Wild Revelry","Every 2nd word: +5 damage, heal 3 HP, or weaken the next attack by 20%."]]],
-["hestia","Hestia","🔥","Hearth and home",[["hearthsWarmth","Hearth's Warmth","Every 3rd word restores 2 HP."],["safeHaven","Safe Haven","Start encounters below 50% HP by restoring 5 HP."],["sacredFlame","Sacred Flame","After taking damage, retaliate for 3 damage once that monster turn."]]],
-["iris","Iris","🌈","The rainbow",[["prismaticWords","Prismatic Words","Words with 5+ distinct letters deal +5 damage."],["rainbowBlessing","Rainbow Blessing","Words with 3+ distinct vowels deal +5 damage."],["spectrum","Spectrum","Repeating a vowel across consecutive words adds +1, +2, then +3 damage."]]],
-["nike","Nike","🏆","Victory",[["victoryRush","Victory Rush","After a victory, words deal +3 damage in the next encounter."],["openingTriumph","Opening Triumph","The first 2 words of each encounter deal +5 damage."],["unbrokenStreak","Unbroken Streak","Consecutive 5+ letter words add +1 to +4 damage; shorter words reset it."]]],
-["hypnos","Hypnos","😴","Sleep",[["slumber","Slumber","Each word has a 2% chance to make the monster skip its next attack."],["heavyEyelids","Heavy Eyelids","Every 4th word weakens the next attack by 50%."],["nightmare","Nightmare","Every 5th word deals +8 damage and weakens the next attack by 10%."]]]
+const MAX_LEVEL=3;
+const powerConfig={
+ thunderbolt:{name:"Thunderbolt",levels:[{flat:2,text:"+2 damage to every successful word."},{flat:5,text:"+5 damage to every successful word."},{flat:9,text:"+9 damage to every successful word."}]},
+ staticShock:{name:"Static Shock",levels:[{damage:1,stacks:5,duration:3,text:"Shock stacks up to 5; each stack deals 1 damage for 3 monster turns."},{damage:2,stacks:6,duration:3,text:"Shock stacks up to 6; each stack deals 2 damage for 3 monster turns."},{damage:3,stacks:7,duration:4,text:"Shock stacks up to 7; each stack deals 3 damage for 4 monster turns."}]},
+ stormcaller:{name:"Stormcaller",levels:[{length:7,multiplier:1,text:"Words of 7+ letters trigger a lightning strike worth 100% of base damage."},{length:6,multiplier:1.25,text:"Words of 6+ letters trigger a lightning strike worth 125% of base damage."},{length:5,multiplier:1.5,text:"Words of 5+ letters trigger a lightning strike worth 150% of base damage."}]},
+ tidalSurge:{name:"Tidal Surge",levels:[{every:3,damage:8,text:"Every 3rd successful word deals +8 damage."},{every:3,damage:12,text:"Every 3rd successful word deals +12 damage."},{every:3,damage:16,text:"Every 3rd successful word deals +16 damage."}]},
+ undertow:{name:"Undertow",levels:[{vowels:3,reduction:.2,text:"Words with 3+ vowels reduce the next attack by 20%."},{vowels:3,reduction:.3,text:"Words with 3+ vowels reduce the next attack by 30%."},{vowels:2,reduction:.4,text:"Words with 2+ vowels reduce the next attack by 40%."}]},
+ earthshaker:{name:"Earthshaker",levels:[{damage:10,text:"Water-related words deal +10 damage."},{damage:15,text:"Water-related words deal +15 damage."},{damage:22,text:"Water-related words deal +22 damage."}]},
+ soulDrain:{name:"Soul Drain",levels:[{rate:.05,cap:3,text:"Restore 5% of damage dealt, up to 3 HP per word."},{rate:.08,cap:5,text:"Restore 8% of damage dealt, up to 5 HP per word."},{rate:.12,cap:8,text:"Restore 12% of damage dealt, up to 8 HP per word."}]},
+ underworldCurse:{name:"Underworld Curse",levels:[{rate:.02,stacks:10,text:"Curse stacks up to 10; each stack increases damage taken by 2%."},{rate:.03,stacks:10,text:"Curse stacks up to 10; each stack increases damage taken by 3%."},{rate:.04,stacks:12,text:"Curse stacks up to 12; each stack increases damage taken by 4%."}]},
+ deathsDoor:{name:"Death's Door",levels:[{threshold:.25,bonus:.25,text:"Deal +25% damage below 25% monster HP."},{threshold:.3,bonus:.35,text:"Deal +35% damage below 30% monster HP."},{threshold:.35,bonus:.5,text:"Deal +50% damage below 35% monster HP."}]},
+ aegis:{name:"Aegis",levels:[{shield:15,cooldown:5,duration:3,length:5,text:"5+ letter words grant 15 shield for 3 turns; 5-word cooldown."},{shield:22,cooldown:4,duration:3,length:5,text:"5+ letter words grant 22 shield for 3 turns; 4-word cooldown."},{shield:30,cooldown:3,duration:4,length:5,text:"5+ letter words grant 30 shield for 4 turns; 3-word cooldown."}]},
+ battleWisdom:{name:"Battle Wisdom",levels:[{length:6,reduction:.2,text:"Words of 6+ letters reduce the next attack by 20%."},{length:5,reduction:.3,text:"Words of 5+ letters reduce the next attack by 30%."},{length:5,reduction:.4,text:"Words of 5+ letters reduce the next attack by 40%."}]},
+ calculatedStrike:{name:"Calculated Strike",levels:[{flat:2,reduction:.05,cap:.2,text:"Each J, Q, X or Z adds +2 damage and 5% reduction (max 20%)."},{flat:3,reduction:.075,cap:.3,text:"Each J, Q, X or Z adds +3 damage and 7.5% reduction (max 30%)."},{flat:5,reduction:.1,cap:.4,text:"Each J, Q, X or Z adds +5 damage and 10% reduction (max 40%)."}]},
+ warCry:{name:"War Cry",levels:[{flat:3,text:"+3 damage to every successful word."},{flat:6,text:"+6 damage to every successful word."},{flat:10,text:"+10 damage to every successful word."}]},
+ recklessAssault:{name:"Reckless Assault",levels:[{outgoing:.1,incoming:.2,text:"Deal 10% more damage but receive 20% more damage."},{outgoing:.18,incoming:.18,text:"Deal 18% more damage but receive 18% more damage."},{outgoing:.28,incoming:.15,text:"Deal 28% more damage but receive 15% more damage."}]},
+ warpath:{name:"Warpath",levels:[{every:4,multiplier:1,text:"Every 4th word strikes again for 100% of base damage."},{every:3,multiplier:1.25,text:"Every 3rd word strikes again for 125% of base damage."},{every:3,multiplier:1.5,text:"Every 3rd word strikes again for 150% of base damage."}]},
+ healingLight:{name:"Healing Light",levels:[{length:6,heal:4,text:"Words of 6+ letters restore 4 HP."},{length:6,heal:7,text:"Words of 6+ letters restore 7 HP."},{length:5,heal:10,text:"Words of 5+ letters restore 10 HP."}]},
+ sunfire:{name:"Sunfire",levels:[{damage:2,duration:3,text:"Burn deals 2 damage for 3 monster turns."},{damage:3,duration:3,text:"Burn deals 3 damage for 3 monster turns."},{damage:5,duration:4,text:"Burn deals 5 damage for 4 monster turns."}]},
+ blindingRadiance:{name:"Blinding Radiance",levels:[{chance:.05,text:"Each word has a 5% chance to blind the monster."},{chance:.1,text:"Each word has a 10% chance to blind the monster."},{chance:.18,text:"Each word has an 18% chance to blind the monster."}]}
+};
+const roster=[
+ ["zeus","Zeus","⚡","Lightning, direct damage and shock",["thunderbolt","staticShock","stormcaller"]],
+ ["poseidon","Poseidon","🔱","Water, powerful attacks and weakening",["tidalSurge","undertow","earthshaker"]],
+ ["hades","Hades","💀","Life stealing, curses and damage over time",["soulDrain","underworldCurse","deathsDoor"]],
+ ["athena","Athena","🛡️","Shields, protection and damage reduction",["aegis","battleWisdom","calculatedStrike"]],
+ ["ares","Ares","⚔️","Aggressive attacks and additional strikes",["warCry","recklessAssault","warpath"]],
+ ["apollo","Apollo","☀️","Healing, sunlight and burning",["healingLight","sunfire","blindingRadiance"]]
 ];
-const gods=G.map(([id,name,emoji,domain,powers])=>({id,name,emoji,domain,powers:powers.map(([id,name,description])=>({id,name,description,godId:id}))}));
-// Correct godId after compact roster expansion.
-gods.forEach(g=>g.powers.forEach(p=>p.godId=g.id));
-const powerById=Object.fromEntries(gods.flatMap(g=>g.powers).map(p=>[p.id,p]));
-const godById=Object.fromEntries(gods.map(g=>[g.id,g]));
+const gods=roster.map(([id,name,emoji,domain,ids])=>({id,name,emoji,domain,powers:ids.map(powerId=>({id:powerId,godId:id,name:powerConfig[powerId].name}))}));
+const godById=Object.fromEntries(gods.map(g=>[g.id,g])),powerById=Object.fromEntries(gods.flatMap(g=>g.powers).map(p=>[p.id,p]));
 const waterWords=new Set(["ocean","river","rain","wave","sea","tide","lake","brook","stream","storm","water","shore","reef","bay","flood"]);
 const values={A:1,B:2,C:2,D:2,E:1,F:3,G:2,H:3,I:1,J:4,K:4,L:1,M:2,N:1,O:1,P:2,Q:5,R:1,S:1,T:1,U:1,V:3,W:3,X:4,Y:3,Z:5};
-const owns=(s,id)=>s.blessings.includes(id),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),vowels=w=>[...w].filter(c=>"AEIOU".includes(c));
-function initialEffects(){return{shield:0,shieldTurns:0,armour:0,nextReduction:0,dodge:0,skip:false,shock:0,shockTurns:0,burnTurns:0,poison:0,curse:0,forgedHits:0,victoryRush:false,vowelStreak:"",vowelStreakCount:0,longStreak:0,exchangeUsed:false}}
-function startEncounter(s){const e=s.effects=initialEffects();if(owns(s,"regrowth"))s.playerHp=Math.min(s.maxHp,s.playerHp+5);if(owns(s,"safeHaven")&&s.playerHp<s.maxHp*.5)s.playerHp=Math.min(s.maxHp,s.playerHp+5);if(owns(s,"divineArmour"))e.armour=5;if(owns(s,"victoryRush")&&s.justWon)e.victoryRush=true;s.encounterWords=0;s.justWon=false}
+const level=(s,id)=>powerConfig[id]?Math.max(0,Math.min(MAX_LEVEL,Number(s.blessings?.[id]||(Array.isArray(s.blessings)&&s.blessings.includes(id)?1:0))||0)):0;
+const owns=(s,id)=>level(s,id)>0,stats=(s,id)=>powerConfig[id].levels[level(s,id)-1],description=(id,lvl)=>powerConfig[id].levels[Math.max(1,Math.min(MAX_LEVEL,lvl))-1].text;
+const eligibleGods=s=>gods.filter(g=>g.powers.some(p=>level(s,p.id)<MAX_LEVEL));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),vowels=w=>[...w].filter(c=>"AEIOU".includes(c));
+function initialEffects(){return{shield:0,shieldTurns:0,nextReduction:0,skip:false,shock:0,shockTurns:0,burnTurns:0,curse:0}}
+function startEncounter(s){s.effects=initialEffects();s.encounterWords=0;s.justWon=false}
 function resolveWord(s,word,monster,rng=Math.random){
- const e=s.effects,c=s.counters,total=(c.words=(c.words||0)+1),enc=(s.encounterWords=(s.encounterWords||0)+1),counts={};[...word].forEach(x=>counts[x]=(counts[x]||0)+1);
- let base=[...word].reduce((n,x)=>n+values[x],0)+Math.max(0,word.length-3)*2,labels=[],flat=0,pct=0,extra=0,heal=0,elemental={fire:0,water:0,lightning:0};
- if(owns(s,"anvilStrike"))for(const x of word)if(counts[x]>1)base+=values[x];
- if(owns(s,"thunderbolt")){flat+=2;elemental.lightning+=2}if(owns(s,"quickWords")&&word.length<=4)flat+=4;if(owns(s,"prismaticWords")&&new Set(word).size>=5)flat+=5;
- if(owns(s,"recklessAssault"))pct+=.1;if(owns(s,"deathsDoor")&&monster.hp<monster.maxHp*.25)pct+=.25;
- if(owns(s,"openingTriumph")&&enc<=2)flat+=5;if(e.victoryRush)flat+=3;
- const rare=[...word].filter(x=>"JQXZ".includes(x)).length;if(owns(s,"calculatedStrike")&&rare){flat+=rare*2;e.nextReduction=clamp(e.nextReduction+Math.min(.2,rare*.05),0,.8);labels.push("Calculated Strike")}
- if(owns(s,"unbrokenStreak")){e.longStreak=word.length>=5?Math.min(4,e.longStreak+1):0;flat+=e.longStreak}
- if(owns(s,"spectrum")){const present=[...new Set(vowels(word))];if(e.vowelStreak&&present.includes(e.vowelStreak))e.vowelStreakCount=Math.min(3,e.vowelStreakCount+1);else{e.vowelStreak=present[0]||"";e.vowelStreakCount=e.vowelStreak?1:0}flat+=e.vowelStreakCount}
- if(owns(s,"underworldCurse"))pct+=e.curse*.02;
- if(owns(s,"warCry"))flat+=3;if(owns(s,"tidalSurge")&&total%3===0){flat+=8;elemental.water+=8;labels.push("Tidal Surge +8")}if(owns(s,"earthshaker")&&waterWords.has(word.toLowerCase())){flat+=10;elemental.water+=10;labels.push("Earthshaker +10")}
- if(owns(s,"rainbowBlessing")&&new Set(vowels(word)).size>=3)flat+=5;if(owns(s,"piercingArrow")&&total%5===0)flat+=10;if(owns(s,"nightmare")&&total%5===0){flat+=8;e.nextReduction=clamp(e.nextReduction+.1,0,.8)}
- if(owns(s,"forgedWeapon")&&total%3===0)e.forgedHits=3;if(e.forgedHits>0){flat+=5;e.forgedHits--}
- if(owns(s,"wildRevelry")&&total%2===0){const r=Math.floor(rng()*3);if(r===0)flat+=5;else if(r===1)heal+=3;else e.nextReduction=clamp(e.nextReduction+.2,0,.8);labels.push("Wild Revelry")}
- let normal=Math.max(1,Math.round(base*(1+pct)+flat)),critChance=(owns(s,"huntersInstinct")?.1:0)+(owns(s,"perfectShot")&&rare?.15:0),critical=rng()<critChance;if(critical){normal=Math.round(normal*1.5);labels.push("Critical hit!")}
- if(owns(s,"stormcaller")&&word.length>=7)extra+=base;if(owns(s,"warpath")&&total%4===0)extra+=base;
- let damage=normal+extra;if(monster.resistance&&elemental[monster.resistance]){const resisted=Math.round(elemental[monster.resistance]*(monster.resistanceRate||.5));damage=Math.max(1,damage-resisted);labels.push(monster.resistance+" resisted −"+resisted)}
- if(owns(s,"soulDrain"))heal+=Math.min(3,Math.ceil(damage*.05));if(owns(s,"healingLight")&&word.length>=6)heal+=4;if(owns(s,"harvest")&&total%5===0)heal+=10;if(owns(s,"hearthsWarmth")&&total%3===0)heal+=2;
- if(owns(s,"undertow")&&vowels(word).length>=3)e.nextReduction=clamp(e.nextReduction+.2,0,.8);if(owns(s,"battleWisdom")&&word.length>=6)e.nextReduction=clamp(e.nextReduction+.2,0,.8);if(owns(s,"confusion"))e.nextReduction=clamp(e.nextReduction+.1,0,.8);
- if(owns(s,"aegis")&&word.length>=5&&(c.aegisReady||0)<=0){e.shield=15;e.shieldTurns=3;c.aegisReady=5;labels.push("Aegis 15")}if(c.aegisReady>0)c.aegisReady--;
- if(owns(s,"staticShock")){e.shock=Math.min(5,e.shock+1);e.shockTurns=3}if(owns(s,"sunfire"))e.burnTurns=3;if(owns(s,"intoxication"))e.poison=Math.min(6,e.poison+1);if(owns(s,"underworldCurse"))e.curse=Math.min(10,e.curse+1);
- if(owns(s,"wintersGrip")&&total%4===0)e.skip=true;if(owns(s,"heavyEyelids")&&total%4===0)e.nextReduction=clamp(e.nextReduction+.5,0,.8);
- if(owns(s,"blindingRadiance")&&rng()<.05)e.skip=true;if(owns(s,"slumber")&&rng()<.02)e.skip=true;if(owns(s,"fleetfoot"))e.dodge=.1;
- s.playerHp=Math.min(s.maxHp,s.playerHp+heal);return{base,damage,heal,critical,labels,elemental};
+ const e=s.effects,c=s.counters,total=(c.words=(c.words||0)+1);s.encounterWords=(s.encounterWords||0)+1;
+ let base=[...word].reduce((n,x)=>n+values[x],0)+Math.max(0,word.length-3)*2,flat=0,pct=0,extra=0,heal=0,labels=[],elemental={fire:0,water:0,lightning:0};
+ if(owns(s,"thunderbolt")){const v=stats(s,"thunderbolt").flat;flat+=v;elemental.lightning+=v}
+ if(owns(s,"warCry"))flat+=stats(s,"warCry").flat;
+ if(owns(s,"recklessAssault"))pct+=stats(s,"recklessAssault").outgoing;
+ if(owns(s,"deathsDoor")){const v=stats(s,"deathsDoor");if(monster.hp<monster.maxHp*v.threshold)pct+=v.bonus}
+ if(owns(s,"underworldCurse"))pct+=e.curse*stats(s,"underworldCurse").rate;
+ const rare=[...word].filter(x=>"JQXZ".includes(x)).length;if(owns(s,"calculatedStrike")&&rare){const v=stats(s,"calculatedStrike");flat+=rare*v.flat;e.nextReduction=clamp(e.nextReduction+Math.min(v.cap,rare*v.reduction),0,.8);labels.push("Calculated Strike")}
+ if(owns(s,"tidalSurge")){const v=stats(s,"tidalSurge");if(total%v.every===0){flat+=v.damage;elemental.water+=v.damage;labels.push("Tidal Surge +"+v.damage)}}
+ if(owns(s,"earthshaker")&&waterWords.has(word.toLowerCase())){const v=stats(s,"earthshaker").damage;flat+=v;elemental.water+=v;labels.push("Earthshaker +"+v)}
+ if(owns(s,"stormcaller")){const v=stats(s,"stormcaller");if(word.length>=v.length){extra+=Math.round(base*v.multiplier);labels.push("Stormcaller")}}
+ if(owns(s,"warpath")){const v=stats(s,"warpath");if(total%v.every===0){extra+=Math.round(base*v.multiplier);labels.push("Warpath")}}
+ let normal=Math.max(1,Math.round(base*(1+pct)+flat)),damage=normal+extra;
+ if(monster.resistance&&elemental[monster.resistance]){const resisted=Math.round(elemental[monster.resistance]*(monster.resistanceRate||.5));damage=Math.max(1,damage-resisted);labels.push(monster.resistance+" resisted −"+resisted)}
+ if(owns(s,"soulDrain")){const v=stats(s,"soulDrain");heal+=Math.min(v.cap,Math.ceil(damage*v.rate))}
+ if(owns(s,"healingLight")){const v=stats(s,"healingLight");if(word.length>=v.length)heal+=v.heal}
+ if(owns(s,"undertow")){const v=stats(s,"undertow");if(vowels(word).length>=v.vowels)e.nextReduction=clamp(e.nextReduction+v.reduction,0,.8)}
+ if(owns(s,"battleWisdom")){const v=stats(s,"battleWisdom");if(word.length>=v.length)e.nextReduction=clamp(e.nextReduction+v.reduction,0,.8)}
+ if(owns(s,"aegis")){const v=stats(s,"aegis");if((c.aegisReady||0)>0)c.aegisReady--;if(word.length>=v.length&&(c.aegisReady||0)<=0){e.shield=v.shield;e.shieldTurns=v.duration;c.aegisReady=v.cooldown;labels.push("Aegis "+v.shield)}}
+ if(owns(s,"staticShock")){const v=stats(s,"staticShock");e.shock=Math.min(v.stacks,e.shock+1);e.shockTurns=v.duration}
+ if(owns(s,"sunfire")){const v=stats(s,"sunfire");e.burnTurns=v.duration}
+ if(owns(s,"underworldCurse")){const v=stats(s,"underworldCurse");e.curse=Math.min(v.stacks,e.curse+1)}
+ if(owns(s,"blindingRadiance")&&rng()<stats(s,"blindingRadiance").chance)e.skip=true;
+ s.playerHp=Math.min(s.maxHp,s.playerHp+heal);return{base,damage,heal,critical:false,labels,elemental};
 }
-function monsterTurn(s,rawDamage,rng=Math.random,monsterHp=Infinity){const e=s.effects,dot=(e.shockTurns?e.shock:0)+(e.burnTurns?2:0)+e.poison;let skipped=e.skip||dot>=(s.monsterHp??monsterHp)||rng()<e.dodge,damage=0,retaliate=0;if(!skipped){damage=Math.max(0,Math.round(rawDamage*(owns(s,"recklessAssault")?1.2:1)*(1-e.nextReduction)));let absorbed=Math.min(e.armour,damage);e.armour-=absorbed;damage-=absorbed;absorbed=Math.min(e.shield,damage);e.shield-=absorbed;damage-=absorbed;s.playerHp=Math.max(0,s.playerHp-damage);if(damage>0&&owns(s,"sacredFlame"))retaliate=3}e.skip=false;e.dodge=0;e.nextReduction=0;if(e.shieldTurns>0&&--e.shieldTurns===0)e.shield=0;if(e.shockTurns>0&&--e.shockTurns===0)e.shock=0;if(e.burnTurns>0)e.burnTurns--;return{dot,skipped,damage,retaliate}}
-const api={gods,godById,powerById,waterWords,values,initialEffects,startEncounter,resolveWord,monsterTurn};
+function monsterTurn(s,rawDamage,rng=Math.random,monsterHp=Infinity){
+ const e=s.effects,shock=owns(s,"staticShock")&&e.shockTurns?e.shock*stats(s,"staticShock").damage:0,burn=owns(s,"sunfire")&&e.burnTurns?stats(s,"sunfire").damage:0,dot=shock+burn;
+ let skipped=e.skip||dot>=(s.monsterHp??monsterHp),damage=0;if(!skipped){const incoming=owns(s,"recklessAssault")?1+stats(s,"recklessAssault").incoming:1;damage=Math.max(0,Math.round(rawDamage*incoming*(1-e.nextReduction)));const absorbed=Math.min(e.shield,damage);e.shield-=absorbed;damage-=absorbed;s.playerHp=Math.max(0,s.playerHp-damage)}
+ e.skip=false;e.nextReduction=0;if(e.shieldTurns>0&&--e.shieldTurns===0)e.shield=0;if(e.shockTurns>0&&--e.shockTurns===0)e.shock=0;if(e.burnTurns>0)e.burnTurns--;return{dot,skipped,damage,retaliate:0};
+}
+const api={MAX_LEVEL,powerConfig,gods,godById,powerById,waterWords,values,level,owns,stats,description,eligibleGods,initialEffects,startEncounter,resolveWord,monsterTurn};
 root.BlessingEngine=api;if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

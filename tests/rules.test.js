@@ -1,44 +1,53 @@
-const assert = require("node:assert/strict");
-const B = require("../blessings.js");
+const assert=require("node:assert/strict");
+const test=require("node:test");
+const B=require("../blessings.js");
+const C=require("../config.js");
 
-const powers = B.gods.flatMap(g => g.powers);
-assert.equal(B.gods.length, 15, "15 gods");
-assert.equal(powers.length, 45, "45 powers");
-assert.equal(new Set(powers.map(p => p.id)).size, 45, "unique power IDs");
+function stateFor(blessings={}){return{blessings,playerHp:50,maxHp:100,counters:{words:0,aegisReady:0},effects:B.initialEffects(),encounterWords:0,justWon:false}}
+const monster=(hp=100)=>({hp,maxHp:100});
 
-function stateFor(powerId) {
-  return {
-    blessings: [powerId], playerHp: 50, maxHp: 100,
-    counters: { words: 0, aegisReady: 0 }, effects: B.initialEffects(),
-    encounterWords: 0, justWon: false
-  };
-}
+test("the roster has six gods with three unique powers each",()=>{
+ assert.deepEqual(B.gods.map(g=>g.id),["zeus","poseidon","hades","athena","ares","apollo"]);
+ assert.ok(B.gods.every(g=>g.powers.length===3));
+ const powers=B.gods.flatMap(g=>g.powers);assert.equal(powers.length,18);assert.equal(new Set(powers.map(p=>p.id)).size,18);
+});
 
-// Individually exercise all 45 powers through trigger-rich words and monster turns.
-for (const power of powers) {
-  const s = stateFor(power.id);
-  B.startEncounter(s);
-  for (const word of ["OCEAN", "JAZZ", "RAINBOW", "RIVER", "LETTER", "EXAMPLE"]) {
-    const hit = B.resolveWord(s, word, { hp: 20, maxHp: 100 }, () => 0);
-    assert.ok(Number.isFinite(hit.damage) && hit.damage >= 1, power.id + " valid damage");
-    const turn = B.monsterTurn(s, 10, () => 0.99, 100);
-    assert.ok(Number.isFinite(turn.damage) && turn.damage >= 0, power.id + " valid defence");
-  }
-  assert.ok(s.playerHp >= 0 && s.playerHp <= s.maxHp, power.id + " valid health");
-}
+test("every power has three centrally configured levels",()=>{
+ Object.values(B.powerConfig).forEach(power=>assert.equal(power.levels.length,3,power.name));
+});
 
-let s = stateFor("warCry");
-assert.equal(B.resolveWord(s, "CAT", { hp: 100, maxHp: 100 }, () => .99).damage, 9);
-s = stateFor("earthshaker");
-assert.equal(B.resolveWord(s, "OCEAN", { hp: 100, maxHp: 100 }, () => .99).damage, 20);
-s = stateFor("divineArmour");
-B.startEncounter(s);
-assert.equal(B.monsterTurn(s, 8, () => .99).damage, 3);
-s = stateFor("staticShock");
-B.resolveWord(s, "CAT", { hp: 100, maxHp: 100 }, () => .99);
-assert.equal(B.monsterTurn(s, 5, () => .99).dot, 1);
-s = stateFor("wintersGrip");
-for (let i = 0; i < 4; i++) B.resolveWord(s, "WORDS", { hp: 100, maxHp: 100 }, () => .99);
-assert.equal(B.monsterTurn(s, 10, () => .99).skipped, true);
+test("Thunderbolt upgrades replace rather than stack",()=>{
+ assert.equal(B.resolveWord(stateFor({thunderbolt:1}),"CAT",monster(),()=>.99).damage,6);
+ assert.equal(B.resolveWord(stateFor({thunderbolt:2}),"CAT",monster(),()=>.99).damage,9);
+ assert.equal(B.resolveWord(stateFor({thunderbolt:3}),"CAT",monster(),()=>.99).damage,13);
+});
 
-console.log("All 45 blessing smoke tests and focused rule checks passed.");
+test("same-god and cross-god powers combine",()=>{
+ const same=B.resolveWord(stateFor({thunderbolt:2,stormcaller:1}),"EXAMPLE",monster(),()=>.99);
+ assert.ok(same.damage>9);
+ const mixed=B.resolveWord(stateFor({thunderbolt:1,warCry:1}),"CAT",monster(),()=>.99);
+ assert.equal(mixed.damage,9);
+});
+
+test("level three powers are no longer eligible",()=>{
+ const maxed={};B.gods[0].powers.forEach(p=>maxed[p.id]=3);
+ assert.ok(!B.eligibleGods(stateFor(maxed)).some(g=>g.id==="zeus"));
+ B.gods.slice(1).flatMap(g=>g.powers).forEach(p=>maxed[p.id]=3);
+ assert.equal(B.eligibleGods(stateFor(maxed)).length,0);
+});
+
+test("healing, shields, damage over time and defence use current levels",()=>{
+ let s=stateFor({healingLight:3});s.playerHp=20;assert.equal(B.resolveWord(s,"WORDS",monster(),()=>.99).heal,10);
+ s=stateFor({aegis:3});B.resolveWord(s,"WORDS",monster(),()=>.99);assert.equal(s.effects.shield,30);
+ s=stateFor({staticShock:2,sunfire:2});B.resolveWord(s,"CAT",monster(),()=>.99);assert.equal(B.monsterTurn(s,0,()=>.99).dot,5);
+ s=stateFor({battleWisdom:3});B.resolveWord(s,"WORDS",monster(),()=>.99);assert.equal(B.monsterTurn(s,10,()=>.99).damage,6);
+});
+
+test("legacy blessing arrays remain readable as level one",()=>{
+ const s=stateFor(["warCry","quickWords"]);assert.equal(B.level(s,"warCry"),1);assert.equal(B.level(s,"quickWords"),0);
+});
+
+test("core campaign balance remains unchanged",()=>{
+ assert.equal(C.startingHp,50);assert.equal(C.obolReward,10);assert.equal(C.maxHpReward,50);
+ assert.deepEqual(C.encounterBands.map(x=>x.bossHp),[55,90,145,220,350]);
+});

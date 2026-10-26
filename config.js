@@ -1,5 +1,5 @@
 const GameConfig=Object.freeze({
-  saveVersion:3,
+  saveVersion:4,
   startingHp:50,
   obolReward:10,
   maxHpReward:50,
