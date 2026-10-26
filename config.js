@@ -8,6 +8,13 @@ const GameConfig=Object.freeze({
   cyclopsChargeMultiplier:2,
   petrifiedTileCount:2,
   petrifiedWordTurns:2,
+  stages:[
+    {name:"Coast of Greece",background:"assets/backgrounds/stage-1-coast.png"},
+    {name:"The Aegean Sea",background:"assets/backgrounds/stage-2-aegean.png"},
+    {name:"Mount Olympus",background:"assets/backgrounds/stage-3-olympus.png"},
+    {name:"The Underworld",background:"assets/backgrounds/stage-4-underworld.png"},
+    {name:"Tartarus",background:"assets/backgrounds/stage-5-tartarus.png"}
+  ],
   encounterBands:[
     {regularHp:[20,35],regularDamage:[2,4],bossHp:55,bossDamage:5},
     {regularHp:[40,65],regularDamage:[4,6],bossHp:90,bossDamage:7},
