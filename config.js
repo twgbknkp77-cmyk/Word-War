@@ -8,6 +8,8 @@ const GameConfig=Object.freeze({
   cyclopsChargeMultiplier:2,
   petrifiedTileCount:2,
   petrifiedWordTurns:2,
+  updateTileSelection(selection,index){const position=selection.indexOf(index);return position>=0?selection.slice(0,position):[...selection,index]},
+  chooseRewardCategories(hasAvailableBlessing,random=Math.random){const choices=["obols","health"];if(hasAvailableBlessing)choices.push("blessing");for(let i=choices.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]]}return choices.slice(0,2)},
   stages:[
     {name:"Coast of Greece",background:"assets/backgrounds/stage-1-coast.png"},
     {name:"The Aegean Sea",background:"assets/backgrounds/stage-2-aegean.png"},
