@@ -1,17 +1,927 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#183458"><meta name="color-scheme" content="light"><meta name="apple-mobile-web-app-capable" content="yes"><title>Word Odyssey</title><link rel="stylesheet" href="style.css?v=44"></head>
-<body><main class="game" aria-label="Word Odyssey spelling battle">
-<section id="battle" class="battle" aria-label="Battlefield">
- <header class="run-header"><span id="tier-label">Awaiting a blessing</span><span id="journey-label">0 / 25 defeated</span><span id="game-obols">🪙 0</span><button id="restart-run" type="button">Menu</button></header>
- <section class="player-panel" aria-label="Player health"><strong>You</strong><div class="health"><i id="player-bar"></i></div><span>HP <b id="player-hp">100</b> / <b id="player-max">100</b></span><div id="player-effects" class="effect-strip"></div></section>
- <section class="enemy-panel" aria-label="Current enemy"><h1 id="enemy-name">Choose your first blessing</h1><div class="health enemy-health"><i id="enemy-bar"></i></div><span>HP <b id="enemy-hp">—</b> / <b id="enemy-max">—</b></span><div id="enemy-effects" class="effect-strip"></div><div id="enemy-emoji" class="enemy-emoji" aria-hidden="true">🏛️</div></section>
- <div id="battle-banner" class="battle-banner" role="status" aria-live="assertive"></div><div id="stage-transition" class="stage-transition" role="status" aria-live="polite"></div>
- <button id="drawer-toggle" class="drawer-toggle" type="button" aria-expanded="false" aria-controls="blessing-drawer"><span>✨</span><b id="blessing-count">0</b><span class="sr-only">Show Divine Blessings</span></button>
- <button id="drawer-scrim" class="drawer-scrim" type="button" aria-label="Close Divine Blessings" hidden></button>
- <aside id="blessing-drawer" class="god-drawer" aria-label="Divine Blessings" aria-hidden="true"><div class="drawer-heading"><div><small>Permanent this run</small><h2>Divine Blessings</h2></div><button id="drawer-close" type="button" aria-label="Close Divine Blessings">×</button></div><div id="blessing-list" class="blessing-list"></div></aside>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="theme-color" content="#121212">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Spot">
+
+  <title>Spot</title>
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+
+  <!-- MAIN STYLESHEET -->
+  <link rel="stylesheet" href="style.css?v=39">
+</head>
+
+<body>
+
+  <!-- APP LOADING SCREEN -->
+  <div id="splashScreen" class="splash-screen" aria-label="Spot is loading">
+    <img src="icons/spot-icon-192.png" alt="" width="96" height="96">
+    <strong>Spot</strong>
+    <span class="splash-loader" aria-hidden="true"></span>
+  </div>
+
+  <!-- FIRST-USE APP GUIDE -->
+  <div id="onboardingOverlay" class="onboarding-overlay" hidden>
+    <section
+      class="onboarding-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="onboardingTitle"
+    >
+      <button type="button" id="skipOnboarding" class="onboarding-skip">
+        Skip
+      </button>
+
+      <div class="onboarding-slides">
+        <article class="onboarding-slide active" data-onboarding-slide="0">
+          <img src="icons/spot-icon-192.png" alt="" width="88" height="88">
+          <p class="onboarding-eyebrow">Welcome</p>
+          <h1 id="onboardingTitle">Meet Spot</h1>
+          <p>Build your training plan, record every session and see your progress in one place.</p>
+        </article>
+
+        <article class="onboarding-slide" data-onboarding-slide="1" hidden>
+          <span class="onboarding-symbol" aria-hidden="true">
+            <svg><use href="#icon-library"></use></svg>
+          </span>
+          <p class="onboarding-eyebrow">Plan</p>
+          <h1>Create your programme</h1>
+          <p>Use Library to create flexible training weeks, add strength or cardio exercises and arrange your days.</p>
+        </article>
+
+        <article class="onboarding-slide" data-onboarding-slide="2" hidden>
+          <span class="onboarding-symbol" aria-hidden="true">
+            <svg><use href="#icon-progress"></use></svg>
+          </span>
+          <p class="onboarding-eyebrow">Train</p>
+          <h1>Follow what is next</h1>
+          <p>Start the next workout, enter each result and finish it to move it into your history.</p>
+        </article>
+
+        <article class="onboarding-slide" data-onboarding-slide="3" hidden>
+          <span class="onboarding-symbol" aria-hidden="true">
+            <svg><use href="#icon-profile"></use></svg>
+          </span>
+          <p class="onboarding-eyebrow">Progress</p>
+          <h1>Make Spot yours</h1>
+          <p>Set bodyweight and exercise goals, track progress and save a backup from your Profile.</p>
+        </article>
+      </div>
+
+      <div id="onboardingDots" class="onboarding-dots" aria-hidden="true"></div>
+
+      <div class="onboarding-actions">
+        <button type="button" id="onboardingBack">Back</button>
+        <button type="button" id="onboardingNext" class="primary-button">Next</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- SHARED OUTLINE ICONS -->
+  <svg class="icon-sprite" aria-hidden="true">
+    <symbol id="icon-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+    <symbol id="icon-progress" viewBox="0 0 24 24"><rect x="3" y="14" width="4" height="7" rx="1" fill="currentColor" stroke="none"/><rect x="10" y="9" width="4" height="12" rx="1" fill="currentColor" stroke="none"/><rect x="17" y="4" width="4" height="17" rx="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="icon-library" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v18M11 8h6M11 12h6M11 16h5"/></symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24"><path d="m4 20 4.2-1 10.9-10.9a2.1 2.1 0 0 0-3-3L5.2 16Z"/><path d="m14.8 6.4 2.8 2.8"/></symbol>
+    <symbol id="icon-profile" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="icon-filter" viewBox="0 0 24 24"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></symbol>
+    <symbol id="icon-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="icon-arrow-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  </svg>
+
+  <main>
+
+    <!-- DASHBOARD PAGE -->
+    <section id="dashboard" class="page active">
+
+      <div class="page-header"><h1>Dashboard</h1></div>
+
+      <!-- WEEKLY PROGRESS AND NEXT WORKOUT -->
+      <div class="card dashboard-status-card">
+        <div class="weekly-progress-heading">
+          <h2>This Week</h2>
+          <strong id="weeklyProgressCount">0/0</strong>
+        </div>
+
+        <div class="progress-track weekly-progress-track">
+          <div id="weeklyProgressFill" class="progress-fill"></div>
+        </div>
+
+        <div class="dashboard-next-row">
+          <button
+            type="button"
+            id="dashboardViewWorkout"
+            class="next-workout-copy"
+            aria-label="View next workout"
+          >
+            <span>Next Up</span>
+            <strong id="nextWorkoutName">No workout scheduled</strong>
+          </button>
+
+          <button
+            type="button"
+            id="dashboardStartWorkout"
+            class="next-workout-start"
+            hidden
+          >
+            Start
+          </button>
+        </div>
+      </div>
+
+      <!-- BODYWEIGHT -->
+<div class="card bodyweight-card">
+
+<!-- BODYWEIGHT HEADING AND FILTER -->
+<div class="bodyweight-header">
+
+  <div class="bodyweight-title">
+    <span>Bodyweight</span>
+    <strong id="currentWeight">-- kg</strong>
+  </div>
+
+  <div class="bodyweight-actions">
+  <div class="weight-filter-control">
+
+    <button
+      type="button"
+      id="toggleWeightFilters"
+      aria-expanded="false"
+      aria-controls="weightFilterOptions"
+    >
+      <svg aria-hidden="true"><use href="#icon-filter"></use></svg>
+      <span class="sr-only">Filter weight graph</span>
+    </button>
+
+    <div
+      id="weightFilterOptions"
+      class="weight-filters"
+      hidden
+    >
+      <button type="button" data-days="7">
+        7 Days
+      </button>
+
+      <button
+        type="button"
+        data-days="30"
+        class="active"
+      >
+        30 Days
+      </button>
+
+      <button type="button" data-days="90">
+        3 Months
+      </button>
+
+      <button type="button" data-days="180">
+        6 Months
+      </button>
+
+      <button type="button" data-days="365">
+        1 Year
+      </button>
+
+      <button type="button" data-days="all">
+        All Time
+      </button>
+    </div>
+
+  </div>
+
+    <button type="button" id="openWeightModal" class="icon-button" aria-label="Add weight">
+      <svg aria-hidden="true"><use href="#icon-plus"></use></svg>
+    </button>
+
+  </div>
+
+</div>
+
+  <!-- BODYWEIGHT GRAPH -->
+  <div id="weightChart"></div>
+
+  <button
+    type="button"
+    class="bodyweight-measurements-link"
+    onclick="renderMeasurements(); showPage('measurements')"
+  >
+    View Measurements
+    <svg aria-hidden="true"><use href="#icon-arrow-right"></use></svg>
+  </button>
+
+    <p id="weightMessage" aria-live="polite"></p>
+
+</div>
+
+<!-- EXERCISE PROGRESS -->
+<div class="card goal-progress-card">
+  <h2>Exercise Progress</h2>
+  <div class="progress-chart-filters">
+    <select id="progressExerciseFilter" aria-label="Exercise"></select>
+    <select id="progressMetricFilter" aria-label="Metric"><option value="weight">Weight</option><option value="reps">Reps</option><option value="effort">Effort</option></select>
+    <select id="progressScopeFilter" aria-label="Scope"><option value="current">Current Block</option><option value="all">All Time</option></select>
+  </div>
+  <div id="exerciseProgressChart"></div>
+</div>
+
+<!-- ADD WEIGHT POP-UP -->
+<dialog id="weightModal" aria-labelledby="weightModalTitle">
+
+  <h2 id="weightModalTitle" tabindex="-1" autofocus>Add Weight</h2>
+
+  <form id="weightForm">
+
+    <!-- DATE -->
+    <label for="weightDate">Date</label>
+    <input
+      type="date"
+      id="weightDate"
+      required
+    >
+
+    <!-- WEIGHT SELECTOR -->
+   <label for="weightInput">Weight (kg)</label>
+
+    <input
+        type="number"
+        id="weightInput"
+        inputmode="decimal"
+        min="20"
+        max="300"
+        step="0.1"
+        placeholder="e.g. 87.5"
+        required
+>
+
+    <p id="weightFormMessage" class="form-message" aria-live="polite"></p>
+
+    <!-- ACTION BUTTONS -->
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        id="cancelWeightModal"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="submit"
+        class="primary-button"
+      >
+        Save Weight
+      </button>
+
+    </div>
+
+  </form>
+
+</dialog>
+
 </section>
-<section class="play-panel"><div class="word-panel"><span id="word">Choose letters</span><span id="damage">0 damage</span><button id="clear-selection" class="clear-selection" type="button" aria-label="Clear selected letters" hidden>×</button></div><div id="grid" class="grid" aria-label="Letter grid"></div><div class="controls"><button id="shuffle" class="shuffle" type="button">Shuffle</button><button id="exchange" class="exchange" type="button" hidden>Exchange 3</button><button id="attack" class="attack" type="button">Attack</button></div><p id="message" class="message" aria-live="polite">Choose your first blessing to begin.</p></section>
-<div id="choice-modal" class="end-modal" hidden><section class="choice-card" role="dialog" aria-modal="true" aria-labelledby="choice-title"><div class="choice-kicker">Divine Blessing</div><h2 id="choice-title">Choose a patron</h2><p id="choice-copy">Choose one of two gods.</p><div id="choice-options" class="choice-options"></div></section></div>
-<div id="end-modal" class="end-modal" hidden><section class="end-card" role="dialog" aria-modal="true" aria-labelledby="end-title"><div id="end-emoji" class="end-emoji">🏛️</div><h2 id="end-title"></h2><p id="end-copy"></p><p id="end-stats" class="end-stats"></p><button id="new-run" type="button">Begin a new odyssey</button></section></div>
-<div id="main-menu" class="main-menu"><section class="menu-card"><div class="menu-mark">🏛️</div><p class="menu-kicker">A Greek Mythology Word Roguelike</p><h1>WORD ODYSSEY</h1><p id="menu-obols" class="menu-obols">🪙 0 Obols</p><button id="play-button" type="button">PLAY</button><button id="restart-button" type="button" hidden>RESTART GAME</button><button id="shop-button" type="button">SHOP <small>Coming Soon</small></button><p id="shop-message" class="shop-message" aria-live="polite"></p></section></div>
-<div id="restart-modal" class="end-modal" hidden><section class="end-card" role="dialog" aria-modal="true" aria-labelledby="restart-title"><div class="end-emoji">↻</div><h2 id="restart-title">Restart this run?</h2><p>Your current encounter, blessings, health upgrades and combat progress will be lost. Permanent Obols will be kept.</p><div class="confirm-actions"><button id="cancel-restart" type="button">Keep Playing</button><button id="confirm-restart" class="danger-button" type="button">Restart Game</button></div></section></div>
-</main><script src="config.js?v=4"></script><script src="blessings.js?v=3"></script><script src="game.js?v=47"></script></body></html>
+<!-- END DASHBOARD PAGE -->
+
+<!-- MEASUREMENTS PAGE -->
+<section id="measurements" class="page">
+  <div class="page-header measurements-header">
+    <button type="button" class="icon-button" onclick="showPage('dashboard')" aria-label="Back to dashboard">
+      <svg aria-hidden="true"><use href="#icon-arrow-left"></use></svg>
+    </button>
+    <h1>Measurements</h1>
+  </div>
+
+  <div id="measurementsList"></div>
+</section>
+
+<!-- EDIT MEASUREMENT POP-UP -->
+<dialog
+  id="editMeasurementModal"
+  aria-labelledby="editMeasurementTitle"
+>
+  <h2 id="editMeasurementTitle">Edit Measurement</h2>
+
+  <form id="editMeasurementForm">
+    <input type="hidden" id="editMeasurementId">
+
+    <label for="editMeasurementDate">Date</label>
+    <input type="date" id="editMeasurementDate" required>
+
+    <label for="editMeasurementWeight">Weight (kg)</label>
+    <input
+      type="number"
+      id="editMeasurementWeight"
+      inputmode="decimal"
+      min="20"
+      max="300"
+      step="0.1"
+      required
+    >
+
+    <div class="modal-actions">
+      <button type="button" id="cancelMeasurementEdit">
+        Cancel
+      </button>
+
+      <button type="submit" class="primary-button">
+        Save Changes
+      </button>
+    </div>
+  </form>
+</dialog>
+
+
+    <!-- WORKOUTS PAGE -->
+<section id="workouts" class="page">
+  <div class="page-header">
+    <h1>Workouts</h1>
+    <button type="button" class="icon-button" onclick="renderWorkoutHistory(); showPage('workoutHistory')" aria-label="View workout history">
+      <svg aria-hidden="true"><use href="#icon-history"></use></svg>
+    </button>
+  </div>
+
+  <div id="activeWorkout">
+    <p>No active programme selected.</p>
+  </div>
+</section>
+
+      <!-- LIBRARY PAGE -->
+<section id="library" class="page">
+
+  <div class="page-header">
+    <h1>Library</h1>
+    <button type="button" class="icon-button" id="createProgramme" aria-label="Create programme">
+      <svg aria-hidden="true"><use href="#icon-plus"></use></svg>
+    </button>
+  </div>
+
+  <h2>My Programmes</h2>
+<div id="programmeLibrary">
+  <!-- Saved programmes will appear here -->
+</div>
+
+</section>
+
+<!-- PROGRAMME EDITOR PAGE -->
+<section id="programmeEditor" class="page">
+  <div class="page-header editor-page-header">
+    <button type="button" class="icon-button" id="programmeEditorBack" aria-label="Back to library">
+      <svg aria-hidden="true"><use href="#icon-arrow-left"></use></svg>
+    </button>
+    <h1>Programme Editor</h1>
+  </div>
+
+  <div id="editorProgrammeHeader"></div>
+
+  <div id="editorWorkouts">
+    <!-- Workouts and exercises will appear here -->
+  </div>
+
+  <button
+    type="button"
+    id="addWorkout"
+    class="primary-button"
+  >
+    + Add Training Day
+  </button>
+
+  <button type="button" id="saveProgramme" class="primary-button editor-save-programme">
+    Save Programme
+  </button>
+
+</section>
+
+<!-- WORKOUT SESSION PAGE -->
+<section id="workoutSession" class="page">
+  <div class="session-header">
+    <button type="button" id="cancelWorkout" class="icon-button" aria-label="Back"><svg aria-hidden="true"><use href="#icon-arrow-left"></use></svg></button>
+    <div>
+      <h1 id="sessionWorkoutName">Workout Session</h1>
+      <p id="sessionProgrammeName"></p>
+    </div>
+  </div>
+
+  <!-- EXERCISES AND SETS -->
+  <div id="sessionExercises">
+    <!-- Exercises will appear here automatically -->
+  </div>
+
+  <div class="session-action-bar">
+    <p id="sessionProgress" hidden>0 results recorded</p>
+    <button type="button" id="finishWorkout" class="primary-button">Finish Workout</button>
+  </div>
+
+</section>
+<!-- END WORKOUT SESSION -->
+
+<dialog id="discardWorkoutDialog" class="decision-dialog" aria-labelledby="discardWorkoutTitle">
+  <h2 id="discardWorkoutTitle">Leave this workout?</h2>
+  <div class="decision-dialog-actions stacked-dialog-actions workout-exit-actions">
+    <button type="button" id="saveAndExitWorkout" class="primary-button">Save &amp; Exit</button>
+    <button type="button" id="keepWorkoutSession">Continue</button>
+    <button type="button" id="confirmDiscardWorkout" class="danger-button">Discard</button>
+  </div>
+</dialog>
+
+<dialog id="resumeWorkoutDialog" class="decision-dialog" aria-labelledby="resumeWorkoutTitle">
+  <h2 id="resumeWorkoutTitle">Resume your workout?</h2>
+  <p>A workout in progress was saved on this device.</p>
+  <div class="decision-dialog-actions stacked-dialog-actions">
+    <button type="button" id="discardSavedWorkout" class="danger-button">Discard</button>
+    <button type="button" id="resumeSavedWorkout" class="primary-button">Resume Workout</button>
+  </div>
+</dialog>
+
+<!-- WORKOUT HISTORY PAGE -->
+<section id="workoutHistory" class="page">
+
+  <div class="page-header history-header">
+    <button type="button" class="icon-button" id="workoutHistoryBack" onclick="showPage('workouts')" aria-label="Back to Workouts">
+      <svg aria-hidden="true"><use href="#icon-arrow-left"></use></svg>
+    </button>
+    <h1>Workout History</h1>
+  </div>
+
+  <div class="card" id="workoutHistoryIntro">
+    <h2>Completed Workouts</h2>
+    <p>Your previous training sessions are saved here.</p>
+  </div>
+
+  <div id="workoutHistoryList">
+    <!-- Saved workouts will appear here -->
+  </div>
+
+</section>
+
+<!-- PROFILE PAGE -->
+<section id="profile" class="page">
+  <div class="page-header"><h1>Profile</h1></div>
+
+  <details class="card profile-editor-card" id="bodyweightGoalEditor">
+  <summary>
+    <span class="profile-summary-copy">
+      <span>Bodyweight Goal</span>
+      <small id="bodyweightGoalMessage" aria-live="polite"></small>
+    </span>
+    <svg class="summary-action-icon" aria-hidden="true"><use href="#icon-edit"></use></svg>
+  </summary>
+
+  <label for="goalBodyweight">
+    Target bodyweight (kg)
+  </label>
+
+  <input
+    type="number"
+    id="goalBodyweight"
+    inputmode="decimal"
+    min="20"
+    max="300"
+    step="0.1"
+    placeholder="e.g. 80"
+  >
+
+  <label for="goalBodyweightDate">
+    Target date
+  </label>
+
+  <input
+    type="date"
+    id="goalBodyweightDate"
+  >
+
+  <div class="editor-actions">
+    <button type="button" id="cancelBodyweightGoal">Cancel</button>
+    <button type="button" id="saveBodyweightGoal" class="primary-button">Done</button>
+  </div>
+
+</details>
+
+  <details class="card profile-editor-card" id="exerciseGoalEditor">
+  <summary>
+    <span>Exercise Goals</span>
+    <svg class="summary-action-icon" aria-hidden="true"><use href="#icon-edit"></use></svg>
+  </summary>
+
+  <label for="exerciseGoalName">
+    Exercise
+  </label>
+
+  <input
+    type="text"
+    id="exerciseGoalName"
+    placeholder="e.g. Bench Press"
+    autocomplete="off"
+  >
+
+  <label for="exerciseGoalWeight">
+    Target weight (kg)
+  </label>
+
+  <input
+    type="number"
+    id="exerciseGoalWeight"
+    inputmode="decimal"
+    min="0"
+    step="0.5"
+    placeholder="e.g. 100"
+  >
+
+  <div class="editor-actions">
+    <button type="button" id="cancelExerciseGoal">Cancel</button>
+    <button type="button" id="addExerciseGoal" class="primary-button">Done</button>
+  </div>
+
+  </details>
+
+<div id="exerciseGoalsList">
+  <!-- Saved exercise goals will appear here -->
+</div>
+
+<div class="card data-backup-card">
+  <div>
+    <h2>Backup &amp; Restore</h2>
+    <p>Save a copy of your programmes, workout history, weight entries and goals.</p>
+  </div>
+
+  <div class="data-actions">
+    <button type="button" id="downloadBackup" class="primary-button">
+      Save Backup
+    </button>
+    <button type="button" id="chooseBackupFile">
+      Restore Backup
+    </button>
+  </div>
+
+  <input
+    type="file"
+    id="backupFileInput"
+    accept=".json,application/json"
+    hidden
+  >
+  <p id="backupMessage" aria-live="polite"></p>
+</div>
+
+<button type="button" id="openOnboardingGuide" class="profile-guide-button">
+  View App Guide
+</button>
+
+</section>
+<!-- END PROFILE PAGE -->
+
+<!-- ADD OR EDIT EXERCISE POP-UP -->
+<dialog id="exerciseDialog" aria-labelledby="exerciseDialogTitle">
+  <form id="exerciseForm">
+    <h2 id="exerciseDialogTitle">Add Exercise</h2>
+    <input type="hidden" id="exerciseDialogWorkoutId">
+    <input type="hidden" id="exerciseDialogExerciseId">
+
+    <label for="exerciseTypeInput">Exercise type</label>
+    <select id="exerciseTypeInput">
+      <option value="strength">Strength</option>
+      <option value="cardio">Cardio</option>
+    </select>
+
+    <label for="exerciseNameInput" id="exerciseNameLabel">Exercise name</label>
+    <input type="text" id="exerciseNameInput" placeholder="e.g. Bench Press" autocomplete="off" required>
+
+    <div id="strengthExerciseFields" class="exercise-type-fields">
+    <div class="exercise-form-grid">
+      <div>
+        <label for="exerciseSetsInput">Sets</label>
+        <input type="number" id="exerciseSetsInput" inputmode="numeric" min="1" value="3" required>
+      </div>
+      <div>
+        <label for="exerciseRepsInput">Reps</label>
+        <input
+          type="text"
+          id="exerciseRepsInput"
+          value="10"
+          placeholder="8-10 or 10"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          required
+        >
+      </div>
+    </div>
+
+    <label for="exerciseWeightInput">Target weight</label>
+    <input type="number" id="exerciseWeightInput" inputmode="decimal" min="0" step="0.5" placeholder="e.g. 50 kg">
+    </div>
+
+    <div id="cardioExerciseFields" class="exercise-type-fields" hidden>
+      <label for="exerciseDurationInput">Target time (minutes)</label>
+      <input type="number" id="exerciseDurationInput" inputmode="numeric" min="1" step="1" placeholder="e.g. 30">
+    </div>
+
+    <label for="exerciseNoteInput" id="exerciseNoteLabel">Notes</label>
+    <textarea
+      id="exerciseNoteInput"
+      rows="3"
+      maxlength="500"
+      placeholder="e.g. Slow lowering and keep elbows tucked"
+    ></textarea>
+
+    <div class="modal-actions">
+      <button type="button" id="cancelExerciseDialog">Cancel</button>
+      <button type="submit" class="primary-button">Save Exercise</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="programmeExitDialog" class="decision-dialog" aria-labelledby="programmeExitTitle">
+  <h2 id="programmeExitTitle">Leave this new programme?</h2>
+  <p>You can save it as a draft and finish it later, or discard it.</p>
+  <div class="programme-exit-actions">
+    <button type="button" id="cancelProgrammeExit">Cancel</button>
+    <button type="button" id="discardProgrammeDraft" class="danger-button">Discard</button>
+    <button type="button" id="saveProgrammeDraft" class="primary-button">Save Draft</button>
+  </div>
+</dialog>
+
+<dialog id="spotDialog" class="decision-dialog" aria-labelledby="spotDialogTitle">
+  <h2 id="spotDialogTitle">Are you sure?</h2>
+  <p id="spotDialogMessage"></p>
+  <div class="decision-dialog-actions">
+    <button type="button" id="spotDialogCancel">Cancel</button>
+    <button type="button" id="spotDialogConfirm" class="primary-button">OK</button>
+  </div>
+</dialog>
+
+<!-- WEEK UPDATE CHOICE -->
+<dialog id="weekScopeDialog" aria-labelledby="weekScopeTitle">
+  <h2 id="weekScopeTitle">Where should this change apply?</h2>
+  <p>Choose where you want to save this programme change.</p>
+  <div class="week-scope-actions">
+    <button type="button" data-week-scope="current">This Week Only</button>
+    <button type="button" data-week-scope="future" class="primary-button">All Upcoming Weeks</button>
+    <button type="button" data-week-scope="cancel">Cancel</button>
+  </div>
+</dialog>
+
+<!-- PROGRAMME ACTIVATION CHOICE -->
+<dialog id="activationDialog" aria-labelledby="activationDialogTitle">
+  <h2 id="activationDialogTitle">Activate programme?</h2>
+  <p id="activationDialogMessage">Choose how you want to begin.</p>
+  <div class="activation-dialog-actions">
+    <button type="button" id="activateFromStart" class="primary-button">
+      Start from Week 1
+    </button>
+    <button type="button" id="activateContinue">
+      Continue
+    </button>
+    <button type="button" id="cancelActivation">
+      Cancel
+    </button>
+  </div>
+</dialog>
+
+</main>
+
+<!-- BOTTOM NAVIGATION -->
+<nav>
+
+    <button
+      id="dashboardButton"
+      class="active"
+      onclick="showPage('dashboard')">
+      <svg aria-hidden="true"><use href="#icon-dashboard"></use></svg><span class="sr-only">Dashboard</span>
+    </button>
+
+    <button
+      id="workoutsButton"
+      onclick="showPage('workouts')">
+      <svg aria-hidden="true"><use href="#icon-progress"></use></svg><span class="sr-only">Workouts</span>
+    </button>
+
+    <button
+      id="libraryButton"
+      onclick="showPage('library')">
+      <svg aria-hidden="true"><use href="#icon-library"></use></svg><span class="sr-only">Library</span>
+    </button>
+    <button
+      id="profileButton"
+      onclick="showPage('profile')">
+      <svg aria-hidden="true"><use href="#icon-profile"></use></svg><span class="sr-only">Profile</span>
+    </button>
+
+</nav>
+
+
+  <!-- NAVIGATION FUNCTION -->
+  <script>
+
+    const pagePositions = {
+      dashboard: 0,
+      workouts: 1,
+      workoutSession: 1.5,
+      library: 2,
+      programmeEditor: 2.5,
+      workoutHistory: 2.5,
+      profile: 3,
+      measurements: 3.5
+    };
+
+    let pageTransitionTimer = null;
+
+    function showPage(pageId) {
+
+  clearTimeout(pageTransitionTimer);
+
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove(
+      "is-entering",
+      "page-enter-left",
+      "page-enter-right",
+      "page-enter-forward",
+      "page-enter-back",
+      "page-enter-pop"
+    );
+  });
+
+  const previousPage = document.querySelector(".page.active");
+  const selectedPage = document.getElementById(pageId);
+
+  if (!selectedPage) return;
+
+  const previousPageId = previousPage?.id || "dashboard";
+  const previousPosition = pagePositions[previousPageId] ?? 0;
+  const nextPosition = pagePositions[pageId] ?? previousPosition;
+
+  if (previousPage && previousPage !== selectedPage) {
+    const movingForward = nextPosition >= previousPosition;
+
+    document.querySelectorAll(".page").forEach(page => {
+      page.classList.remove("active");
+    });
+
+    selectedPage.classList.add(
+      "active",
+      "is-entering",
+      movingForward ? "page-enter-right" : "page-enter-left"
+    );
+
+    pageTransitionTimer = setTimeout(() => {
+      selectedPage.classList.remove(
+        "is-entering",
+        "page-enter-left",
+        "page-enter-right"
+      );
+    }, 240);
+  } else {
+    document.querySelectorAll(".page").forEach(page => {
+      if (page !== selectedPage) page.classList.remove("active");
+    });
+    selectedPage.classList.add("active");
+  }
+
+  // Remove navigation highlights
+  document.querySelectorAll("nav button").forEach(button => {
+    button.classList.remove("active");
+  });
+
+  // Highlight navigation button, if one exists
+  const navButton = document.getElementById(pageId + "Button");
+
+    if (navButton) {
+    navButton.classList.add("active");
+  }
+
+  document.body.classList.toggle(
+    "session-active",
+    pageId === "workoutSession"
+  );
+
+  if (
+    pageId === "dashboard" &&
+    typeof updateDashboard === "function"
+  ) {
+    updateDashboard();
+  }
+
+  if (
+    pageId === "measurements" &&
+    typeof renderMeasurements === "function"
+  ) {
+    renderMeasurements();
+  }
+
+  if (pageId === "profile") {
+    if (typeof renderBodyweightGoal === "function") {
+      renderBodyweightGoal();
+    }
+
+    if (typeof renderExerciseGoals === "function") {
+      renderExerciseGoals();
+    }
+
+    if (typeof populateExerciseSuggestions === "function") {
+      populateExerciseSuggestions();
+    }
+  }
+
+}
+
+  const mainPageOrder = ["dashboard", "workouts", "library", "profile"];
+  let swipeStartX = 0;
+  let swipeStartY = 0;
+
+  document.addEventListener("touchstart", event => {
+    if (
+      event.touches.length !== 1 ||
+      event.target.closest("input, select, textarea, dialog, .overflow-menu")
+    ) {
+      return;
+    }
+
+    swipeStartX = event.touches[0].clientX;
+    swipeStartY = event.touches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener("touchend", event => {
+    if (!swipeStartX || !event.changedTouches.length) return;
+
+    const endX = event.changedTouches[0].clientX;
+    const endY = event.changedTouches[0].clientY;
+    const distanceX = endX - swipeStartX;
+    const distanceY = endY - swipeStartY;
+    const startedAtEdge =
+      swipeStartX < 24 ||
+      swipeStartX > window.innerWidth - 24;
+
+    swipeStartX = 0;
+    swipeStartY = 0;
+
+    if (
+      startedAtEdge ||
+      Math.abs(distanceX) < 55 ||
+      Math.abs(distanceX) <= Math.abs(distanceY) * 1.2
+    ) {
+      return;
+    }
+
+    const activePageId = document.querySelector(".page.active")?.id;
+    const currentIndex = mainPageOrder.indexOf(activePageId);
+    if (currentIndex === -1) return;
+
+    const nextIndex = distanceX < 0
+      ? currentIndex + 1
+      : currentIndex - 1;
+
+    if (nextIndex >= 0 && nextIndex < mainPageOrder.length) {
+      showPage(mainPageOrder[nextIndex]);
+    }
+  }, { passive: true });
+
+  // Close any open ellipsis menu when the user taps elsewhere.
+  document.addEventListener("click", event => {
+    document.querySelectorAll("details.overflow-menu[open]").forEach(menu => {
+      if (!menu.contains(event.target)) menu.removeAttribute("open");
+    });
+
+    const filterControl = document.querySelector(".weight-filter-control");
+    const filterOptions = document.getElementById("weightFilterOptions");
+    const filterToggle = document.getElementById("toggleWeightFilters");
+
+    if (
+      filterControl &&
+      filterOptions &&
+      !filterControl.contains(event.target)
+    ) {
+      filterOptions.hidden = true;
+      filterToggle?.setAttribute("aria-expanded", "false");
+    }
+
+    if (
+      event.target.closest("button, summary") &&
+      typeof navigator.vibrate === "function"
+    ) {
+      navigator.vibrate(8);
+    }
+  });
+
+  </script>
+
+  <script src="storage.js?v=4"></script>
+  <script src="dashboard.js?v=17"></script>
+  <script src="library.js?v=24"></script>
+  <script src="programme-editor.js?v=18"></script>
+  <script src="workout-session.js?v=15"></script>
+  <script src="workout-history.js?v=11"></script>
+  <script src="profile.js?v=8"></script>
+  <script src="measurements.js?v=3"></script>
+  <script src="data-management.js?v=3"></script>
+  <script src="onboarding.js?v=1"></script>
+
+</body>
+</html>
